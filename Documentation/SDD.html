@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Software Design Document</title>
+</head>
+<body>
+<h1>Scanner Software Design Document</h1>
+
+<p>
+    Bob Laskowski<br>
+    Compilers I<br>
+    Dr. Erik Steinmetz<br>
+    12/13/2016<br>
+<hr>
+<h3><u>Introduction</u></h3>
+<p>This program users JFlex to create a Scanner. JFlex takes in a particular language and grammar defined by the user
+    with regular expressions and converts it into java source code. The Scanner is designed to scan our modified version
+    of Mini-pascal. It will take in a text file and output tokens to be used later in the actual compiler.</p>
+<hr>
+<h3><u>Design</u></h3>
+The design is rather simple. See Figure 1 for a diagram of all classes and relationships. There will be a Scanner.flex
+file that contains the JFlex code. I will then run this code through JFlex to generate a MyScanner.java file. For
+testing purposes there will be several text input files that contain sample Mini-pascal code, plain text, a list of
+symbols, a list of numbers and IDs, and several incorrectly formatted items for the scanner to parse. These can be found
+in the Input folder. The Scanner will properly parse all but the error input file. When the Scanner encounters errors it
+will display an error message and exit the program.<br><br>
+
+There will also be Token.java and Type.java classes. Token defines a Token object which contains a string with the
+actual lexeme and a Type. The Type is an enumerated type defined in the Type class. There is a Type for each keyword,
+symbol as well as types for ID and number. See below for a list of symbols and keywords in Mini-pascal.<br><br>
+
+The scanner will recognize the following keywords and symbols:<br><br>
+<u>KEYWORDS</u>
+<ol>
+    <li>and</li>
+    <li>array</li>
+    <li>begin</li>
+    <li>div</li>
+    <li>do</li>
+    <li>else</li>
+    <li>end</li>
+    <li>function</li>
+    <li>if</li>
+    <li>integer</li>
+    <li>mod</li>
+    <li>not</li>
+    <li>of</li>
+    <li>or</li>
+    <li>procedure</li>
+    <li>program</li>
+    <li>real</li>
+    <li>then</li>
+    <li>var</li>
+    <li>while</li>
+</ol>
+
+<u>SYMBOLS</u>
+<ol>
+    <li>;</li>
+    <li>,</li>
+    <li>.</li>
+    <li>:</li>
+    <li>[</li>
+    <li>]</li>
+    <li>(</li>
+    <li>)</li>
+    <li>+</li>
+    <li>-</li>
+    <li>=</li>
+    <li><></li>
+    <li><</li>
+    <li><=</li>
+    <li>></li>
+    <li>>=</li>
+    <li>*</li>
+    <li>/</li>
+    <li>:=</li>
+</ol>
+
+The lexical rules the scanner follows can be found in the following document: <a href="Grammar.pdf" target="_blank">The
+    Grammar</a>
+
+<hr>
+<h3><u>Functionality</u></h3>
+To use the scanner, compile the .java files to get .class files. Run this from the command line or through an IDE with a
+text file as the first and only command line argument. The main function takes this file as input. The program will
+output the tokens recognized to standard out. Ideally this text file should contain a Mini-pascal program.<br><br>
+
+The following is an example of a Mini-pascal program that calculates the greatest common divisor of two integers
+recursively: <br><br>
+
+<code>
+
+    program example(input, output);<br>
+    var x, y: integer;<br>
+    function gcd(a, b: integer): integer;<br>
+    begin
+    <ul style="list-style: none;">
+        <li>if b=0 then gcd:=a</li>
+        <li>else gcd:=gcd(b, a mod b)</li>
+    </ul>
+    end;<br>
+    begin
+    <ul style="list-style: none;">
+        <li>read(x,y);</li>
+        <li>write(gcd(x,y))</li>
+    </ul>
+    end.<br><br>
+
+</code>
+
+<hr>
+<h3><u>Figures</u></h3>
+<img src="Scanner_diagram.png" alt="Scanner diagram">Figure 1
+<hr>
+<h3><u>Change Log</u></h3>
+<ul>
+    <li>12/6/2016 9:11PM - Initial Creation of document with different sections</li>
+    <li>12/7/2016 9:46PM - Added basic intro, design and functionality for first iteration</li>
+    <li>12/13/2016 5:33PM - Added more detailed information about all java files and added diagram</li>
+</ul>
+<p>
+
+
+</body>
+</html>
