@@ -1,4 +1,4 @@
-/*
+/**
  * Bob Laskowski
  * Compilers I
  * Dr. Erik Steinmetz
@@ -8,6 +8,8 @@
  */
 
 /* Import statements */
+package Scanner;
+
 import java.util.HashMap;
 
 %%

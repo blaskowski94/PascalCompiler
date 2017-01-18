@@ -1,4 +1,6 @@
-package Scanner; /**
+package Scanner;
+
+/**
  * Bob Laskowski
  * Compilers I
  * Dr. Erik Steinmetz
