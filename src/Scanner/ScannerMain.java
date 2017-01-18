@@ -20,6 +20,7 @@ public class ScannerMain {
     public static void main(String[] args) {
         // The file from the command line argument
         String filename = args[0];
+        System.out.println(filename);
 
         // Create the FileInputStream
         FileInputStream fis = null;
