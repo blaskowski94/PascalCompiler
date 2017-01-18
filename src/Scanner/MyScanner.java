@@ -2,9 +2,9 @@
 
 /**
  * Bob Laskowski
- * Compilers I
+ * Compilers II
  * Dr. Erik Steinmetz
- * December 13th, 2016
+ * January 17th, 2017
  *
  * This is a JFlex lexer definition for a Mini-Pascal scanner
  */
@@ -26,25 +26,21 @@ public class MyScanner {
    * This character denotes the end of file
    */
   public static final int YYEOF = -1;
-  /**
-   * lexical states
-   */
+  /** lexical states */
   public static final int YYINITIAL = 0;
-  /**
-   * initial size of the lookahead buffer
-   */
+  /** initial size of the lookahead buffer */
   private static final int ZZ_BUFFERSIZE = 16384;
   /**
    * ZZ_LEXSTATE[l] is the state in the DFA for the lexical state l
    * ZZ_LEXSTATE[l+1] is the state in the DFA for the lexical state l
-   * at the beginning of a line
+   *                  at the beginning of a line
    * l is of the form l = 2*k, k a non negative integer
    */
   private static final int ZZ_LEXSTATE[] = {
           0, 0
   };
 
-  /**
+  /** 
    * Translates characters to character classes
    */
   private static final String ZZ_CMAP_PACKED =
@@ -53,7 +49,7 @@ public class MyScanner {
                   "\1\14\2\0\4\3\1\6\25\3\1\10\1\0\1\10\3\0\32\3" +
                   "\1\16\1\0\1\15\7\0\1\2\u1fa2\0\1\2\1\2\uffff\0\uffff\0\uffff\0\uffff\0\uffff\0\uffff\0\uffff\0\uffff\0\uffff\0\uffff\0\uffff\0\uffff\0\uffff\0\uffff\0\uffff\0\uffff\0\udfe6\0";
 
-  /**
+  /** 
    * Translates characters to character classes
    */
   private static final char[] ZZ_CMAP = zzUnpackCMap(ZZ_CMAP_PACKED);
@@ -98,47 +94,27 @@ public class MyScanner {
    * ZZ_ATTRIBUTE[aState] contains the attributes of state <code>aState</code>
    */
   private static final int[] ZZ_ATTRIBUTE = zzUnpackAttribute();
-  /**
-   * the input device
-   */
+  /** the input device */
   private java.io.Reader zzReader;
-  /**
-   * the current state of the DFA
-   */
+  /** the current state of the DFA */
   private int zzState;
-  /**
-   * the current lexical state
-   */
+  /** the current lexical state */
   private int zzLexicalState = YYINITIAL;
-  /**
-   * this buffer contains the current text to be matched and is
-   * the source of the yytext() string
-   */
+  /** this buffer contains the current text to be matched and is
+   the source of the yytext() string */
   private char zzBuffer[] = new char[ZZ_BUFFERSIZE];
-  /**
-   * the textposition at the last accepting state
-   */
+  /** the textposition at the last accepting state */
   private int zzMarkedPos;
-  /**
-   * the current text position in the buffer
-   */
+  /** the current text position in the buffer */
   private int zzCurrentPos;
-  /**
-   * startRead marks the beginning of the yytext() string in the buffer
-   */
+  /** startRead marks the beginning of the yytext() string in the buffer */
   private int zzStartRead;
-  /**
-   * endRead marks the last character in the buffer, that has been read
-   * from input
-   */
+  /** endRead marks the last character in the buffer, that has been read
+   from input */
   private int zzEndRead;
-  /**
-   * number of newlines encountered up to the start of the matched text
-   */
+  /** number of newlines encountered up to the start of the matched text */
   private int yyline;
-  /**
-   * the number of characters up to the start of the matched text
-   */
+  /** the number of characters up to the start of the matched text */
   private int yychar;
   /**
    * the number of characters from the last newline up to the start of the
@@ -149,13 +125,9 @@ public class MyScanner {
    * zzAtBOL == true <=> the scanner is currently at the beginning of a line
    */
   private boolean zzAtBOL = true;
-  /**
-   * zzAtEOF == true <=> the scanner is at the EOF
-   */
+  /** zzAtEOF == true <=> the scanner is at the EOF */
   private boolean zzAtEOF;
-  /**
-   * denotes if the user-EOF-code has already been executed
-   */
+  /** denotes if the user-EOF-code has already been executed */
   private boolean zzEOFDone;
   /**
    * The number of occupied positions in zzBuffer beyond zzEndRead.
@@ -171,7 +143,7 @@ public class MyScanner {
   /**
    * Creates a new scanner
    *
-   * @param in the java.io.Reader to read input from.
+   * @param   in  the java.io.Reader to read input from.
    */
   public MyScanner(java.io.Reader in) {
     tokenTypes = new HashMap<>();
@@ -296,7 +268,7 @@ public class MyScanner {
   /**
    * Unpacks the compressed character translation table.
    *
-   * @param packed the packed character translation table
+   * @param packed   the packed character translation table
    * @return the unpacked character translation table
    */
   private static char[] zzUnpackCMap(String packed) {
@@ -327,7 +299,7 @@ public class MyScanner {
       zzFinalHighSurrogate = 0;
       System.arraycopy(zzBuffer, zzStartRead,
               zzBuffer, 0,
-                       zzEndRead - zzStartRead);
+              zzEndRead - zzStartRead);
 
       /* translate stored positions */
       zzEndRead-= zzStartRead;
@@ -339,7 +311,7 @@ public class MyScanner {
     /* is the buffer big enough? */
     if (zzCurrentPos >= zzBuffer.length - zzFinalHighSurrogate) {
       /* if not: blow it up */
-      char newBuffer[] = new char[zzBuffer.length * 2];
+      char newBuffer[] = new char[zzBuffer.length*2];
       System.arraycopy(zzBuffer, 0, newBuffer, 0, zzBuffer.length);
       zzBuffer = newBuffer;
       zzEndRead += zzFinalHighSurrogate;
@@ -373,7 +345,7 @@ public class MyScanner {
     return true;
   }
 
-
+    
   /**
    * Closes the input stream.
    */
@@ -389,19 +361,19 @@ public class MyScanner {
   /**
    * Resets the scanner to read from a new input stream.
    * Does not close the old reader.
-   * <p>
-   * All internal variables are reset, the old input stream
+   *
+   * All internal variables are reset, the old input stream 
    * <b>cannot</b> be reused (internal buffer is discarded and lost).
    * Lexical state is set to <tt>ZZ_INITIAL</tt>.
-   * <p>
+   *
    * Internal scan buffer is resized down to its initial length, if it has grown.
    *
-   * @param reader the new input stream
+   * @param reader   the new input stream 
    */
   public final void yyreset(java.io.Reader reader) {
     zzReader = reader;
     zzAtBOL = true;
-    zzAtEOF = false;
+    zzAtEOF  = false;
     zzEOFDone = false;
     zzEndRead = zzStartRead = 0;
     zzCurrentPos = zzMarkedPos = 0;
@@ -435,14 +407,14 @@ public class MyScanner {
    * Returns the text matched by the current regular expression.
    */
   public final String yytext() {
-    return new String(zzBuffer, zzStartRead, zzMarkedPos - zzStartRead);
+    return new String(zzBuffer, zzStartRead, zzMarkedPos - zzStartRead );
   }
 
 
   /**
    * Returns the character at position <tt>pos</tt> from the 
    * matched text. 
-   *
+   * 
    * It is equivalent to yytext().charAt(pos), but faster
    *
    * @param pos the position of the character to fetch. 
@@ -451,7 +423,7 @@ public class MyScanner {
    * @return the character at position pos
    */
   public final char yycharat(int pos) {
-    return zzBuffer[zzStartRead + pos];
+    return zzBuffer[zzStartRead+pos];
   }
 
 
@@ -459,7 +431,7 @@ public class MyScanner {
    * Returns the length of the matched text region.
    */
   public final int yylength() {
-    return zzMarkedPos - zzStartRead;
+    return zzMarkedPos -zzStartRead;
   }
 
 
@@ -486,7 +458,7 @@ public class MyScanner {
     }
 
     throw new Error(message);
-  }
+  } 
 
 
   /**
@@ -498,7 +470,7 @@ public class MyScanner {
    *                This number must not be greater than yylength()!
    */
   public void yypushback(int number) {
-    if (number > yylength())
+    if (number > yylength() )
       zzScanError(ZZ_PUSHBACK_2BIG);
 
     zzMarkedPos -= number;
@@ -533,20 +505,19 @@ public class MyScanner {
       zzAction = -1;
 
       zzCurrentPosL = zzCurrentPos = zzStartRead = zzMarkedPosL;
-
+  
       zzState = ZZ_LEXSTATE[zzLexicalState];
 
       // set up zzAction for empty match case:
       int zzAttributes = zzAttrL[zzState];
-      if ((zzAttributes & 1) == 1) {
+      if ((zzAttributes & 1) == 1 ) {
         zzAction = zzState;
       }
 
 
-      zzForAction:
-      {
+      zzForAction: {
         while (true) {
-
+    
           if (zzCurrentPosL < zzEndReadL) {
             zzInput = Character.codePointAt(zzBufferL, zzCurrentPosL, zzEndReadL);
             zzCurrentPosL += Character.charCount(zzInput);
@@ -571,12 +542,12 @@ public class MyScanner {
               zzCurrentPosL += Character.charCount(zzInput);
             }
           }
-          int zzNext = zzTransL[zzRowMapL[zzState] + zzCMapL[zzInput]];
+          int zzNext = zzTransL[zzRowMapL[zzState] + zzCMapL[zzInput] ];
           if (zzNext == -1) break zzForAction;
           zzState = zzNext;
 
           zzAttributes = zzAttrL[zzState];
-          if ((zzAttributes & 1) == 1) {
+          if ((zzAttributes & 1) == 1 ) {
             zzAction = zzState;
             zzMarkedPosL = zzCurrentPosL;
             if ((zzAttributes & 8) == 8) break zzForAction;

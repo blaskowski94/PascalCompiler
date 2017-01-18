@@ -2,9 +2,9 @@ package Scanner;
 
 /**
  * Bob Laskowski
- * Compilers I
+ * Compilers II
  * Dr. Erik Steinmetz
- * December 13th, 2016
+ * January 17th, 2017
  * <p>
  * This enum class contains all of the different Types a token can be. There is a type for every keyword and symbol as
  * well as two types for ID and number.
