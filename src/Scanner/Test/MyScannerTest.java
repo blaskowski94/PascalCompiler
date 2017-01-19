@@ -79,9 +79,86 @@ class MyScannerTest {
 
     }
 
+    /**
+     * Tests whether the yytext function returns the correct lexeme for each token of a program. nextToken must be called
+     * before each call to yytext to advance the scanner to the next token. Before the first call and after the last
+     * call, yytext should return an empty String.
+     *
+     * @throws IOException
+     */
     @org.junit.jupiter.api.Test
-    void yytext() {
+    void yytext() throws IOException {
+        System.out.println("-----Test yytext-----");
 
+        String expRes = "";
+        System.out.println("Expected result: " + expRes);
+        String result = scanner.yytext();
+        System.out.println("Actual result: " + result);
+        assertEquals(expRes, result);
+        System.out.println("Test case 1 passed.\n");
+
+        scanner.nextToken();
+
+        expRes = "program";
+        System.out.println("Expected result: " + expRes);
+        result = scanner.yytext();
+        System.out.println("Actual result:   " + result);
+        assertEquals(expRes, result);
+        System.out.println("Test case 2 passed.\n");
+
+        scanner.nextToken();
+
+        expRes = "foo";
+        System.out.println("Expected result: " + expRes);
+        result = scanner.yytext();
+        System.out.println("Actual result:   " + result);
+        assertEquals(expRes, result);
+        System.out.println("Test case 3 passed.\n");
+
+        scanner.nextToken();
+
+        expRes = ";";
+        System.out.println("Expected result: " + expRes);
+        result = scanner.yytext();
+        System.out.println("Actual result:   " + result);
+        assertEquals(expRes, result);
+        System.out.println("Test case 4 passed.\n");
+
+        scanner.nextToken();
+
+        expRes = "begin";
+        System.out.println("Expected result: " + expRes);
+        result = scanner.yytext();
+        System.out.println("Actual result:   " + result);
+        assertEquals(expRes, result);
+        System.out.println("Test case 5 passed.\n");
+
+        scanner.nextToken();
+
+        expRes = "end";
+        System.out.println("Expected result: " + expRes);
+        result = scanner.yytext();
+        System.out.println("Actual result:   " + result);
+        assertEquals(expRes, result);
+        System.out.println("Test case 6 passed.\n");
+
+        scanner.nextToken();
+
+        expRes = ".";
+        System.out.println("Expected result: " + expRes);
+        result = scanner.yytext();
+        System.out.println("Actual result:   " + result);
+        assertEquals(expRes, result);
+        System.out.println("Test case 7 passed.\n");
+
+        scanner.nextToken();
+
+        expRes = "";
+        System.out.println("Expected result: " + expRes);
+        result = scanner.yytext();
+        System.out.println("Actual result:   " + result);
+        assertEquals(expRes, result);
+        System.out.println("Test case 8 passed.\n");
     }
 
     @org.junit.jupiter.api.Test
@@ -107,71 +184,55 @@ class MyScannerTest {
     @org.junit.jupiter.api.Test
     void nextToken() throws IOException {
         System.out.println("-----Test nextToken-----");
-        String expLex = "program";
-        System.out.println("Expected lex: " + expLex);
-        Type expType = Type.PROGRAM;
-        System.out.println("Expected type: " + expType);
+        Token expRes = new Token("program", Type.PROGRAM);
+        System.out.println("Expected result: " + expRes);
         Token result = scanner.nextToken();
-        System.out.println("Actual lex: " + result.getLexeme());
-        System.out.println("Actual type: " + result.getType());
-        assertEquals(expLex, result.getLexeme());
-        assertEquals(expType, result.getType());
+        System.out.println("Actual result:   " + result);
+        assertEquals(expRes, result);
         System.out.println("Test case 1 pass.\n");
 
-        expLex = "foo";
-        System.out.println("Expected lex: " + expLex);
-        expType = Type.ID;
-        System.out.println("Expected type: " + expType);
+        expRes = new Token("foo", Type.ID);
+        System.out.println("Expected result: " + expRes);
         result = scanner.nextToken();
-        System.out.println("Actual lex: " + result.getLexeme());
-        System.out.println("Actual type: " + result.getType());
-        assertEquals(expLex, result.getLexeme());
-        assertEquals(expType, result.getType());
+        System.out.println("Actual result:   " + result);
+        assertEquals(expRes, result);
         System.out.println("Test case 2 pass.\n");
 
-        expLex = ";";
-        System.out.println("Expected lex: " + expLex);
-        expType = Type.SEMI;
-        System.out.println("Expected type: " + expType);
+        expRes = new Token(";", Type.SEMI);
+        System.out.println("Expected result: " + expRes);
         result = scanner.nextToken();
-        System.out.println("Actual lex: " + result.getLexeme());
-        System.out.println("Actual type: " + result.getType());
-        assertEquals(expLex, result.getLexeme());
-        assertEquals(expType, result.getType());
+        System.out.println("Actual result:   " + result);
+        assertEquals(expRes, result);
         System.out.println("Test case 3 pass.\n");
 
-        expLex = "begin";
-        System.out.println("Expected lex: " + expLex);
-        expType = Type.BEGIN;
-        System.out.println("Expected type: " + expType);
+        expRes = new Token("begin", Type.BEGIN);
+        System.out.println("Expected result: " + expRes);
         result = scanner.nextToken();
-        System.out.println("Actual lex: " + result.getLexeme());
-        System.out.println("Actual type: " + result.getType());
-        assertEquals(expLex, result.getLexeme());
-        assertEquals(expType, result.getType());
+        System.out.println("Actual result:   " + result);
+        assertEquals(expRes, result);
         System.out.println("Test case 4 pass.\n");
 
-        expLex = "end";
-        System.out.println("Expected lex: " + expLex);
-        expType = Type.END;
-        System.out.println("Expected type: " + expType);
+        expRes = new Token("end", Type.END);
+        System.out.println("Expected result: " + expRes);
         result = scanner.nextToken();
-        System.out.println("Actual lex: " + result.getLexeme());
-        System.out.println("Actual type: " + result.getType());
-        assertEquals(expLex, result.getLexeme());
-        assertEquals(expType, result.getType());
+        System.out.println("Actual result:   " + result);
+        assertEquals(expRes, result);
         System.out.println("Test case 5 pass.\n");
 
-        expLex = ".";
-        System.out.println("Expected lex: " + expLex);
-        expType = Type.PERIOD;
-        System.out.println("Expected type: " + expType);
+        expRes = new Token(".", Type.PERIOD);
+        System.out.println("Expected result: " + expRes);
         result = scanner.nextToken();
-        System.out.println("Actual lex: " + result.getLexeme());
-        System.out.println("Actual type: " + result.getType());
-        assertEquals(expLex, result.getLexeme());
-        assertEquals(expType, result.getType());
+        System.out.println("Actual result:   " + result);
+        assertEquals(expRes, result);
         System.out.println("Test case 6 pass.\n");
+
+        // EOF value should be null
+        expRes = null;
+        System.out.println("Expected result: " + expRes);
+        result = scanner.nextToken();
+        System.out.println("Actual result:   " + result);
+        assertEquals(expRes, result);
+        System.out.println("Test case 7 pass.\n");
 
         System.out.println("All nextToken tests PASSED.\n");
     }

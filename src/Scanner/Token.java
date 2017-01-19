@@ -29,6 +29,20 @@ public class Token {
 
     @Override
     public String toString() {
-        return "Type: " + this.type + " Lexeme: " + this.lexeme;
+        return "Type: " + this.type + ", Lexeme: " + this.lexeme;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (!Token.class.isAssignableFrom(obj.getClass())) {
+            return false;
+        }
+        final Token other = (Token) obj;
+        if (this.lexeme.equals(other.getLexeme()) && this.type.equals(other.getType()))
+            return true;
+        return false;
     }
 }
