@@ -1,13 +1,15 @@
-/*
+/**
  * Bob Laskowski
- * Compilers I
+ * Compilers II
  * Dr. Erik Steinmetz
- * December 13th, 2016
+ * January 17th, 2017
  *
  * This is a JFlex lexer definition for a Mini-Pascal scanner
  */
 
 /* Import statements */
+package Scanner;
+
 import java.util.HashMap;
 
 %%
