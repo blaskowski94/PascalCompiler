@@ -60,31 +60,12 @@ class MyScannerTest {
         scanner = null;
     }
 
-    @org.junit.jupiter.api.Test
-    void yyclose() {
-    }
-
-    @org.junit.jupiter.api.Test
-    void yyreset() {
-
-    }
-
-    @org.junit.jupiter.api.Test
-    void yystate() {
-
-    }
-
-    @org.junit.jupiter.api.Test
-    void yybegin() {
-
-    }
-
     /**
      * Tests whether the yytext function returns the correct lexeme for each token of a program. nextToken must be called
      * before each call to yytext to advance the scanner to the next token. Before the first call and after the last
      * call, yytext should return an empty String.
      *
-     * @throws IOException
+     * @throws IOException if any I/O-Error occurs
      */
     @org.junit.jupiter.api.Test
     void yytext() throws IOException {
@@ -161,25 +142,10 @@ class MyScannerTest {
         System.out.println("Test case 8 passed.\n");
     }
 
-    @org.junit.jupiter.api.Test
-    void yycharat() {
-
-    }
-
-    @org.junit.jupiter.api.Test
-    void yylength() {
-
-    }
-
-    @org.junit.jupiter.api.Test
-    void yypushback() {
-
-    }
-
     /**
      * Tests whether the next token returned is the expected lexeme and Type.
      *
-     * @throws IOException
+     * @throws IOException if any I/O-Error occurs
      */
     @org.junit.jupiter.api.Test
     void nextToken() throws IOException {
