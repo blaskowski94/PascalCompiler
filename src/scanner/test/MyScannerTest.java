@@ -1,8 +1,8 @@
-package Scanner.Test;
+package scanner.test;
 
-import Scanner.MyScanner;
-import Scanner.Token;
-import Scanner.Type;
+import scanner.MyScanner;
+import scanner.Token;
+import scanner.Type;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -29,7 +29,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class MyScannerTest {
 
-    private final String filename = "src/Scanner/Test/simplest.pas";
+    private final String filename = "src/scanner/test/simplest.pas";
     private MyScanner scanner;
 
     /**
@@ -69,14 +69,14 @@ class MyScannerTest {
      */
     @org.junit.jupiter.api.Test
     void yytext() throws IOException {
-        System.out.println("-----Test yytext-----");
+        System.out.println("-----test yytext-----");
 
         String expRes = "";
         System.out.println("Expected result: " + expRes);
         String result = scanner.yytext();
         System.out.println("Actual result: " + result);
         assertEquals(expRes, result);
-        System.out.println("Test case 1 passed.\n");
+        System.out.println("test case 1 passed.\n");
 
         scanner.nextToken();
 
@@ -85,7 +85,7 @@ class MyScannerTest {
         result = scanner.yytext();
         System.out.println("Actual result:   " + result);
         assertEquals(expRes, result);
-        System.out.println("Test case 2 passed.\n");
+        System.out.println("test case 2 passed.\n");
 
         scanner.nextToken();
 
@@ -94,7 +94,7 @@ class MyScannerTest {
         result = scanner.yytext();
         System.out.println("Actual result:   " + result);
         assertEquals(expRes, result);
-        System.out.println("Test case 3 passed.\n");
+        System.out.println("test case 3 passed.\n");
 
         scanner.nextToken();
 
@@ -103,7 +103,7 @@ class MyScannerTest {
         result = scanner.yytext();
         System.out.println("Actual result:   " + result);
         assertEquals(expRes, result);
-        System.out.println("Test case 4 passed.\n");
+        System.out.println("test case 4 passed.\n");
 
         scanner.nextToken();
 
@@ -112,7 +112,7 @@ class MyScannerTest {
         result = scanner.yytext();
         System.out.println("Actual result:   " + result);
         assertEquals(expRes, result);
-        System.out.println("Test case 5 passed.\n");
+        System.out.println("test case 5 passed.\n");
 
         scanner.nextToken();
 
@@ -121,7 +121,7 @@ class MyScannerTest {
         result = scanner.yytext();
         System.out.println("Actual result:   " + result);
         assertEquals(expRes, result);
-        System.out.println("Test case 6 passed.\n");
+        System.out.println("test case 6 passed.\n");
 
         scanner.nextToken();
 
@@ -130,7 +130,7 @@ class MyScannerTest {
         result = scanner.yytext();
         System.out.println("Actual result:   " + result);
         assertEquals(expRes, result);
-        System.out.println("Test case 7 passed.\n");
+        System.out.println("test case 7 passed.\n");
 
         scanner.nextToken();
 
@@ -139,7 +139,7 @@ class MyScannerTest {
         result = scanner.yytext();
         System.out.println("Actual result:   " + result);
         assertEquals(expRes, result);
-        System.out.println("Test case 8 passed.\n");
+        System.out.println("test case 8 passed.\n");
     }
 
     /**
@@ -149,48 +149,48 @@ class MyScannerTest {
      */
     @org.junit.jupiter.api.Test
     void nextToken() throws IOException {
-        System.out.println("-----Test nextToken-----");
+        System.out.println("-----test nextToken-----");
         Token expRes = new Token("program", Type.PROGRAM);
         System.out.println("Expected result: " + expRes);
         Token result = scanner.nextToken();
         System.out.println("Actual result:   " + result);
         assertEquals(expRes, result);
-        System.out.println("Test case 1 pass.\n");
+        System.out.println("test case 1 pass.\n");
 
         expRes = new Token("foo", Type.ID);
         System.out.println("Expected result: " + expRes);
         result = scanner.nextToken();
         System.out.println("Actual result:   " + result);
         assertEquals(expRes, result);
-        System.out.println("Test case 2 pass.\n");
+        System.out.println("test case 2 pass.\n");
 
         expRes = new Token(";", Type.SEMI);
         System.out.println("Expected result: " + expRes);
         result = scanner.nextToken();
         System.out.println("Actual result:   " + result);
         assertEquals(expRes, result);
-        System.out.println("Test case 3 pass.\n");
+        System.out.println("test case 3 pass.\n");
 
         expRes = new Token("begin", Type.BEGIN);
         System.out.println("Expected result: " + expRes);
         result = scanner.nextToken();
         System.out.println("Actual result:   " + result);
         assertEquals(expRes, result);
-        System.out.println("Test case 4 pass.\n");
+        System.out.println("test case 4 pass.\n");
 
         expRes = new Token("end", Type.END);
         System.out.println("Expected result: " + expRes);
         result = scanner.nextToken();
         System.out.println("Actual result:   " + result);
         assertEquals(expRes, result);
-        System.out.println("Test case 5 pass.\n");
+        System.out.println("test case 5 pass.\n");
 
         expRes = new Token(".", Type.PERIOD);
         System.out.println("Expected result: " + expRes);
         result = scanner.nextToken();
         System.out.println("Actual result:   " + result);
         assertEquals(expRes, result);
-        System.out.println("Test case 6 pass.\n");
+        System.out.println("test case 6 pass.\n");
 
         // EOF value should be null
         expRes = null;
@@ -198,7 +198,7 @@ class MyScannerTest {
         result = scanner.nextToken();
         System.out.println("Actual result:   " + result);
         assertEquals(expRes, result);
-        System.out.println("Test case 7 pass.\n");
+        System.out.println("test case 7 pass.\n");
 
         System.out.println("All nextToken tests PASSED.\n");
     }

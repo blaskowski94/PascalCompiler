@@ -1,4 +1,4 @@
-package Scanner;
+package scanner;
 
 /**
  * Bob Laskowski
@@ -8,7 +8,7 @@ package Scanner;
  *
  * This class contains the main method that drives our scanner. It takes in a text file to parse as a command line
  * argument. A FileInputStream and an InputStreamReader are used to read from the file. A MyScanner object is created
- * using our scanner definition defined in Scanner.flex. The scanner is designed to parse Mini-pascal.
+ * using our scanner definition defined in scanner.flex. The scanner is designed to parse Mini-pascal.
  */
 
 import java.io.FileInputStream;
