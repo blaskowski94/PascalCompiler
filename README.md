@@ -1,5 +1,5 @@
 #DESCRIPTION
-This project is a Scanner for the Mini-Pascal language, written in Java and using JFlex.
+This project is a scanner for the Mini-Pascal language, written in Java and using JFlex.
 
 The program can be run from the command line by compiling all the .java files with javac and then running:
 

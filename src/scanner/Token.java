@@ -1,4 +1,4 @@
-package Scanner;
+package scanner;
 
 /**
  * Bob Laskowski

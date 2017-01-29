@@ -5,7 +5,7 @@
     <title>Software Design Document</title>
 </head>
 <body>
-<h1>Scanner Software Design Document</h1>
+<h1>scanner Software Design Document</h1>
 
 <p>
     Bob Laskowski<br>
@@ -14,16 +14,16 @@
     1/17/2017<br>
 <hr>
 <h3><u>Introduction</u></h3>
-<p>This program users JFlex to create a Scanner. JFlex takes in a particular language and grammar defined by the user
-    with regular expressions and converts it into java source code. The Scanner is designed to scan our modified version
+<p>This program users JFlex to create a scanner. JFlex takes in a particular language and grammar defined by the user
+    with regular expressions and converts it into java source code. The scanner is designed to scan our modified version
     of Mini-pascal. It will take in a text file and output tokens to be used later in the actual compiler.</p>
 <hr>
 <h3><u>Design</u></h3>
-The design is rather simple. See Figure 1 for a diagram of all classes and relationships. There will be a Scanner.flex
+The design is rather simple. See Figure 1 for a diagram of all classes and relationships. There will be a scanner.flex
 file that contains the JFlex code. I will then run this code through JFlex to generate a MyScanner.java file. For
 testing purposes there will be several text input files that contain sample Mini-pascal code, plain text, a list of
 symbols, a list of numbers and IDs, and several incorrectly formatted items for the scanner to parse. These can be found
-in the Input folder. The Scanner will properly parse all but the error input file. When the Scanner encounters errors it
+in the Input folder. The scanner will properly parse all but the error input file. When the scanner encounters errors it
 will display an error message and exit the program.<br><br>
 
 There will also be Token.java and Type.java classes. Token defines a Token object which contains a string with the
@@ -114,12 +114,12 @@ recursively: <br><br>
 
 <h3><u>Testing</u></h3>
 <p>For testing of the scanner I will be using JUnit5. The testing can be found in the Test package inside of the
-    Scanner package.</p>
+    scanner package.</p>
 <hr>
 
 <h3><u>Figures</u></h3>
 <figure>
-    <img src="Scanner_diagram.png" alt="Scanner diagram" width="1500" height="1255">
+    <img src="Scanner_diagram.png" alt="scanner diagram" width="1500" height="1255">
     <figcaption style="text-align: center;">Figure 1</figcaption>
 </figure>
 
