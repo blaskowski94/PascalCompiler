@@ -11,6 +11,5 @@ begin
     else
         fo := 26
 ;
-    write(fo)
 end
 .
