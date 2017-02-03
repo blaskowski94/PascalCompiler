@@ -4,19 +4,24 @@ import scanner.MyScanner;
 import scanner.Token;
 import scanner.Type;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
+
+import static scanner.Type.*;
 
 /**
- * The parser recognizes whether an input string of tokens
- * is a valid Mini-Pascal program as defined in the grammar.
+ * Bob Laskowski
+ * Compilers II
+ * Dr. Erik Steinmetz
+ * February 3rd, 2017
  * <p>
- * To use a parser, create an instance pointing at a file,
- * and then call the top-level function, <code>exp()</code>.
- * If the functions returns without an error, the file
- * contains an acceptable expression.
+ * The parser recognizes whether an input string of tokens is a valid Mini-Pascal program as defined in the grammar.
+ * <p>
+ * To use a parser, create an instance pointing at a file or a String of code, and then call the top-level function,
+ * <code>program()</code>. If the functions returns without an error, the file contains an acceptable expression.
+ * <p>
+ * The terminal symbols described in the grammar rule are denoted in <b>bold</b> and the non-terminal symbols are
+ * regular text. Options are denoted with a vertical bar |. An empty option is denoted "lambda." See the grammar in
+ * the documentation folder for more information on definitions.
  *
  * @author Bob Laskowski
  */
@@ -27,146 +32,186 @@ public class Parser {
     ///////////////////////////////
 
     private Token lookahead;
-
-    private MyScanner scanner;
+    private MyScanner scanny;
 
     ///////////////////////////////
     //       Constructors
     ///////////////////////////////
 
-    public Parser(String filename) {
-        FileInputStream fis = null;
-        try {
-            fis = new FileInputStream(filename);
-        } catch (FileNotFoundException ex) {
-            error("No file");
+    /**
+     * Creates a new Parser object to parse either a file or a String input. The boolean value passed in is true
+     * if a file path is being passed in as the String and false if pascal code is passed in as the String.
+     *
+     * @param input Either a filename in src/parser/test or a String to parse
+     * @param file  Make true if using file as input, false if using String
+     */
+    public Parser(String input, boolean file) {
+        InputStreamReader isr;
+
+        if (file) {
+            FileInputStream fis = null;
+            try {
+                fis = new FileInputStream(input);
+            } catch (FileNotFoundException ex) {
+                error("No file");
+            }
+            isr = new InputStreamReader(fis);
+            scanny = new MyScanner(isr);
+        } else {
+            scanny = new MyScanner(new StringReader(input));
         }
-        InputStreamReader isr = new InputStreamReader(fis);
-        scanner = new MyScanner(isr);
 
         try {
-            lookahead = scanner.nextToken();
+            lookahead = scanny.nextToken();
         } catch (IOException ex) {
             error("Scan error");
         }
-
     }
 
     ///////////////////////////////
     //       Methods
     ///////////////////////////////
 
-    public void program() {
-        // Program header: program id;
-        if (lookahead.getType() == Type.PROGRAM)
-            match(Type.PROGRAM);
-        else
-            error("program 1");
-        if (lookahead.getType() == Type.ID)
-            match(Type.ID);
-        else
-            error("program 2");
-        if (lookahead.getType() == Type.SEMI)
-            match(Type.SEMI);
-        else
-            error("program 3");
+    /**
+     * Determines whether the given Type passed in is a relational operator. Relational operators include:
+     * =, !=, <, <=, >, >=
+     * <p>
+     * Function is normally called by getting Type of a token: isRelOp(someToken.getType())
+     *
+     * @param t The Type of a Token from the Type Enum
+     * @return True if Type is a relop, false otherwise
+     */
+    private static boolean isRelOp(Type t) {
+        return t == EQUAL || t == NOTEQ || t == LTHAN || t == LTHANEQ || t == GTHANEQ || t == GTHAN;
+    }
 
+    /**
+     * Determines whether the given Type passed in is a add operator. Add operators include: +, -, or
+     * <p>
+     * Function is normally called by getting Type of a token: isAddOp(someToken.getType())
+     *
+     * @param t The Type of a Token from the Type Enum
+     * @return True if Type is a addop, false otherwise
+     */
+    private static boolean isAddOp(Type t) {
+        return t == PLUS || t == MINUS || t == OR;
+    }
+
+    /**
+     * Determines whether the given Type passed in is a multiplication operator. Multiplication operators include:
+     * *, /, div, mod, and
+     * <p>
+     * Function is normally called by getting Type of a token: isMulOp(someToken.getType())
+     *
+     * @param t The Type of a Token from the Type Enum
+     * @return True if Type is a mulop, false otherwise
+     */
+    private static boolean isMulOp(Type t) {
+        return t == ASTERISK || t == FSLASH || t == DIV || t == MOD || t == AND;
+    }
+
+    /**
+     * A program contains the following:
+     * <p>
+     * <b>program id ;</b>
+     * declarations
+     * subprogram_declarations
+     * compound_statement
+     * <b>.</b>
+     */
+    public void program() {
+        match(PROGRAM);
+        match(ID);
+        match(SEMI);
         declarations();
         subprogram_declarations();
         compound_statement();
-
-        if (lookahead.getType() == Type.PERIOD)
-            match(Type.PERIOD);
-        else
-            error("program 4");
+        match(PERIOD);
     }
 
+    /**
+     * An identifier_list contains the following:
+     * <p>
+     * <b>id</b> | <b>id , </b> identifier_list
+     */
     public void identifier_list() {
-        if (lookahead.getType() == Type.ID) {
-            match(Type.ID);
-            if (lookahead.getType() == Type.COMMA) {
-                match(Type.COMMA);
-                identifier_list();
-            }
-        } else
-            error("identifier_list 2");
-    }
-
-    public void declarations() {
-        if (lookahead.getType() == Type.VAR) {
-            match(Type.VAR);
+        match(ID);
+        if (lookahead.getType() == COMMA) {
+            match(COMMA);
             identifier_list();
-            if (lookahead.getType() == Type.COLON) {
-                match(Type.COLON);
-                type();
-                if (lookahead.getType() == Type.SEMI) {
-                    match(Type.SEMI);
-                    declarations();
-                } else
-                    error("declarations 2");
-            } else
-                error("declarations 1");
-        } else {
-            // lambda case
         }
+        // else lambda case
     }
 
+    /**
+     * Declarations contain the following:
+     * <p>
+     * <b>var</b> identifier_list <b>:</b> type <b>;</b> declarations | lambda
+     */
+    public void declarations() {
+        if (lookahead.getType() == VAR) {
+            match(VAR);
+            identifier_list();
+            match(COLON);
+            type();
+            match(SEMI);
+            declarations();
+        }
+        // else lambda case
+    }
+
+    /**
+     * A type contains the following:
+     * <p>
+     * standard_type | <b>array[num:num] of</b> standard_type
+     */
     public void type() {
-        if (lookahead.getType() == Type.ARRAY) {
-            match(Type.ARRAY);
-            if (lookahead.getType() == Type.LBRACE) {
-                match(Type.LBRACE);
-                if (lookahead.getType() == Type.NUMBER) {
-                    match(Type.NUMBER);
-                    if (lookahead.getType() == Type.COLON) {
-                        match(Type.COLON);
-                        if (lookahead.getType() == Type.NUMBER) {
-                            match(Type.NUMBER);
-                            if (lookahead.getType() == Type.RBRACE) {
-                                match(Type.RBRACE);
-                                if (lookahead.getType() == Type.OF) {
-                                    match(Type.OF);
-                                    standard_type();
-                                } else
-                                    error("type 6");
-                            } else
-                                error("type 5");
-                        } else
-                            error("type 4");
-                    } else
-                        error("type 3");
-                } else
-                    error("type 2");
-            } else
-                error("type 1");
-        } else if (lookahead.getType() == Type.INTEGER || lookahead.getType() == Type.REAL)
+        if (lookahead.getType() == ARRAY) {
+            match(ARRAY);
+            match(LBRACE);
+            match(NUMBER);
+            match(COLON);
+            match(NUMBER);
+            match(RBRACE);
+            match(OF);
             standard_type();
-        else
-            error("type 7");
+        } else if (lookahead.getType() == INTEGER || lookahead.getType() == REAL) standard_type();
+        else error("type 7");
     }
 
+    /**
+     * A standard_type contains the following:
+     * <p>
+     * <b>integer</b> | <b>real</b>
+     */
     public void standard_type() {
-        if (lookahead.getType() == Type.INTEGER)
-            match(Type.INTEGER);
-        else if (lookahead.getType() == Type.REAL)
-            match(Type.REAL);
-        else
-            error("standard_type");
+        if (lookahead.getType() == INTEGER) match(INTEGER);
+        else if (lookahead.getType() == REAL) match(REAL);
+        else error("standard_type");
     }
 
+    /**
+     * Subprogram_declarations contain the following:
+     * <p>
+     * subprogram_declaration <b>;</b> subprogram_declarations | lambda
+     */
     public void subprogram_declarations() {
-        if (lookahead.getType() == Type.FUNCTION || lookahead.getType() == Type.PROCEDURE) {
+        if (lookahead.getType() == FUNCTION || lookahead.getType() == PROCEDURE) {
             subprogram_declaration();
-            if (lookahead.getType() == Type.SEMI) {
-                match(Type.SEMI);
-                subprogram_declarations();
-            } else
-                error("subprogram_declarations");
-        } else {
-            // lambda case
+            match(SEMI);
+            subprogram_declarations();
         }
+        // else lambda case
     }
 
+    /**
+     * A subprogram_declaration contains the following:
+     * <p>
+     * subprogram_head
+     * declarations
+     * subprogram_declarations
+     * compound_statement
+     */
     public void subprogram_declaration() {
         subprogram_head();
         declarations();
@@ -174,295 +219,299 @@ public class Parser {
         compound_statement();
     }
 
+    /**
+     * A subprogram_head contains the following:
+     * <p>
+     * <b>function id</b> arguments <b>:</b> standard_type <b>;</b> |
+     * <b>procedure id</b> arguments <b>;</b>
+     */
     public void subprogram_head() {
-        if (lookahead.getType() == Type.FUNCTION) {
-            match(Type.FUNCTION);
-            if (lookahead.getType() == Type.ID) {
-                match(Type.ID);
-                arguments();
-                if (lookahead.getType() == Type.COLON) {
-                    match(Type.COLON);
-                    standard_type();
-                    if (lookahead.getType() == Type.SEMI)
-                        match(Type.SEMI);
-                    else
-                        error("subprogram_head 4");
-                } else
-                    error("subprogram_head 3");
-            } else
-                error("subprogram_head 2");
-        } else if (lookahead.getType() == Type.PROCEDURE) {
-            match(Type.PROCEDURE);
-            if (lookahead.getType() == Type.ID) {
-                match(Type.ID);
-                arguments();
-                if (lookahead.getType() == Type.SEMI)
-                    match(Type.SEMI);
-                else
-                    error("subprogram_head 6");
-            } else
-                error("subprogram_head 5");
-        } else
-            error("subprogram_head 1");
+        if (lookahead.getType() == FUNCTION) {
+            match(FUNCTION);
+            match(ID);
+            arguments();
+            match(COLON);
+            standard_type();
+            match(SEMI);
+        } else if (lookahead.getType() == PROCEDURE) {
+            match(PROCEDURE);
+            match(ID);
+            arguments();
+            match(SEMI);
+        } else error("subprogram_head");
     }
 
+    /**
+     * Arguments contain the following:
+     * <p>
+     * <b>(</b> parameter_list <b>)</b> | lambda
+     */
     public void arguments() {
-        if (lookahead.getType() == Type.LPAREN) {
-            match(Type.LPAREN);
+        if (lookahead.getType() == LPAREN) {
+            match(LPAREN);
             parameter_list();
-            if (lookahead.getType() == Type.RPAREN)
-                match(Type.RPAREN);
-            else
-                error("arguments");
-        } else {
-            // lambda case
+            match(RPAREN);
         }
+        // else lambda case
     }
 
+    /**
+     * A parameter_list contains the following:
+     * <p>
+     * identifier_list <b>:</b> type |
+     * identifier_list <b>:</b> type <b>;</b> parameter_list
+     */
     public void parameter_list() {
-        if (lookahead.getType() == Type.ID) {
-            identifier_list();
-            if (lookahead.getType() == Type.COLON) {
-                match(Type.COLON);
-                type();
-                if (lookahead.getType() == Type.SEMI) {
-                    match(Type.SEMI);
-                    parameter_list();
-                }
-            } else
-                error("parameter_list 1");
-        } else
-            error("parameter_list 3");
+        identifier_list();
+        match(COLON);
+        type();
+        if (lookahead.getType() == SEMI) {
+            match(SEMI);
+            parameter_list();
+        }
     }
 
+    /**
+     * A compound_statement contains the following:
+     * <p>
+     * <b>begin</b> optional_statements <b>end</b>
+     */
     public void compound_statement() {
-        if (lookahead.getType() == Type.BEGIN) {
-            match(Type.BEGIN);
-            optional_statements();
-            if (lookahead.getType() == Type.END)
-                match(Type.END);
-            else
-                error("compound_statement 2");
-        } else
-            error("compound_statement 1");
+        match(BEGIN);
+        optional_statements();
+        match(END);
     }
 
+    /**
+     * Optional_statements contain the following:
+     * <p>
+     * statement_list | lambda
+     */
     public void optional_statements() {
-        if (lookahead.getType() == Type.ID || lookahead.getType() == Type.BEGIN || lookahead.getType() == Type.IF || lookahead.getType() == Type.WHILE)
+        if (lookahead.getType() == ID || lookahead.getType() == BEGIN || lookahead.getType() == IF || lookahead.getType() == WHILE)
             statement_list();
-        else {
-            // Lambda case
-        }
+        // else lambda case
     }
 
+    /**
+     * A statement_list contains the following:
+     * <p>
+     * statement_list | statement <b>;</b> statement_list
+     */
     public void statement_list() {
-        if (lookahead.getType() == Type.ID || lookahead.getType() == Type.IF || lookahead.getType() == Type.WHILE || lookahead.getType() == Type.BEGIN)
-            statement();
-        if (lookahead.getType() == Type.SEMI) {
-            match(Type.SEMI);
+        statement();
+        if (lookahead.getType() == SEMI) {
+            match(SEMI);
             statement_list();
         }
+        // else lambda case
     }
 
+    /**
+     * A statement contains the following:
+     * <p>
+     * variable <b>assignop</b> expression |
+     * procedure_statement |
+     * compound_statement |
+     * <b>if</b> expression <b>then</b> statement <b>else</b> statement |
+     * <b>while</b> expression <b>do</b> statement |
+     * read(id) |
+     * write(expression)
+     * <p>
+     * Note: for the time being we have not included procedure_statement, read(id) or write(id) in our parser. It will
+     * not recognize these in Pascal code and will throw an error. This has been done until we have a way to eliminate
+     * ambiguity and recognize built-in functions.
+     */
     public void statement() {
-        if (lookahead.getType() == Type.ID) {
+        if (lookahead.getType() == ID) {
             variable();
-            if (lookahead.getType() == Type.ASSIGN)
-                match(Type.ASSIGN);
-            else
-                error("statement 1");
+            match(ASSIGN);
             expression();
-        } else if (lookahead.getType() == Type.BEGIN)
-            compound_statement();
-        else if (lookahead.getType() == Type.IF) {
-            match(Type.IF);
+        } else if (lookahead.getType() == BEGIN) compound_statement();
+        else if (lookahead.getType() == IF) {
+            match(IF);
             expression();
-            if (lookahead.getType() == Type.THEN) {
-                match(Type.THEN);
-                statement();
-                if (lookahead.getType() == Type.ELSE) {
-                    match(Type.ELSE);
-                    statement();
-                } else
-                    error("statement 3");
-            } else
-                error("statement 2");
-        } else
-            error("statement 4");
+            match(THEN);
+            statement();
+            match(ELSE);
+            statement();
+        } else if (lookahead.getType() == WHILE) {
+            match(WHILE);
+            expression();
+            match(DO);
+            statement();
+        } else {
+            error("statement");
+        }
     }
 
+    /**
+     * A variable includes the following:
+     * <p>
+     * <b>id</b> |
+     * <b>id [</b> expression <b>]</b>
+     */
     public void variable() {
-        if (lookahead.getType() == Type.ID) {
-            match(Type.ID);
-            if (lookahead.getType() == Type.LBRACE) {
-                match(Type.LBRACE);
-                expression();
-                if (lookahead.getType() == Type.RBRACE)
-                    match(Type.RBRACE);
-                else
-                    error("variable 2");
-            }
-
-        } else
-            error("variable 1");
-    }
-
-
-    // Not used yet
-    public void procedure_statement() {
-        if (lookahead.getType() == Type.ID) {
-            match(Type.ID);
-            if (lookahead.getType() == Type.LPAREN) {
-                match(Type.LPAREN);
-                expression_list();
-                if (lookahead.getType() == Type.RPAREN)
-                    match(Type.RPAREN);
-                else
-                    error("procedure_statement 2");
-            }
-
-        } else
-            error("procedure_statement 1");
-    }
-
-    public void expression_list() {
-        if (lookahead.getType() == Type.PLUS || lookahead.getType() == Type.MINUS || lookahead.getType() == Type.ID || lookahead.getType() == Type.NUMBER || lookahead.getType() == Type.LPAREN || lookahead.getType() == Type.NOT) {
+        match(ID);
+        if (lookahead.getType() == LBRACE) {
+            match(LBRACE);
             expression();
-            if (lookahead.getType() == Type.COMMA) {
-                match(Type.COMMA);
-                expression_list();
-            }
+            match(RBRACE);
+        }
+        // else lambda case
+    }
+
+    /**
+     * A procedure_statement contains the following:
+     * <p>
+     * <b>id</b> |
+     * <b>id (</b> expression_list <b>)</b>
+     * <p>
+     * Note: this has not yet been implemented due to ambiguity in the grammar (no way to choose between variable and
+     * procedure_statement at the moment).
+     */
+    public void procedure_statement() {
+        match(ID);
+        if (lookahead.getType() == LPAREN) {
+            match(LPAREN);
+            expression_list();
+            match(RPAREN);
         }
     }
 
-    // How do we match relop??
+    /**
+     * An expression_list contains the following:
+     * <p>
+     * expression | expression <b>,</b> expression_list
+     */
+    public void expression_list() {
+        expression();
+        if (lookahead.getType() == COMMA) {
+            match(COMMA);
+            expression_list();
+        }
+    }
+
+    /**
+     * An expression contains the following:
+     * <p>
+     * simple_expression | simple_expression <b>relop</b> simple_expression
+     */
     public void expression() {
-        if (lookahead.getType() == Type.PLUS || lookahead.getType() == Type.MINUS || lookahead.getType() == Type.ID || lookahead.getType() == Type.NUMBER || lookahead.getType() == Type.LPAREN || lookahead.getType() == Type.NOT) {
+        simple_expression();
+        if (isRelOp(lookahead.getType())) {
+            match(lookahead.getType());
             simple_expression();
-            if (isRelOp(lookahead.getType())) {
-                match(lookahead.getType());
-                simple_expression();
-            }
         }
     }
 
+    /**
+     * A simple_expression contains the following:
+     * <p>
+     * term simple_part | sign term simple_part
+     */
     public void simple_expression() {
-        if (lookahead.getType() == Type.ID || lookahead.getType() == Type.NUMBER || lookahead.getType() == Type.LPAREN || lookahead.getType() == Type.NOT) {
+        if (lookahead.getType() == ID || lookahead.getType() == NUMBER || lookahead.getType() == LPAREN || lookahead.getType() == NOT) {
             term();
             simple_part();
-        } else if (lookahead.getType() == Type.PLUS || lookahead.getType() == Type.MINUS) {
+        } else if (lookahead.getType() == PLUS || lookahead.getType() == MINUS) {
             sign();
             term();
             simple_part();
-        }
+        } else error("simple_expression");
     }
 
-    // How do we match addop??
+    /**
+     * A simple_part contains the following:
+     * <p>
+     * <b>addop</b> term simple_part | lambda
+     */
     public void simple_part() {
         if (isAddOp(lookahead.getType())) {
             match(lookahead.getType());
             term();
             simple_part();
-        } else {
-            // lambda case
         }
+        // else lambda case
     }
 
+    /**
+     * A term contains the following:
+     * <p>
+     * factor term_part
+     */
     public void term() {
         factor();
         term_part();
     }
 
-    // How do we match mulop??
+    /**
+     * A term_part contains the following:
+     * <p>
+     * <b>mulop</b> factor term_part | lambda
+     */
     public void term_part() {
         if (isMulOp(lookahead.getType())) {
             match(lookahead.getType());
             factor();
             term_part();
-        } else {
-            // lambda case
         }
-    }
-
-    public void factor() {
-        if (lookahead.getType() == Type.ID) {
-            match(Type.ID);
-            if (lookahead.getType() == Type.LBRACE) {
-                match(Type.LBRACE);
-                expression();
-                if (lookahead.getType() == Type.RBRACE) {
-                    match(Type.RBRACE);
-                } else
-                    error("factor 1");
-            } else if (lookahead.getType() == Type.LPAREN) {
-                match(Type.LPAREN);
-                expression_list();
-                if (lookahead.getType() == Type.RPAREN)
-                    match(Type.RPAREN);
-                else
-                    error("factor 2");
-            }
-        } else if (lookahead.getType() == Type.NUMBER)
-            match(Type.NUMBER);
-        else if (lookahead.getType() == Type.LPAREN) {
-            match(Type.LPAREN);
-            expression();
-            if (lookahead.getType() == Type.RPAREN)
-                match(Type.RPAREN);
-            else
-                error("factor 3");
-        } else if (lookahead.getType() == Type.NOT) {
-            match(Type.NOT);
-            factor();
-        } else
-            error("factor 4");
-    }
-
-    public void sign() {
-        if (lookahead.getType() == Type.PLUS)
-            match(Type.PLUS);
-        else if (lookahead.getType() == Type.MINUS)
-            match(Type.MINUS);
-        else
-            error("sign");
-    }
-
-
-    public boolean isRelOp(Type t) {
-        if (t == Type.EQUAL || t == Type.NOTEQ || t == Type.LTHAN || t == Type.LTHANEQ || t == Type.GTHANEQ || t == Type.GTHAN)
-            return true;
-        return false;
-    }
-
-    public boolean isAddOp(Type t) {
-        if (t == Type.PLUS || t == Type.MINUS || t == Type.OR)
-            return true;
-        return false;
-    }
-
-    public boolean isMulOp(Type t) {
-        if (t == Type.ASTERISK || t == Type.FSLASH || t == Type.DIV || t == Type.MOD || t == Type.AND)
-            return true;
-        return false;
+        // else lambda case
     }
 
     /**
-     * Matches the expected token.
-     * If the current token in the input stream from the scanner
-     * matches the token that is expected, the current token is
-     * consumed and the scanner will move on to the next token
-     * in the input.
-     * The null at the end of the file returned by the
-     * scanner is replaced with a fake token containing no
+     * A factor contains the following:
+     * <p>
+     * <b>id</b> | <b>id [</b> expression <b>]</b> | <b>id (</b> expression_list <b>)</b> |
+     * <b>num</b> | <b>(</b> expression <b>)</b> | <b>not</b> factor
+     */
+    public void factor() {
+        if (lookahead.getType() == ID) {
+            match(ID);
+            if (lookahead.getType() == LBRACE) {
+                match(LBRACE);
+                expression();
+                match(RBRACE);
+            } else if (lookahead.getType() == LPAREN) {
+                match(LPAREN);
+                expression_list();
+                match(RPAREN);
+            }
+        } else if (lookahead.getType() == NUMBER) match(NUMBER);
+        else if (lookahead.getType() == LPAREN) {
+            match(LPAREN);
+            expression();
+            match(RPAREN);
+        } else if (lookahead.getType() == NOT) {
+            match(NOT);
+            factor();
+        } else error("factor");
+    }
+
+    /**
+     * A sign contains the following:
+     * <p>
+     * <b>+</b> | <b>-</b>
+     */
+    public void sign() {
+        if (lookahead.getType() == PLUS) match(PLUS);
+        else if (lookahead.getType() == MINUS) match(MINUS);
+        else error("sign");
+    }
+
+    /**
+     * Matches the expected token. If the current token in the input stream from the scanner matches the token that is
+     * expected, the current token is consumed and the scanner will move on to the next token in the input.
+     * The null at the end of the file returned by the scanner is replaced with a fake token containing no
      * type.
      *
      * @param expected The expected token type.
      */
-    public void match(Type expected) {
+    private void match(Type expected) {
         System.out.println("Match " + expected + " " + lookahead.getLexeme());
         if (this.lookahead.getType() == expected) {
             try {
-                this.lookahead = scanner.nextToken();
+                this.lookahead = scanny.nextToken();
                 if (this.lookahead == null) {
                     this.lookahead = new Token("End of File", null);
                 }
@@ -470,18 +519,16 @@ public class Parser {
                 error("Scanner exception");
             }
         } else {
-            error("Match of " + expected + " found " + this.lookahead.getType()
-                    + " instead.");
+            error("Match of " + expected + " found " + this.lookahead.getType() + " instead.");
         }
     }
 
     /**
-     * Errors out of the parser.
-     * Prints an error message and then exits the program.
+     * Errors out of the parser. Prints an error message and then exits the program.
      *
      * @param message The error message to print.
      */
-    public void error(String message) {
+    private void error(String message) {
         System.out.println("Error " + message);
         System.exit(1);
     }

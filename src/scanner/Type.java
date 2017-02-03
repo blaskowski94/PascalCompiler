@@ -8,6 +8,8 @@ package scanner;
  * <p>
  * This enum class contains all of the different Types a token can be. There is a type for every keyword and symbol as
  * well as two types for ID and number.
+ *
+ * @author Bob Laskowski
  */
 public enum Type {
     // Keywords

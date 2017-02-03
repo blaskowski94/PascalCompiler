@@ -5,10 +5,11 @@ package scanner;
  * Compilers II
  * Dr. Erik Steinmetz
  * January 17th, 2017
- *
+ * <p>
  * This class contains the main method that drives our scanner. It takes in a text file to parse as a command line
  * argument. A FileInputStream and an InputStreamReader are used to read from the file. A MyScanner object is created
  * using our scanner definition defined in scanner.flex. The scanner is designed to parse Mini-pascal.
+ * @author Bob Laskowski
  */
 
 import java.io.FileInputStream;

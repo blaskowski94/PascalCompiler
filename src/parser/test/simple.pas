@@ -10,6 +10,5 @@ begin
         fo := 13
     else
         fo := 26
-;
 end
 .
