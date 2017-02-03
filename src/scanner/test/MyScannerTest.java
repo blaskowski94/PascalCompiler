@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * January 17th, 2017
  * <p>
  * This class uses the JUnit framework to test the MyScanner class. For testing purposes the input file "simplest.pas"
- * is used. This file contains the simplest definition of a Pascal program as follows:
+ * is used. This file uses the simplest definition of a Pascal program as follows from an input file:
  * <p>
  * program foo;
  * begin

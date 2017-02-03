@@ -5,18 +5,20 @@
     <title>Software Design Document</title>
 </head>
 <body>
-<h1>scanner Software Design Document</h1>
+<h1>Parser/Scanner Software Design Document</h1>
 
 <p>
     Bob Laskowski<br>
     Compilers II<br>
     Dr. Erik Steinmetz<br>
-    1/17/2017<br>
+    2/3/2017<br>
 <hr>
 <h3><u>Introduction</u></h3>
 <p>This program users JFlex to create a scanner. JFlex takes in a particular language and grammar defined by the user
     with regular expressions and converts it into java source code. The scanner is designed to scan our modified version
     of Mini-pascal. It will take in a text file and output tokens to be used later in the actual compiler.</p>
+<p>I have also created a parser based on the grammar which can be found in the design section. The parser ensures that
+    the token appear in an order that is valid according to the grammar. </p>
 <hr>
 <h3><u>Design</u></h3>
 The design is rather simple. See Figure 1 for a diagram of all classes and relationships. There will be a scanner.flex
@@ -78,9 +80,16 @@ The scanner will recognize the following keywords and symbols:<br><br>
     <li>:=</li>
 </ol>
 
-The lexical rules the scanner follows can be found in the following document: <a href="Mini_Pascal_Grammar.pdf"
-                                                                                 target="_blank">The
-    Grammar</a>
+The lexical rules the scanner and parser follow can be found in the following document: <a
+        href="Mini_Pascal_Grammar.pdf" target="_blank">TheGrammar</a>
+
+<p>The parser uses the scanner to advance through text token by token and determine if they are in a valid order to be a
+    mini-pascal program. Every function in the parser exactly corresponds to a production rule in the grammar. It uses a
+    one token lookahead to see what the next token is and make a decision on whether to call other functions or match
+    tokens. It begins by calling the top level function, program, which in turn matches <b>program id ;</b> if they are
+    the first three tokens in the file. If it does not see what it expects to match it throws an error and the program
+    stops. After it matches these three tokens it calls the declarations function and proceeds on down the tree of
+    function calls.</p>
 
 <hr>
 <h3><u>Functionality</u></h3>
@@ -110,17 +119,30 @@ recursively: <br><br>
     end.<br><br>
 
 </code>
+
+<p>To use the parser, instantiate the Parser class with either a String to parse or a file. If using a file, pass in
+    true as the second argument. If using a string, pass in false as the second argument. Then call <code>program</code>
+    on the parser object. You will see every token it matches. If successful (it follows the syntax of mini-pascal), you
+    will see an "It Parsed!" message printed to standard out. Otherwise, you will see an error message and what token
+    the error occurred on. </p>
 <hr>
 
 <h3><u>Testing</u></h3>
-<p>For testing of the scanner I will be using JUnit5. The testing can be found in the Test package inside of the
-    scanner package.</p>
+<p>For testing of the scanner and parser I used JUnit5. The testing can be found in the test package inside of the
+    corresponding parent packages. The unit tests of scanner test <code>yytext</code> and <code>nextToken</code>
+    functions. The unit tests of parser test the <code>program, subprogram_declaration, declarations, statement,
+        simple_expression</code> and <code>factor</code> functions. For the scanner the file "simplest.pas" is used for
+    testing. For the parser the file "simple.pas" is used for testing as well as strings for testing individual
+    components of the parser.</p>
 <hr>
 
 <h3><u>Figures</u></h3>
 <figure>
     <img src="Scanner_diagram.png" alt="scanner diagram" width="1500" height="1255">
     <figcaption style="text-align: center;">Figure 1</figcaption>
+
+    <img src="Parser_diagram.png" alt="parser diagram" width="1000" height="1146">
+    <figcaption style="text-align: center;">Figure 2</figcaption>
 </figure>
 
 <hr>
@@ -129,6 +151,7 @@ recursively: <br><br>
     <li>12/6/2016 9:11PM - Initial Creation of document with different sections</li>
     <li>12/7/2016 9:46PM - Added basic intro, design and functionality for first iteration</li>
     <li>12/13/2016 5:33PM - Added more detailed information about all java files and added diagram</li>
+    <li>2/3/2017 5:05PM - Added Parser documentation</li>
 </ul>
 <p>
 
