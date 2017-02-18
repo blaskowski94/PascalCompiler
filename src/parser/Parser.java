@@ -3,15 +3,17 @@ package parser;
 import scanner.MyScanner;
 import scanner.Token;
 import scanner.Type;
+import symboltable.SymbolTable;
 
 import java.io.*;
+import java.util.ArrayList;
 
 import static scanner.Type.*;
 
 /**
- * Bob Laskowski
- * Compilers II
- * Dr. Erik Steinmetz
+ * Bob Laskowski,
+ * Compilers II,
+ * Dr. Erik Steinmetz,
  * February 3rd, 2017
  * <p>
  * The parser recognizes whether an input string of tokens is a valid Mini-Pascal program as defined in the grammar.
@@ -19,7 +21,7 @@ import static scanner.Type.*;
  * To use a parser, create an instance pointing at a file or a String of code, and then call the top-level function,
  * <code>program()</code>. If the functions returns without an error, the file contains an acceptable expression.
  * <p>
- * The terminal symbols described in the grammar rule are denoted in <b>bold</b> and the non-terminal symbols are
+ * The terminal symbols described in the grammar rule are denoted in <strong>bold</strong> and the non-terminal symbols are
  * regular text. Options are denoted with a vertical bar |. An empty option is denoted "lambda." See the grammar in
  * the documentation folder for more information on definitions.
  *
@@ -33,6 +35,7 @@ public class Parser {
 
     private Token lookahead;
     private MyScanner scanny;
+    private SymbolTable symbolTable;
 
     ///////////////////////////////
     //       Constructors
@@ -55,6 +58,7 @@ public class Parser {
             } catch (FileNotFoundException ex) {
                 error("No file");
             }
+            assert fis != null;
             isr = new InputStreamReader(fis);
             scanny = new MyScanner(isr);
         } else {
@@ -66,6 +70,7 @@ public class Parser {
         } catch (IOException ex) {
             error("Scan error");
         }
+        symbolTable = new SymbolTable();
     }
 
     ///////////////////////////////
@@ -113,15 +118,17 @@ public class Parser {
     /**
      * A program contains the following:
      * <p>
-     * <b>program id ;</b>
+     * <strong>program id ;</strong>
      * declarations
      * subprogram_declarations
      * compound_statement
-     * <b>.</b>
+     * <strong>.</strong>
      */
     public void program() {
         match(PROGRAM);
+        String name = lookahead.getLexeme();
         match(ID);
+        if (!symbolTable.addProgram(name)) error("Name already exists in symbol table");
         match(SEMI);
         declarations();
         subprogram_declarations();
@@ -132,28 +139,37 @@ public class Parser {
     /**
      * An identifier_list contains the following:
      * <p>
-     * <b>id</b> | <b>id , </b> identifier_list
+     * <strong>id</strong> | <strong>id , </strong> identifier_list
+     * <p>
+     * This creates an ArrayList of all the variable IDs found in the identifier list and returns it to the calling
+     * function so the type can be determined and added to the symbol table.
+     * </p>
+     *
+     * @return An ArrayList of names of ids declared
      */
-    public void identifier_list() {
+    public ArrayList<String> identifier_list() {
+        ArrayList<String> idList = new ArrayList<>();
+        idList.add(lookahead.getLexeme());
         match(ID);
         if (lookahead.getType() == COMMA) {
             match(COMMA);
-            identifier_list();
+            idList.addAll(identifier_list());
         }
         // else lambda case
+        return idList;
     }
 
     /**
      * Declarations contain the following:
      * <p>
-     * <b>var</b> identifier_list <b>:</b> type <b>;</b> declarations | lambda
+     * <strong>var</strong> identifier_list <strong>:</strong> type <strong>;</strong> declarations | lambda
      */
     public void declarations() {
         if (lookahead.getType() == VAR) {
             match(VAR);
-            identifier_list();
+            ArrayList<String> idList = identifier_list();
             match(COLON);
-            type();
+            type(idList);
             match(SEMI);
             declarations();
         }
@@ -163,37 +179,57 @@ public class Parser {
     /**
      * A type contains the following:
      * <p>
-     * standard_type | <b>array[num:num] of</b> standard_type
+     * standard_type | <strong>array[num:num] of</strong> standard_type
+     *
+     * @param idList An ArrayList of ID names to be added to symbol table
      */
-    public void type() {
+    public void type(ArrayList<String> idList) {
+        int beginidx, endidx;
         if (lookahead.getType() == ARRAY) {
             match(ARRAY);
             match(LBRACE);
+            beginidx = Integer.parseInt(lookahead.getLexeme());
             match(NUMBER);
             match(COLON);
+            endidx = Integer.parseInt(lookahead.getLexeme());
             match(NUMBER);
             match(RBRACE);
             match(OF);
-            standard_type();
-        } else if (lookahead.getType() == INTEGER || lookahead.getType() == REAL) standard_type();
-        else error("type 7");
+            Type t = standard_type();
+            for (String anIdList : idList) {
+                if (!symbolTable.addArray(anIdList, t, beginidx, endidx)) error("Name already exists in symbol table");
+            }
+        } else if (lookahead.getType() == INTEGER || lookahead.getType() == REAL) {
+            Type t = standard_type();
+            for (String anIdList : idList) {
+                if (!symbolTable.addVariable(anIdList, t)) error("Name already exists in symbol table");
+            }
+        } else error("type");
     }
 
     /**
      * A standard_type contains the following:
      * <p>
-     * <b>integer</b> | <b>real</b>
+     * <strong>integer</strong> | <strong>real</strong>
+     *
+     * @return Returns the Type of the declared item, either Type.INTEGER or Type.REAL
      */
-    public void standard_type() {
-        if (lookahead.getType() == INTEGER) match(INTEGER);
-        else if (lookahead.getType() == REAL) match(REAL);
-        else error("standard_type");
+    public Type standard_type() {
+        Type t = null;
+        if (lookahead.getType() == INTEGER) {
+            t = INTEGER;
+            match(INTEGER);
+        } else if (lookahead.getType() == REAL) {
+            t = REAL;
+            match(REAL);
+        } else error("standard_type");
+        return t;
     }
 
     /**
      * Subprogram_declarations contain the following:
      * <p>
-     * subprogram_declaration <b>;</b> subprogram_declarations | lambda
+     * subprogram_declaration <strong>;</strong> subprogram_declarations | lambda
      */
     public void subprogram_declarations() {
         if (lookahead.getType() == FUNCTION || lookahead.getType() == PROCEDURE) {
@@ -222,21 +258,25 @@ public class Parser {
     /**
      * A subprogram_head contains the following:
      * <p>
-     * <b>function id</b> arguments <b>:</b> standard_type <b>;</b> |
-     * <b>procedure id</b> arguments <b>;</b>
+     * <strong>function id</strong> arguments <strong>:</strong> standard_type <strong>;</strong> |
+     * <strong>procedure id</strong> arguments <strong>;</strong>
      */
     public void subprogram_head() {
         if (lookahead.getType() == FUNCTION) {
             match(FUNCTION);
+            String funcName = lookahead.getLexeme();
             match(ID);
             arguments();
             match(COLON);
-            standard_type();
+            Type t = standard_type();
+            symbolTable.addFunction(funcName, t);
             match(SEMI);
         } else if (lookahead.getType() == PROCEDURE) {
             match(PROCEDURE);
+            String procName = lookahead.getLexeme();
             match(ID);
             arguments();
+            symbolTable.addProcedure(procName);
             match(SEMI);
         } else error("subprogram_head");
     }
@@ -244,7 +284,7 @@ public class Parser {
     /**
      * Arguments contain the following:
      * <p>
-     * <b>(</b> parameter_list <b>)</b> | lambda
+     * <strong>(</strong> parameter_list <strong>)</strong> | lambda
      */
     public void arguments() {
         if (lookahead.getType() == LPAREN) {
@@ -258,13 +298,13 @@ public class Parser {
     /**
      * A parameter_list contains the following:
      * <p>
-     * identifier_list <b>:</b> type |
-     * identifier_list <b>:</b> type <b>;</b> parameter_list
+     * identifier_list <strong>:</strong> type |
+     * identifier_list <strong>:</strong> type <strong>;</strong> parameter_list
      */
     public void parameter_list() {
-        identifier_list();
+        ArrayList<String> idList = identifier_list();
         match(COLON);
-        type();
+        type(idList);
         if (lookahead.getType() == SEMI) {
             match(SEMI);
             parameter_list();
@@ -274,7 +314,7 @@ public class Parser {
     /**
      * A compound_statement contains the following:
      * <p>
-     * <b>begin</b> optional_statements <b>end</b>
+     * <strong>begin</strong> optional_statements <strong>end</strong>
      */
     public void compound_statement() {
         match(BEGIN);
@@ -296,7 +336,7 @@ public class Parser {
     /**
      * A statement_list contains the following:
      * <p>
-     * statement_list | statement <b>;</b> statement_list
+     * statement_list | statement <strong>;</strong> statement_list
      */
     public void statement_list() {
         statement();
@@ -310,11 +350,11 @@ public class Parser {
     /**
      * A statement contains the following:
      * <p>
-     * variable <b>assignop</b> expression |
+     * variable <strong>assignop</strong> expression |
      * procedure_statement |
      * compound_statement |
-     * <b>if</b> expression <b>then</b> statement <b>else</b> statement |
-     * <b>while</b> expression <b>do</b> statement |
+     * <strong>if</strong> expression <strong>then</strong> statement <strong>else</strong> statement |
+     * <strong>while</strong> expression <strong>do</strong> statement |
      * read(id) |
      * write(expression)
      * <p>
@@ -324,9 +364,13 @@ public class Parser {
      */
     public void statement() {
         if (lookahead.getType() == ID) {
-            variable();
-            match(ASSIGN);
-            expression();
+            if (symbolTable.isVariableName(lookahead.getLexeme())) {
+                variable();
+                match(ASSIGN);
+                expression();
+            } else if (symbolTable.isProcedureName(lookahead.getLexeme())) {
+                procedure_statement();
+            } else error("Name not found in symbol table.");
         } else if (lookahead.getType() == BEGIN) compound_statement();
         else if (lookahead.getType() == IF) {
             match(IF);
@@ -348,8 +392,8 @@ public class Parser {
     /**
      * A variable includes the following:
      * <p>
-     * <b>id</b> |
-     * <b>id [</b> expression <b>]</b>
+     * <strong>id</strong> |
+     * <strong>id [</strong> expression <strong>]</strong>
      */
     public void variable() {
         match(ID);
@@ -364,8 +408,8 @@ public class Parser {
     /**
      * A procedure_statement contains the following:
      * <p>
-     * <b>id</b> |
-     * <b>id (</b> expression_list <b>)</b>
+     * <strong>id</strong> |
+     * <strong>id (</strong> expression_list <strong>)</strong>
      * <p>
      * Note: this has not yet been implemented due to ambiguity in the grammar (no way to choose between variable and
      * procedure_statement at the moment).
@@ -382,7 +426,7 @@ public class Parser {
     /**
      * An expression_list contains the following:
      * <p>
-     * expression | expression <b>,</b> expression_list
+     * expression | expression <strong>,</strong> expression_list
      */
     public void expression_list() {
         expression();
@@ -395,7 +439,7 @@ public class Parser {
     /**
      * An expression contains the following:
      * <p>
-     * simple_expression | simple_expression <b>relop</b> simple_expression
+     * simple_expression | simple_expression <strong>relop</strong> simple_expression
      */
     public void expression() {
         simple_expression();
@@ -424,7 +468,7 @@ public class Parser {
     /**
      * A simple_part contains the following:
      * <p>
-     * <b>addop</b> term simple_part | lambda
+     * <strong>addop</strong> term simple_part | lambda
      */
     public void simple_part() {
         if (isAddOp(lookahead.getType())) {
@@ -448,7 +492,7 @@ public class Parser {
     /**
      * A term_part contains the following:
      * <p>
-     * <b>mulop</b> factor term_part | lambda
+     * <strong>mulop</strong> factor term_part | lambda
      */
     public void term_part() {
         if (isMulOp(lookahead.getType())) {
@@ -462,8 +506,8 @@ public class Parser {
     /**
      * A factor contains the following:
      * <p>
-     * <b>id</b> | <b>id [</b> expression <b>]</b> | <b>id (</b> expression_list <b>)</b> |
-     * <b>num</b> | <b>(</b> expression <b>)</b> | <b>not</b> factor
+     * <strong>id</strong> | <strong>id [</strong> expression <strong>]</strong> | <strong>id (</strong> expression_list <strong>)</strong> |
+     * <strong>num</strong> | <strong>(</strong> expression <strong>)</strong> | <strong>not</strong> factor
      */
     public void factor() {
         if (lookahead.getType() == ID) {
@@ -491,7 +535,7 @@ public class Parser {
     /**
      * A sign contains the following:
      * <p>
-     * <b>+</b> | <b>-</b>
+     * <strong>+</strong> | <strong>-</strong>
      */
     public void sign() {
         if (lookahead.getType() == PLUS) match(PLUS);
@@ -531,5 +575,9 @@ public class Parser {
     private void error(String message) {
         System.out.println("Error " + message);
         System.exit(1);
+    }
+
+    public SymbolTable getSymbolTable() {
+        return symbolTable;
     }
 }

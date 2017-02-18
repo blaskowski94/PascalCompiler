@@ -2,15 +2,18 @@ package parser.test;
 
 import org.junit.jupiter.api.Test;
 import parser.Parser;
+import scanner.Type;
 
 /**
- * Bob Laskowski
- * Compilers II
- * Dr. Erik Steinmetz
+ * Bob Laskowski,
+ * Compilers II,
+ * Dr. Erik Steinmetz,
  * February 3rd, 2017
  * <p>
  * This class uses the JUnit framework to test the Parser class. For testing purposes the input file "simple.pas"
  * to test parsing a whole program as well as smaller Strings to test specific aspects of the parser.
+ *
+ * TODO: Add tests that should fail
  *
  * @author Bob Laskowski
  */
@@ -33,11 +36,15 @@ class ParserTest {
     /**
      * This tests the declaration function in the parser. Per the grammar, a single declaration would have the format:
      * <p>
+     * <code>
      * var fee: integer;
+     * </code>
      * <p>
      * Multiple declarations would be:
      * <p>
+     * <code>
      * var fee, fi, fo: real;
+     * </code>
      * <p>
      * These two strings will be used to test declarations.
      */
@@ -61,14 +68,17 @@ class ParserTest {
      * This tests the subprogram_declaration function in the parser. Per the grammar, a subprogram_declaration would
      * have the format:
      * <p>
+     * <code>
      * function doSomething(fee: integer): integer;
      * var fo: integer;
      * begin
      * fo := 2*fee
      * end
+     * </code>
      * <p>
      * Another subprogram declaration would be:
      * <p>
+     * <code>
      * function doSomething(fee, fi: integer): integer;
      * var fo: integer;
      * function doSomethingElse: integer;
@@ -80,6 +90,7 @@ class ParserTest {
      * begin
      * fo := 2 * fo
      * end
+     * </code>
      * <p>
      * These two strings will be used to test declarations.
      */
@@ -103,19 +114,26 @@ class ParserTest {
     /**
      * This tests the statement function in the parser. Per the grammar, a statement could take the following formats:
      * <p>
+     * <code>
      * foo := 4
+     * </code>
      * <p>
+     * <code>
      * foo := 4*5
+     * </code>
      * <p>
+     * <code>
      * begin
      * if foo < 5
      * then fi := 5
      * else fi := 10
      * end
+     * </code>
      * <p>
+     * <code>
      * while foo < 5
      * do foo := foo + 1
-     * <p>
+     * </code>
      * <p>
      * These four strings will be used to test declarations.
      * <p>
@@ -127,24 +145,29 @@ class ParserTest {
         String input = "foo := 4";
         System.out.println("String to be parsed: " + input);
         Parser instance = new Parser(input, false);
+        instance.getSymbolTable().addVariable("foo", Type.INTEGER);
         instance.statement();
         System.out.println("It Parsed!\n");
 
         input = "foo := 4*5";
         System.out.println("String to be parsed: " + input);
         instance = new Parser(input, false);
+        instance.getSymbolTable().addVariable("foo", Type.INTEGER);
         instance.statement();
         System.out.println("It Parsed!\n");
 
         input = "begin " + "if foo < 5 " + "then fi := 5 " + "else fi := 10 " + "end";
         System.out.println("String to be parsed: " + input);
         instance = new Parser(input, false);
+        instance.getSymbolTable().addVariable("foo", Type.INTEGER);
+        instance.getSymbolTable().addVariable("fi", Type.INTEGER);
         instance.statement();
         System.out.println("It Parsed!\n");
 
         input = "while foo < 5 " + "do foo := foo + 1";
         System.out.println("String to be parsed: " + input);
         instance = new Parser(input, false);
+        instance.getSymbolTable().addVariable("foo", Type.INTEGER);
         instance.statement();
         System.out.println("It Parsed!\n");
     }
@@ -153,19 +176,33 @@ class ParserTest {
      * This tests the simple_expression function in the parser. Per the grammar, a simple_expression could take the
      * following formats:
      * <p>
+     * <code>
      * foo + fi
+     * </code>
      * <p>
+     * <code>
      * -4
+     * </code>
      * <p>
+     * <code>
      * foo[foo+fi]
+     * </code>
      * <p>
+     * <code>
      * foo(foo+fi, fi-fo)
+     * </code>
      * <p>
+     * <code>
      * (foo+fi)
+     * </code>
      * <p>
+     * <code>
      * (4+5)
+     * </code>
      * <p>
+     * <code>
      * not foo
+     * </code>
      * <p>
      * These seven strings will be used to test declarations.
      */
@@ -218,19 +255,33 @@ class ParserTest {
     /**
      * This tests the factor function in the parser. Per the grammar, a factor could take the following formats:
      * <p>
+     * <code>
      * foo
+     * </code>
      * <p>
+     * <code>
      * foo[fe < fo]
+     * </code>
      * <p>
+     * <code>
      * foo(fe < fo, fu <> fum)
+     * </code>
      * <p>
+     * <code>
      * 4
+     * </code>
      * <p>
+     * <code>
      * (foo+fi)
+     * </code>
      * <p>
+     * <code>
      * (4+5)
+     * </code>
      * <p>
+     * <code>
      * not foo
+     * </code>
      * <p>
      * These seven strings will be used to test declarations.
      */

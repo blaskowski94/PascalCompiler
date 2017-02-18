@@ -32,6 +32,7 @@ public class ScannerMain {
         }
 
         // Create the InputStreamReader
+        assert fis != null;
         InputStreamReader isr = new InputStreamReader(fis);
 
         // Create a MyScanner object

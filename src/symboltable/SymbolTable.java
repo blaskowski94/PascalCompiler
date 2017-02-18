@@ -7,9 +7,9 @@ import java.util.HashMap;
 import java.util.Objects;
 
 /**
- * Bob Laskowski
- * Compilers II
- * Dr. Erik Steinmetz
+ * Bob Laskowski,
+ * Compilers II,
+ * Dr. Erik Steinmetz,
  * February 9th, 2017
  * <p>
  * This class creates a HashMap of different types of symbols we encounter in a pascal program. These symbols include
@@ -20,15 +20,11 @@ import java.util.Objects;
  */
 public class SymbolTable {
 
-    ///////////////////////////////
-    //    Instance Variables
-    ///////////////////////////////
-
     // protected so it can be accessed for testing
     protected HashMap<String, Symbol> symbTable;
 
     ///////////////////////////////
-    //       Constructors
+    //    Instance Variables
     ///////////////////////////////
 
     /**
@@ -36,6 +32,20 @@ public class SymbolTable {
      */
     public SymbolTable() {
         symbTable = new HashMap<>();
+    }
+
+    ///////////////////////////////
+    //       Constructors
+    ///////////////////////////////
+
+    /**
+     * Returns a String representation of a SymbolTable
+     *
+     * @return a String representation of the object
+     */
+    @Override
+    public String toString() {
+        return "SymbolTable{" + "symbTable=" + symbTable + '}';
     }
 
     ///////////////////////////////
@@ -50,7 +60,7 @@ public class SymbolTable {
      */
     public boolean addProgram(String name) {
         if (!symbTable.containsKey(name)) {
-            symbTable.put(name, new Symbol("program", Kind.PROGRAM));
+            symbTable.put(name, new Symbol(name, Kind.PROGRAM));
             return true;
         }
         return false;
@@ -65,7 +75,7 @@ public class SymbolTable {
      */
     public boolean addVariable(String name, Type type) {
         if (!symbTable.containsKey(name)) {
-            symbTable.put(name, new Symbol("var", Kind.VARIABLE, type));
+            symbTable.put(name, new Symbol(name, Kind.VARIABLE, type));
             return true;
         }
         return false;
@@ -82,7 +92,7 @@ public class SymbolTable {
      */
     public boolean addArray(String name, Type type, int begin, int end) {
         if (!symbTable.containsKey(name)) {
-            symbTable.put(name, new Symbol("var", Kind.ARRAY, type, begin, end));
+            symbTable.put(name, new Symbol(name, Kind.ARRAY, type, begin, end));
             return true;
         }
         return false;
@@ -91,14 +101,33 @@ public class SymbolTable {
     /**
      * Add a function symbol to the symbol table.
      *
+     * Note: removed args parameter, will re-add later
+     *
      * @param name function name
      * @param type function return type
-     * @param args function arguments
+     * param args function arguments
      * @return true if added, false if already exists
      */
-    public boolean addFunction(String name, Type type, ArrayList<Symbol> args) {
+    public boolean addFunction(String name, Type type) {
         if (!symbTable.containsKey(name)) {
-            symbTable.put(name, new Symbol("var", Kind.FUNCTION, type, args));
+            symbTable.put(name, new Symbol(name, Kind.FUNCTION, type));
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Add a procedure symbol to the symbol table.
+     * <p>
+     * Note: removed args parameter, will re-add later
+     *
+     * @param name procedure name
+     *             param args procedure arguments
+     * @return true if added, false if already exists
+     */
+    public boolean addProcedure(String name) {
+        if (!symbTable.containsKey(name)) {
+            symbTable.put(name, new Symbol(name, Kind.PROCEDURE));
             return true;
         }
         return false;
@@ -111,8 +140,7 @@ public class SymbolTable {
      * @return return true if symbol exists and is a program, false if not or does not exist
      */
     public boolean isProgramName(String name) {
-        if (symbTable.containsKey(name)) return symbTable.get(name).getKind() == Kind.PROGRAM;
-        return false;
+        return symbTable.containsKey(name) && symbTable.get(name).getKind() == Kind.PROGRAM;
     }
 
     /**
@@ -122,8 +150,7 @@ public class SymbolTable {
      * @return return true if symbol exists and is a variable, false if not or does not exist
      */
     public boolean isVariableName(String name) {
-        if (symbTable.containsKey(name)) return symbTable.get(name).getKind() == Kind.VARIABLE;
-        return false;
+        return symbTable.containsKey(name) && symbTable.get(name).getKind() == Kind.VARIABLE;
     }
 
     /**
@@ -133,8 +160,7 @@ public class SymbolTable {
      * @return return true if symbol exists and is an array, false if not or does not exist
      */
     public boolean isArrayName(String name) {
-        if (symbTable.containsKey(name)) return symbTable.get(name).getKind() == Kind.ARRAY;
-        return false;
+        return symbTable.containsKey(name) && symbTable.get(name).getKind() == Kind.ARRAY;
     }
 
     /**
@@ -144,15 +170,24 @@ public class SymbolTable {
      * @return return true if symbol exists and is a function, false if not or does not exist
      */
     public boolean isFunctionName(String name) {
-        if (symbTable.containsKey(name)) return symbTable.get(name).getKind() == Kind.FUNCTION;
-        return false;
+        return symbTable.containsKey(name) && symbTable.get(name).getKind() == Kind.FUNCTION;
+    }
+
+    /**
+     * Checks to see if a name exists in the symbol table and if it is a procedure symbol.
+     *
+     * @param name name of symbol to check
+     * @return return true if symbol exists and is a function, false if not or does not exist
+     */
+    public boolean isProcedureName(String name) {
+        return symbTable.containsKey(name) && symbTable.get(name).getKind() == Kind.PROCEDURE;
     }
 
     /**
      * Enum to track the different types of symbols that can be stored in the symbol table.
      */
     protected enum Kind {
-        PROGRAM, VARIABLE, ARRAY, FUNCTION
+        PROGRAM, VARIABLE, ARRAY, FUNCTION, PROCEDURE
     }
 
     /**
@@ -170,7 +205,7 @@ public class SymbolTable {
         private Type type;
         private Kind kind;
         private int beginidx, endidx;
-        private ArrayList<Symbol> args;
+        private ArrayList args;
 
         ///////////////////////////////
         //       Constructors
@@ -190,7 +225,7 @@ public class SymbolTable {
         /**
          * Creates a symbol to store a variable symbol. Variables store the variable id, kind and type (int/real).
          *
-         * @param i id of the program
+         * @param i id of the variable
          * @param k Kind enum (VARIABLE)
          * @param t type of the variable (int/real)
          */
@@ -204,7 +239,7 @@ public class SymbolTable {
          * Creates a symbol to store an array symbol. Arrays store the array id, kind, begin index, end index and type
          * (int/real).
          *
-         * @param i     id of the program
+         * @param i     id of the array
          * @param k     Kind enum (ARRAY)
          * @param t     type of the array (int/real)
          * @param begin beginning index
@@ -222,7 +257,7 @@ public class SymbolTable {
          * Creates a symbol to store a function symbol. Functions store the function id, kind, return type (int/real)
          * and an ArrayList of the function arguments.
          *
-         * @param i        id of the program
+         * @param i        id of the function
          * @param k        Kind enum (FUNCTION)
          * @param t        return type of the function (int/real)
          * @param funcArgs ArrayList of function arguments
@@ -231,6 +266,20 @@ public class SymbolTable {
             id = i;
             kind = k;
             type = t;
+            args = funcArgs;
+        }
+
+        /**
+         * Creates a symbol to store a procedure symbol. Procedures store the procedure id, kind, and an ArrayList of
+         * the function arguments.
+         *
+         * @param i        id of the procedure
+         * @param k        Kind enum (PROCEDURE)
+         * @param funcArgs ArrayList of function arguments
+         */
+        public Symbol(String i, Kind k, ArrayList funcArgs) {
+            id = i;
+            kind = k;
             args = funcArgs;
         }
 
@@ -288,7 +337,7 @@ public class SymbolTable {
          *
          * @return An ArrayList of function arguments
          */
-        public ArrayList<Symbol> getArgs() {
+        public ArrayList getArgs() {
             return args;
         }
 
