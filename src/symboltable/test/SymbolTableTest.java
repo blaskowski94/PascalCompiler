@@ -1,20 +1,17 @@
-package symboltable;
+package symboltable.test;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import scanner.Type;
-import symboltable.SymbolTable.Kind;
-import symboltable.SymbolTable.Symbol;
-
-import java.util.ArrayList;
+import symboltable.SymbolTable;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
- * Bob Laskowski
- * Compilers II
- * Dr. Erik Steinmetz
+ * Bob Laskowski,
+ * Compilers II,
+ * Dr. Erik Steinmetz,
  * February 9th, 2017
  * <p>
  * Tests the SymbolTable class using JUnit5.
@@ -31,11 +28,11 @@ class SymbolTableTest {
         symbolT = new SymbolTable();
 
         //adding several function id's
-        ArrayList<Symbol> args = new ArrayList();
-        args.add(new Symbol("input", Kind.VARIABLE, Type.INTEGER));
-        symbolT.addFunction("function1", Type.REAL, args);
-        symbolT.addFunction("function2", Type.INTEGER, args);
-        symbolT.addFunction("function3", Type.REAL, args);
+        //ArrayList<Symbol> args = new ArrayList();
+        //args.add(new Symbol("input", Kind.VARIABLE, Type.INTEGER));
+        symbolT.addFunction("function1", Type.REAL);
+        symbolT.addFunction("function2", Type.INTEGER);
+        symbolT.addFunction("function3", Type.REAL);
 
         //adding variables
         symbolT.addVariable("var1", Type.INTEGER);
@@ -51,6 +48,11 @@ class SymbolTableTest {
         symbolT.addProgram("program1");
         symbolT.addProgram("program2");
         symbolT.addProgram("program3");
+
+        //adding procedure ids
+        symbolT.addProcedure("procedure1");
+        symbolT.addProcedure("procedure2");
+        symbolT.addProcedure("procedure3");
     }
 
     /**
@@ -140,18 +142,38 @@ class SymbolTableTest {
         // Add a function not already in the symbol table
         String name = "function0";
         Type t = Type.INTEGER;
-        ArrayList<Symbol> args = new ArrayList();
-        args.add(new Symbol("input", Kind.VARIABLE, Type.INTEGER));
-        boolean result = symbolT.addFunction(name, t, args);
+        //ArrayList<Symbol> args = new ArrayList();
+        //args.add(new Symbol("input", Kind.VARIABLE, Type.INTEGER));
+        boolean result = symbolT.addFunction(name, t);
         assertEquals(true, result);
         System.out.println("function0 successfully added to symbol table");
 
         // Add a function already in the symbol table
         name = "function1";
         t = Type.REAL;
-        result = symbolT.addFunction(name, t, args);
+        result = symbolT.addFunction(name, t);
         assertEquals(false, result);
         System.out.println("function1 not added to symbol table, already exists\n");
+    }
+
+    /**
+     * Tests adding two procedures to the symbol table, one that does not already exist and one that does.
+     */
+    @Test
+    void addProcedure() {
+        System.out.println("-----addProcedure-----");
+
+        // Add a procedure not already in the symbol table
+        String name = "procedure0";
+        boolean result = symbolT.addProcedure(name);
+        assertEquals(true, result);
+        System.out.println("procedure0 successfully added to symbol table");
+
+        // Add a procedure already in the symbol table
+        name = "procedure1";
+        result = symbolT.addProgram(name);
+        assertEquals(false, result);
+        System.out.println("procedure1 not added to symbol table, already exists\n");
     }
 
     /**
@@ -242,6 +264,29 @@ class SymbolTableTest {
 
         name = "foo";
         result = symbolT.isFunctionName(name);
+        assertEquals(false, result);
+        System.out.println("foo is a not a name in the symbol table\n");
+    }
+
+    /**
+     * Tests method with a procedure symbol in the table, a non-procedure symbol in the table and a symbol not in the table.
+     */
+    @Test
+    void isProcedureName() {
+        System.out.println("-----isProcedureName-----");
+
+        String name = "procedure1";
+        boolean result = symbolT.isProcedureName(name);
+        assertEquals(true, result);
+        System.out.println("procedure1 is a name in the symbol table and has kind PROGRAM");
+
+        name = "var1";
+        result = symbolT.isProcedureName(name);
+        assertEquals(false, result);
+        System.out.println("var1 is a name in the symbol table but does not have kind PROCEDURE");
+
+        name = "foo";
+        result = symbolT.isProcedureName(name);
         assertEquals(false, result);
         System.out.println("foo is a not a name in the symbol table\n");
     }
