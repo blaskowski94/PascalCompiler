@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Compiler Software Design Document</title>
+</head>
+<body>
+<h1>Compiler Software Design Document</h1>
+
+<p>
+    Bob Laskowski<br>
+    Compilers II<br>
+    Dr. Erik Steinmetz<br>
+    2/19/2017<br>
+<hr>
+<h3><u>Introduction</u></h3>
+<p>Eventually, this will be a complete compiler to turn Mini-Pascal code into MIPS assembly code. For now, the program
+    has a scanner, parser and symbol table. I have used JFlex to define lexical rules and create a scanner. JFlex takes
+    in a particular language and grammar defined by the user with regular expressions and converts it into java source
+    code. The scanner is designed to scan our modified version of Mini-pascal. It will take in a text file and output
+    tokens to be used later in the actual compiler.</p>
+
+<p>I have also created a parser based on the grammar which can be found in the design section. The parser ensures that
+    the tokens appear in an order that is valid according to the grammar. The parser is also integrated with a symbol
+    table. This keeps track of all the symbols declared such as the program name, variable names, function names, etc.
+    and ensures there are no duplicates. The parser/symbol table do not yet deal with score. For the time being we only
+    deal with the global score and assume there can not be two symbols with the same name. We will deal with score in
+    future implementations. </p>
+<hr>
+<h3><u>Design</u></h3>
+<p>The design is gradually getting more complex. See Figure 1 for a UML diagram. There will
+    be a scanner.flex file that contains the JFlex code. I will then run this code through JFlex to generate a
+    MyScanner.java file. For testing purposes there will be several text input files that contain sample Mini-pascal
+    code, plain text, a list of symbols, a list of numbers and IDs, and several incorrectly formatted items for the
+    scanner to parse. These can be found in the Input folder. The scanner will properly parse all but the error input
+    file. When the scanner encounters errors it will display an error message and exit the program.</p>
+
+<p>There will also be Token.java and Type.java classes. Token defines a Token object which contains a string with the
+    actual lexeme and a Type. The Type is an enumerated type defined in the Type class. There is a Type for each
+    keyword, symbol as well as types for ID and number. See below for a list of symbols and keywords in Mini-pascal.</p>
+
+<p>The scanner will recognize the following keywords and symbols:</p>
+<u>KEYWORDS</u>
+<ol>
+    <li>and</li>
+    <li>array</li>
+    <li>begin</li>
+    <li>div</li>
+    <li>do</li>
+    <li>else</li>
+    <li>end</li>
+    <li>function</li>
+    <li>if</li>
+    <li>integer</li>
+    <li>mod</li>
+    <li>not</li>
+    <li>of</li>
+    <li>or</li>
+    <li>procedure</li>
+    <li>program</li>
+    <li>real</li>
+    <li>then</li>
+    <li>var</li>
+    <li>while</li>
+</ol>
+
+<u>SYMBOLS</u>
+<ol>
+    <li>;</li>
+    <li>,</li>
+    <li>.</li>
+    <li>:</li>
+    <li>[</li>
+    <li>]</li>
+    <li>(</li>
+    <li>)</li>
+    <li>+</li>
+    <li>-</li>
+    <li>=</li>
+    <li><></li>
+    <li><</li>
+    <li><=</li>
+    <li>></li>
+    <li>>=</li>
+    <li>*</li>
+    <li>/</li>
+    <li>:=</li>
+</ol>
+
+The lexical rules the scanner and parser follow can be found in the following document: <a
+        href="Mini_Pascal_Grammar.pdf" target="_blank">The Grammar</a>
+
+<p>The parser uses the scanner to advance through text token by token and determine if they are in a valid order to be a
+    mini-pascal program. Every function in the parser exactly corresponds to a production rule in the grammar. It uses a
+    one token lookahead to see what the next token is and make a decision on whether to call other functions or match
+    tokens. It begins by calling the top level function, program, which in turn matches <b>program id ;</b> if they are
+    the first three tokens in the file. If it does not see what it expects to match it throws an error and the program
+    stops. After it matches these three tokens it calls the declarations function and proceeds on down the tree of
+    function calls. As it parses the program, whenever it encounters a declaration of a program, function, variable,
+    array or procedure, it adds that name to the symbol table along with some information about the symbol. For
+    variables, the name and type (int/real) are stored. For functions, the name and return type are stored. For arrays,
+    the name, type, beginning and ending index are stored. For procedures and programs, just the name is stored.
+    Function/procedure arguments are just treated like variables for now and in future iterations these will be stored
+    specially to deal with scope. </p>
+
+<hr>
+<h3><u>Functionality</u></h3>
+<p>To use the scanner, compile the .java files to get .class files. Run this from the command line or through an IDE
+    with a text file as the first and only command line argument. The main function takes this file as input. The
+    program will output the tokens recognized to standard out. Ideally this text file should contain a Mini-pascal
+    program.</p>
+
+<p>The following is an example of a Mini-pascal program that calculates the greatest common divisor of two integers
+    recursively: </p>
+
+<code>
+
+    program example(input, output);<br>
+    var x, y: integer;<br>
+    function gcd(a, b: integer): integer;<br>
+    begin
+    <ul style="list-style: none;">
+        <li>if b=0 then gcd:=a</li>
+        <li>else gcd:=gcd(b, a mod b)</li>
+    </ul>
+    end;<br>
+    begin
+    <ul style="list-style: none;">
+        <li>read(x,y);</li>
+        <li>write(gcd(x,y))</li>
+    </ul>
+    end.<br><br>
+
+</code>
+
+<p>To use the parser, instantiate the Parser class with either a String to parse or a file. If using a file, pass in
+    true as the second argument. If using a string, pass in false as the second argument. Then call <code>program</code>
+    on the parser object. You will see every token it matches. If successful (it follows the syntax of mini-pascal), you
+    will see an "It Parsed!" message printed to standard out. Otherwise, you will see an error message and what token
+    the error occurred on. </p>
+
+<p>Another way to run the program is through the CompilerMain class in the compiler package. This will eventually be the
+    way to run the whole compiler but for now it has the same effect as running the parser. CompilerMain will take in a
+    file as a command line argument and try to compile that file.</p>
+<hr>
+
+<h3><u>Testing</u></h3>
+<p>For testing of the scanner, symbol table and parser I used JUnit5. The testing can be found in the test package
+    inside of the
+    corresponding parent packages. The unit tests of scanner test <code>yytext</code> and <code>nextToken</code>
+    functions. The unit tests of parser test the <code>program, subprogram_declaration, declarations, statement,
+        simple_expression</code> and <code>factor</code> functions. For the scanner the file "simplest.pas" is used for
+    testing. For the parser the file "simple.pas" is used for testing as well as strings for testing individual
+    components of the parser.</p>
+<hr>
+
+<h3><u>Figures</u></h3>
+<figure>
+    <img src="Compiler.png" alt="compiler diagram">
+    <figcaption style="text-align: center;">Figure 1</figcaption>
+
+</figure>
+
+<hr>
+<h3><u>Change Log</u></h3>
+<ul>
+    <li>12/6/2016 9:11PM - Initial Creation of document with different sections</li>
+    <li>12/7/2016 9:46PM - Added basic intro, design and functionality for first iteration</li>
+    <li>12/13/2016 5:33PM - Added more detailed information about all java files and added diagram</li>
+    <li>2/3/2017 5:05PM - Added Parser documentation</li>
+    <li>2/19/2017 11:03PM - Added Symbol Table documentation</li>
+</ul>
+
+</body>
+</html>

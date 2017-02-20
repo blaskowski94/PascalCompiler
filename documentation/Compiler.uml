@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Diagram>
+  <ID>JAVA</ID>
+  <OriginalElement />
+  <nodes>
+    <node x="0.0" y="3203.0">symboltable.SymbolTable.Symbol</node>
+    <node x="1311.0" y="0.0">scanner.Type</node>
+    <node x="0.0" y="0.0">scanner.MyScanner</node>
+    <node x="893.25" y="2523.0">scanner.Token</node>
+    <node x="1315.25" y="2523.0">scanner.ScannerMain</node>
+    <node x="2445.25" y="2523.0">parser.test</node>
+    <node x="567.0" y="3380.0">symboltable.SymbolTable.Kind</node>
+    <node x="115.25" y="2523.0">symboltable.SymbolTable</node>
+    <node x="1965.25" y="2523.0">symboltable.test</node>
+    <node x="2260.0" y="0.0">parser.Parser</node>
+    <node x="2205.25" y="2523.0">scanner.test</node>
+    <node x="1640.25" y="2523.0">compiler.CompilerMain</node>
+  </nodes>
+  <notes />
+  <edges>
+    <edge source="symboltable.SymbolTable.Kind" target="symboltable.SymbolTable">
+      <point x="0.0" y="-138.0" />
+      <point x="690.0" y="3178.0" />
+      <point x="665.0" y="3178.0" />
+      <point x="183.25" y="315.0" />
+    </edge>
+    <edge source="symboltable.SymbolTable.Symbol" target="symboltable.SymbolTable">
+      <point x="0.0" y="-315.0" />
+      <point x="273.5" y="3178.0" />
+      <point x="298.5" y="3178.0" />
+      <point x="-183.25" y="315.0" />
+    </edge>
+  </edges>
+  <settings layout="Hierarchic Group" zoom="0.3488191019984428" x="1583.5" y="1916.4999999999998" />
+  <SelectedNodes />
+  <Categories>
+    <Category>Constructors</Category>
+    <Category>Methods</Category>
+    <Category>Properties</Category>
+    <Category>Inner Classes</Category>
+    <Category>Fields</Category>
+  </Categories>
+  <SCOPE>Project Files</SCOPE>
+  <VISIBILITY>private</VISIBILITY>
+</Diagram>
+
