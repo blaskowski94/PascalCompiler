@@ -4,6 +4,7 @@ import scanner.MyScanner;
 import scanner.Token;
 import scanner.Type;
 import symboltable.SymbolTable;
+import syntaxtree.*;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -25,6 +26,7 @@ import static scanner.Type.*;
  * regular text. Options are denoted with a vertical bar |. An empty option is denoted "lambda." See the grammar in
  * the documentation folder for more information on definitions.
  *
+ * TODO: Add while statement node to syntax tree, subprogram node
  * @author Bob Laskowski
  */
 public class Parser {
@@ -129,11 +131,13 @@ public class Parser {
         String name = lookahead.getLexeme();
         match(ID);
         if (!symbolTable.addProgram(name)) error("Name already exists in symbol table");
+        ProgramNode program = new ProgramNode(name);
         match(SEMI);
-        declarations();
-        subprogram_declarations();
-        compound_statement();
+        program.setVariables(declarations());
+        program.setFunctions(subprogram_declarations());
+        program.setMain(compound_statement());
         match(PERIOD);
+        System.out.println(program.indentedToString(0));
     }
 
     /**
@@ -164,16 +168,22 @@ public class Parser {
      * <p>
      * <strong>var</strong> identifier_list <strong>:</strong> type <strong>;</strong> declarations | lambda
      */
-    public void declarations() {
+    public DeclarationsNode declarations() {
+        DeclarationsNode dec = new DeclarationsNode();
         if (lookahead.getType() == VAR) {
             match(VAR);
             ArrayList<String> idList = identifier_list();
+            for (String id : idList) {
+                dec.addVariable(new VariableNode(id));
+            }
             match(COLON);
             type(idList);
             match(SEMI);
-            declarations();
+            dec.addDeclarations(declarations());
+
         }
         // else lambda case
+        return dec;
     }
 
     /**
@@ -231,13 +241,15 @@ public class Parser {
      * <p>
      * subprogram_declaration <strong>;</strong> subprogram_declarations | lambda
      */
-    public void subprogram_declarations() {
+    public SubProgramDeclarationsNode subprogram_declarations() {
+        SubProgramDeclarationsNode sub = null;
         if (lookahead.getType() == FUNCTION || lookahead.getType() == PROCEDURE) {
             subprogram_declaration();
             match(SEMI);
             subprogram_declarations();
         }
         // else lambda case
+        return sub;
     }
 
     /**
@@ -316,10 +328,12 @@ public class Parser {
      * <p>
      * <strong>begin</strong> optional_statements <strong>end</strong>
      */
-    public void compound_statement() {
+    public CompoundStatementNode compound_statement() {
+        CompoundStatementNode comp;
         match(BEGIN);
-        optional_statements();
+        comp = optional_statements();
         match(END);
+        return comp;
     }
 
     /**
@@ -327,10 +341,12 @@ public class Parser {
      * <p>
      * statement_list | lambda
      */
-    public void optional_statements() {
+    public CompoundStatementNode optional_statements() {
+        CompoundStatementNode comp = new CompoundStatementNode();
         if (lookahead.getType() == ID || lookahead.getType() == BEGIN || lookahead.getType() == IF || lookahead.getType() == WHILE)
-            statement_list();
+            comp.addAll(statement_list());
         // else lambda case
+        return comp;
     }
 
     /**
@@ -338,13 +354,15 @@ public class Parser {
      * <p>
      * statement_list | statement <strong>;</strong> statement_list
      */
-    public void statement_list() {
-        statement();
+    public ArrayList<StatementNode> statement_list() {
+        ArrayList<StatementNode> nodes = new ArrayList();
+        nodes.add(statement());
         if (lookahead.getType() == SEMI) {
             match(SEMI);
-            statement_list();
+            nodes.addAll(statement_list());
         }
         // else lambda case
+        return nodes;
     }
 
     /**
@@ -362,31 +380,41 @@ public class Parser {
      * not recognize these in Pascal code and will throw an error. This has been done until we have a way to eliminate
      * ambiguity and recognize built-in functions.
      */
-    public void statement() {
+    public StatementNode statement() {
+        StatementNode state = null;
         if (lookahead.getType() == ID) {
             if (symbolTable.isVariableName(lookahead.getLexeme())) {
-                variable();
+                AssignmentStatementNode assign = new AssignmentStatementNode();
+                assign.setLvalue(variable());
                 match(ASSIGN);
-                expression();
-            } else if (symbolTable.isProcedureName(lookahead.getLexeme())) {
+                assign.setExpression(expression());
+                return assign;
+            }
+            // Deal with this later
+            else if (symbolTable.isProcedureName(lookahead.getLexeme())) {
                 procedure_statement();
             } else error("Name not found in symbol table.");
-        } else if (lookahead.getType() == BEGIN) compound_statement();
+        } else if (lookahead.getType() == BEGIN) state = compound_statement();
         else if (lookahead.getType() == IF) {
+            IfStatementNode ifState = new IfStatementNode();
             match(IF);
-            expression();
+            ifState.setTest(expression());
             match(THEN);
-            statement();
+            ifState.setThenStatement(statement());
             match(ELSE);
-            statement();
+            ifState.setElseStatement(statement());
+            return ifState;
         } else if (lookahead.getType() == WHILE) {
+            WhileStatementNode whileState = new WhileStatementNode();
             match(WHILE);
-            expression();
+            whileState.setTest(expression());
             match(DO);
-            statement();
+            whileState.setDoStatement(statement());
+            return whileState;
         } else {
             error("statement");
         }
+        return state;
     }
 
     /**
@@ -395,7 +423,8 @@ public class Parser {
      * <strong>id</strong> |
      * <strong>id [</strong> expression <strong>]</strong>
      */
-    public void variable() {
+    public VariableNode variable() {
+        VariableNode var = new VariableNode(lookahead.getLexeme());
         match(ID);
         if (lookahead.getType() == LBRACE) {
             match(LBRACE);
@@ -403,6 +432,7 @@ public class Parser {
             match(RBRACE);
         }
         // else lambda case
+        return var;
     }
 
     /**
@@ -441,12 +471,14 @@ public class Parser {
      * <p>
      * simple_expression | simple_expression <strong>relop</strong> simple_expression
      */
-    public void expression() {
+    public ExpressionNode expression() {
+        ExpressionNode ex = null;
         simple_expression();
         if (isRelOp(lookahead.getType())) {
             match(lookahead.getType());
             simple_expression();
         }
+        return ex;
     }
 
     /**
@@ -454,15 +486,19 @@ public class Parser {
      * <p>
      * term simple_part | sign term simple_part
      */
-    public void simple_expression() {
+    public ExpressionNode simple_expression() {
+        ExpressionNode expNode = null;
         if (lookahead.getType() == ID || lookahead.getType() == NUMBER || lookahead.getType() == LPAREN || lookahead.getType() == NOT) {
-            term();
-            simple_part();
+            expNode = term();
+            expNode = simple_part(expNode);
         } else if (lookahead.getType() == PLUS || lookahead.getType() == MINUS) {
+            // Do we need to include this in syntax tree?
             sign();
-            term();
-            simple_part();
+            expNode = term();
+            expNode = simple_part(expNode);
         } else error("simple_expression");
+        //System.out.println(expNode.indentedToString(0));
+        return expNode;
     }
 
     /**
@@ -470,13 +506,18 @@ public class Parser {
      * <p>
      * <strong>addop</strong> term simple_part | lambda
      */
-    public void simple_part() {
+    public ExpressionNode simple_part(ExpressionNode posLeft) {
+
         if (isAddOp(lookahead.getType())) {
+            OperationNode op = new OperationNode(lookahead.getType());
             match(lookahead.getType());
-            term();
-            simple_part();
+            ExpressionNode right = term();
+            op.setLeft(posLeft);
+            op.setRight(right);
+            return simple_part(op);
         }
         // else lambda case
+        return posLeft;
     }
 
     /**
@@ -484,9 +525,9 @@ public class Parser {
      * <p>
      * factor term_part
      */
-    public void term() {
-        factor();
-        term_part();
+    public ExpressionNode term() {
+        ExpressionNode left = factor();
+        return term_part(left);
     }
 
     /**
@@ -494,13 +535,17 @@ public class Parser {
      * <p>
      * <strong>mulop</strong> factor term_part | lambda
      */
-    public void term_part() {
+    public ExpressionNode term_part(ExpressionNode posLeft) {
         if (isMulOp(lookahead.getType())) {
+            OperationNode op = new OperationNode(lookahead.getType());
             match(lookahead.getType());
-            factor();
-            term_part();
+            ExpressionNode right = factor();
+            op.setLeft(posLeft);
+            op.setRight(right);
+            term_part(op);
         }
         // else lambda case
+        return posLeft;
     }
 
     /**
@@ -509,8 +554,10 @@ public class Parser {
      * <strong>id</strong> | <strong>id [</strong> expression <strong>]</strong> | <strong>id (</strong> expression_list <strong>)</strong> |
      * <strong>num</strong> | <strong>(</strong> expression <strong>)</strong> | <strong>not</strong> factor
      */
-    public void factor() {
+    public ExpressionNode factor() {
+        ExpressionNode ex = null;
         if (lookahead.getType() == ID) {
+            ex = new VariableNode(lookahead.getLexeme());
             match(ID);
             if (lookahead.getType() == LBRACE) {
                 match(LBRACE);
@@ -521,7 +568,10 @@ public class Parser {
                 expression_list();
                 match(RPAREN);
             }
-        } else if (lookahead.getType() == NUMBER) match(NUMBER);
+        } else if (lookahead.getType() == NUMBER) {
+            ex = new ValueNode(lookahead.getLexeme());
+            match(NUMBER);
+        }
         else if (lookahead.getType() == LPAREN) {
             match(LPAREN);
             expression();
@@ -530,6 +580,7 @@ public class Parser {
             match(NOT);
             factor();
         } else error("factor");
+        return ex;
     }
 
     /**

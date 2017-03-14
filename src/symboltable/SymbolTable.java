@@ -21,7 +21,7 @@ import java.util.Objects;
 public class SymbolTable {
 
     // protected so it can be accessed for testing
-    protected HashMap<String, Symbol> symbTable;
+    public HashMap<String, Symbol> symbTable;
 
     ///////////////////////////////
     //    Instance Variables
