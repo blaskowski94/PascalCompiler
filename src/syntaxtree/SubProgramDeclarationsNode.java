@@ -15,6 +15,14 @@ public class SubProgramDeclarationsNode extends SyntaxTreeNode {
         procs.add(aSubProgram);
     }
 
+    public void addall(ArrayList<SubProgramNode> aSubProgram) {
+        procs.addAll(aSubProgram);
+    }
+
+    public ArrayList<SubProgramNode> getProcs() {
+        return procs;
+    }
+
     public String indentedToString(int level) {
         String answer = this.indentation(level);
         answer += "SubProgramDeclarations\n";

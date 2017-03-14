@@ -21,6 +21,7 @@ public class DeclarationsNode extends SyntaxTreeNode {
 
     public String indentedToString(int level) {
         String answer = this.indentation(level);
+        answer += "Declarations\n";
         for (VariableNode variable : vars) {
             answer += variable.indentedToString(level + 1);
         }

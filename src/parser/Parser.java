@@ -126,7 +126,7 @@ public class Parser {
      * compound_statement
      * <strong>.</strong>
      */
-    public void program() {
+    public ProgramNode program() {
         match(PROGRAM);
         String name = lookahead.getLexeme();
         match(ID);
@@ -138,6 +138,7 @@ public class Parser {
         program.setMain(compound_statement());
         match(PERIOD);
         System.out.println(program.indentedToString(0));
+        return program;
     }
 
     /**
@@ -180,7 +181,6 @@ public class Parser {
             type(idList);
             match(SEMI);
             dec.addDeclarations(declarations());
-
         }
         // else lambda case
         return dec;
@@ -242,14 +242,14 @@ public class Parser {
      * subprogram_declaration <strong>;</strong> subprogram_declarations | lambda
      */
     public SubProgramDeclarationsNode subprogram_declarations() {
-        SubProgramDeclarationsNode sub = null;
+        SubProgramDeclarationsNode spdNode = new SubProgramDeclarationsNode();
         if (lookahead.getType() == FUNCTION || lookahead.getType() == PROCEDURE) {
-            subprogram_declaration();
+            spdNode.addSubProgramDeclaration(subprogram_declaration());
             match(SEMI);
-            subprogram_declarations();
+            spdNode.addall(subprogram_declarations().getProcs());
         }
         // else lambda case
-        return sub;
+        return spdNode;
     }
 
     /**
@@ -260,11 +260,12 @@ public class Parser {
      * subprogram_declarations
      * compound_statement
      */
-    public void subprogram_declaration() {
-        subprogram_head();
-        declarations();
-        subprogram_declarations();
-        compound_statement();
+    public SubProgramNode subprogram_declaration() {
+        SubProgramNode spNode = subprogram_head();
+        spNode.setVariables(declarations());
+        spNode.setFunctions(subprogram_declarations());
+        spNode.setMain(compound_statement());
+        return spNode;
     }
 
     /**
@@ -273,10 +274,12 @@ public class Parser {
      * <strong>function id</strong> arguments <strong>:</strong> standard_type <strong>;</strong> |
      * <strong>procedure id</strong> arguments <strong>;</strong>
      */
-    public void subprogram_head() {
+    public SubProgramNode subprogram_head() {
+        SubProgramNode spNode = null;
         if (lookahead.getType() == FUNCTION) {
             match(FUNCTION);
             String funcName = lookahead.getLexeme();
+            spNode = new SubProgramNode(funcName);
             match(ID);
             arguments();
             match(COLON);
@@ -286,11 +289,13 @@ public class Parser {
         } else if (lookahead.getType() == PROCEDURE) {
             match(PROCEDURE);
             String procName = lookahead.getLexeme();
+            spNode = new SubProgramNode(procName);
             match(ID);
             arguments();
             symbolTable.addProcedure(procName);
             match(SEMI);
         } else error("subprogram_head");
+        return spNode;
     }
 
     /**
@@ -390,9 +395,8 @@ public class Parser {
                 assign.setExpression(expression());
                 return assign;
             }
-            // Deal with this later
             else if (symbolTable.isProcedureName(lookahead.getLexeme())) {
-                procedure_statement();
+                return procedure_statement();
             } else error("Name not found in symbol table.");
         } else if (lookahead.getType() == BEGIN) state = compound_statement();
         else if (lookahead.getType() == IF) {
@@ -444,13 +448,16 @@ public class Parser {
      * Note: this has not yet been implemented due to ambiguity in the grammar (no way to choose between variable and
      * procedure_statement at the moment).
      */
-    public void procedure_statement() {
+    public ProcedureStatementNode procedure_statement() {
+        ProcedureStatementNode psNode = new ProcedureStatementNode();
+        psNode.setVariable(new VariableNode(lookahead.getLexeme()));
         match(ID);
         if (lookahead.getType() == LPAREN) {
             match(LPAREN);
-            expression_list();
+            psNode.addAllExpNode(expression_list());
             match(RPAREN);
         }
+        return psNode;
     }
 
     /**
@@ -458,12 +465,14 @@ public class Parser {
      * <p>
      * expression | expression <strong>,</strong> expression_list
      */
-    public void expression_list() {
-        expression();
+    public ArrayList<ExpressionNode> expression_list() {
+        ArrayList<ExpressionNode> exNodeList = new ArrayList();
+        exNodeList.add(expression());
         if (lookahead.getType() == COMMA) {
             match(COMMA);
-            expression_list();
+            exNodeList.addAll(expression_list());
         }
+        return exNodeList;
     }
 
     /**
@@ -472,13 +481,15 @@ public class Parser {
      * simple_expression | simple_expression <strong>relop</strong> simple_expression
      */
     public ExpressionNode expression() {
-        ExpressionNode ex = null;
-        simple_expression();
+        ExpressionNode left = simple_expression();
         if (isRelOp(lookahead.getType())) {
+            OperationNode opNode = new OperationNode(lookahead.getType());
+            opNode.setLeft(left);
             match(lookahead.getType());
-            simple_expression();
+            opNode.setRight(simple_expression());
+            return opNode;
         }
-        return ex;
+        return left;
     }
 
     /**
@@ -492,10 +503,10 @@ public class Parser {
             expNode = term();
             expNode = simple_part(expNode);
         } else if (lookahead.getType() == PLUS || lookahead.getType() == MINUS) {
-            // Do we need to include this in syntax tree?
-            sign();
+            UnaryOperationNode uoNode = sign();
             expNode = term();
-            expNode = simple_part(expNode);
+            uoNode.setExpression(simple_part(expNode));
+            return uoNode;
         } else error("simple_expression");
         //System.out.println(expNode.indentedToString(0));
         return expNode;
@@ -541,8 +552,9 @@ public class Parser {
             match(lookahead.getType());
             ExpressionNode right = factor();
             op.setLeft(posLeft);
-            op.setRight(right);
-            term_part(op);
+            // possible source of error
+            op.setRight(term_part(right));
+            return op;
         }
         // else lambda case
         return posLeft;
@@ -577,8 +589,10 @@ public class Parser {
             expression();
             match(RPAREN);
         } else if (lookahead.getType() == NOT) {
+            UnaryOperationNode uoNode = new UnaryOperationNode(NOT);
             match(NOT);
-            factor();
+            uoNode.setExpression(factor());
+            return uoNode;
         } else error("factor");
         return ex;
     }
@@ -588,10 +602,16 @@ public class Parser {
      * <p>
      * <strong>+</strong> | <strong>-</strong>
      */
-    public void sign() {
-        if (lookahead.getType() == PLUS) match(PLUS);
-        else if (lookahead.getType() == MINUS) match(MINUS);
-        else error("sign");
+    public UnaryOperationNode sign() {
+        UnaryOperationNode uoNode = null;
+        if (lookahead.getType() == PLUS) {
+            uoNode = new UnaryOperationNode(PLUS);
+            match(PLUS);
+        } else if (lookahead.getType() == MINUS) {
+            uoNode = new UnaryOperationNode(MINUS);
+            match(MINUS);
+        } else error("sign");
+        return uoNode;
     }
 
     /**
