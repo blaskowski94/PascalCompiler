@@ -4,6 +4,7 @@ import scanner.Type;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -45,7 +46,11 @@ public class SymbolTable {
      */
     @Override
     public String toString() {
-        return "SymbolTable{" + "symbTable=" + symbTable + '}';
+        String retVal = "SymbolTable:\n";
+        for (Map.Entry<String, Symbol> entry : symbTable.entrySet()) {
+            retVal += entry.getKey() + " : " + entry.getValue();
+        }
+        return retVal;
     }
 
     ///////////////////////////////
@@ -346,7 +351,7 @@ public class SymbolTable {
          */
         @Override
         public String toString() {
-            return "Symbol{" + "id='" + id + '\'' + ", kind=" + kind + ", type=" + type + ", beginidx=" + beginidx + ", endidx=" + endidx + '}';
+            return "id='" + id + '\'' + ", kind=" + kind + ", type=" + type + ", beginidx=" + beginidx + ", endidx=" + endidx + "\n";
         }
 
         /**

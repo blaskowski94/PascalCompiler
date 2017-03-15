@@ -26,7 +26,6 @@ import static scanner.Type.*;
  * regular text. Options are denoted with a vertical bar |. An empty option is denoted "lambda." See the grammar in
  * the documentation folder for more information on definitions.
  *
- * TODO: Add while statement node to syntax tree, subprogram node
  * @author Bob Laskowski
  */
 public class Parser {
@@ -58,7 +57,7 @@ public class Parser {
             try {
                 fis = new FileInputStream(input);
             } catch (FileNotFoundException ex) {
-                error("No file");
+                error("File \"" + input + "\" not found. Check file name and path to ensure it exists.");
             }
             assert fis != null;
             isr = new InputStreamReader(fis);
@@ -137,7 +136,21 @@ public class Parser {
         program.setFunctions(subprogram_declarations());
         program.setMain(compound_statement());
         match(PERIOD);
-        System.out.println(program.indentedToString(0));
+
+
+        // Write syntax tree and contents of symbol table to files
+        try (Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("src/compiler/output/" + name + ".tree"), "utf-8"))) {
+            writer.write(program.indentedToString(0));
+        } catch (Exception ex) {
+            error("Problem with output file.");
+        }
+
+        try (Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("src/compiler/output/" + name + ".table"), "utf-8"))) {
+            writer.write(symbolTable.toString());
+        } catch (Exception ex) {
+            error("Problem with output file.");
+        }
+
         return program;
     }
 
@@ -508,7 +521,6 @@ public class Parser {
             uoNode.setExpression(simple_part(expNode));
             return uoNode;
         } else error("simple_expression");
-        //System.out.println(expNode.indentedToString(0));
         return expNode;
     }
 
@@ -552,7 +564,6 @@ public class Parser {
             match(lookahead.getType());
             ExpressionNode right = factor();
             op.setLeft(posLeft);
-            // possible source of error
             op.setRight(term_part(right));
             return op;
         }
@@ -569,21 +580,30 @@ public class Parser {
     public ExpressionNode factor() {
         ExpressionNode ex = null;
         if (lookahead.getType() == ID) {
-            ex = new VariableNode(lookahead.getLexeme());
+            String name = lookahead.getLexeme();
             match(ID);
             if (lookahead.getType() == LBRACE) {
+                ArrayNode aNode = new ArrayNode(name);
                 match(LBRACE);
-                expression();
+                ExpressionNode temp = expression();
+                aNode.setExpNode(temp);
                 match(RBRACE);
-            } else if (lookahead.getType() == LPAREN) {
+                return aNode;
+            }
+            // What kind of node should this be??
+            else if (lookahead.getType() == LPAREN) {
                 match(LPAREN);
                 expression_list();
                 match(RPAREN);
+            } else {
+                return new VariableNode(name);
+
             }
         } else if (lookahead.getType() == NUMBER) {
             ex = new ValueNode(lookahead.getLexeme());
             match(NUMBER);
         }
+        // Figure out how to handle this
         else if (lookahead.getType() == LPAREN) {
             match(LPAREN);
             expression();
@@ -623,7 +643,7 @@ public class Parser {
      * @param expected The expected token type.
      */
     private void match(Type expected) {
-        System.out.println("Match " + expected + " " + lookahead.getLexeme());
+        //System.out.println("Match " + expected + " " + lookahead.getLexeme());
         if (this.lookahead.getType() == expected) {
             try {
                 this.lookahead = scanny.nextToken();
@@ -644,7 +664,7 @@ public class Parser {
      * @param message The error message to print.
      */
     private void error(String message) {
-        System.out.println("Error " + message);
+        System.out.println("Error: " + message);
         System.exit(1);
     }
 
