@@ -59,7 +59,7 @@ public class UnaryOperationNode extends ExpressionNode {
     @Override
     public String indentedToString(int level) {
         String answer = this.indentation(level);
-        answer += "Operation: " + this.operation + "\n";
+        answer += "Unary Operation: " + this.operation + "\n";
         answer += expression.indentedToString(level + 1);
         return (answer);
     }

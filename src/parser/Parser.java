@@ -187,11 +187,11 @@ public class Parser {
         if (lookahead.getType() == VAR) {
             match(VAR);
             ArrayList<String> idList = identifier_list();
-            for (String id : idList) {
-                dec.addVariable(new VariableNode(id));
-            }
             match(COLON);
-            type(idList);
+            Type t = type(idList);
+            for (String id : idList) {
+                dec.addVariable(new VariableNode(id, t));
+            }
             match(SEMI);
             dec.addDeclarations(declarations());
         }
@@ -206,8 +206,9 @@ public class Parser {
      *
      * @param idList An ArrayList of ID names to be added to symbol table
      */
-    public void type(ArrayList<String> idList) {
+    public Type type(ArrayList<String> idList) {
         int beginidx, endidx;
+        Type t = null;
         if (lookahead.getType() == ARRAY) {
             match(ARRAY);
             match(LBRACE);
@@ -218,16 +219,17 @@ public class Parser {
             match(NUMBER);
             match(RBRACE);
             match(OF);
-            Type t = standard_type();
+            t = standard_type();
             for (String anIdList : idList) {
                 if (!symbolTable.addArray(anIdList, t, beginidx, endidx)) error("Name already exists in symbol table");
             }
         } else if (lookahead.getType() == INTEGER || lookahead.getType() == REAL) {
-            Type t = standard_type();
+            t = standard_type();
             for (String anIdList : idList) {
                 if (!symbolTable.addVariable(anIdList, t)) error("Name already exists in symbol table");
             }
         } else error("type");
+        return t;
     }
 
     /**
@@ -401,7 +403,7 @@ public class Parser {
     public StatementNode statement() {
         StatementNode state = null;
         if (lookahead.getType() == ID) {
-            if (symbolTable.isVariableName(lookahead.getLexeme())) {
+            if (symbolTable.isVariableName(lookahead.getLexeme()) || symbolTable.isArrayName((lookahead.getLexeme()))) {
                 AssignmentStatementNode assign = new AssignmentStatementNode();
                 assign.setLvalue(variable());
                 match(ASSIGN);
@@ -463,13 +465,15 @@ public class Parser {
      */
     public ProcedureStatementNode procedure_statement() {
         ProcedureStatementNode psNode = new ProcedureStatementNode();
-        psNode.setVariable(new VariableNode(lookahead.getLexeme()));
+        String procName = lookahead.getLexeme();
+        psNode.setVariable(new VariableNode(procName));
         match(ID);
         if (lookahead.getType() == LPAREN) {
             match(LPAREN);
             psNode.addAllExpNode(expression_list());
             match(RPAREN);
         }
+        symbolTable.addProcedure(procName);
         return psNode;
     }
 
@@ -590,23 +594,22 @@ public class Parser {
                 match(RBRACE);
                 return aNode;
             }
-            // What kind of node should this be??
             else if (lookahead.getType() == LPAREN) {
+                FunctionNode fNode = new FunctionNode(name);
                 match(LPAREN);
-                expression_list();
+                fNode.setExpNode(expression_list());
                 match(RPAREN);
+                return fNode;
             } else {
                 return new VariableNode(name);
-
             }
         } else if (lookahead.getType() == NUMBER) {
             ex = new ValueNode(lookahead.getLexeme());
             match(NUMBER);
         }
-        // Figure out how to handle this
         else if (lookahead.getType() == LPAREN) {
             match(LPAREN);
-            expression();
+            ex = expression();
             match(RPAREN);
         } else if (lookahead.getType() == NOT) {
             UnaryOperationNode uoNode = new UnaryOperationNode(NOT);

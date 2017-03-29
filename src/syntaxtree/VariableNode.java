@@ -1,5 +1,7 @@
 package syntaxtree;
 
+import scanner.Type;
+
 /**
  * Represents a variable in the syntax tree.
  *
@@ -18,6 +20,11 @@ public class VariableNode extends ExpressionNode {
      * @param attr The attribute for this value node.
      */
     public VariableNode(String attr) {
+        this.name = attr;
+    }
+
+    public VariableNode(String attr, Type t) {
+        super(t);
         this.name = attr;
     }
 
@@ -43,7 +50,9 @@ public class VariableNode extends ExpressionNode {
     @Override
     public String indentedToString(int level) {
         String answer = this.indentation(level);
-        answer += "Name: " + this.name + "\n";
+        answer += "Name: " + this.name;
+        if (type != null) answer += ", Type: " + type;
+        answer += "\n";
         return answer;
     }
 

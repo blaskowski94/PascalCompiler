@@ -30,7 +30,7 @@ public class AssignmentStatementNode extends StatementNode {
     @Override
     public String indentedToString(int level) {
         String answer = this.indentation(level);
-        answer += "Assignment\n";
+        answer += "Assignment:\n";
         if (lvalue != null) answer += this.lvalue.indentedToString(level + 1);
         if (expression != null) answer += this.expression.indentedToString(level + 1);
         return answer;

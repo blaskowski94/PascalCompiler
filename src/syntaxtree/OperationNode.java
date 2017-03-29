@@ -20,17 +20,12 @@ public class OperationNode extends ExpressionNode {
     private ExpressionNode right;
 
     /**
-     * The kind of operation.
-     */
-    private Type operation;
-
-    /**
      * Creates an operation node given an operation token.
      *
      * @param op The token representing this node's math operation.
      */
     public OperationNode(Type op) {
-        this.operation = op;
+        this.type = op;
     }
 
 
@@ -55,11 +50,11 @@ public class OperationNode extends ExpressionNode {
     }
 
     public Type getOperation() {
-        return (this.operation);
+        return (this.type);
     }
 
     public void setOperation(Type op) {
-        this.operation = op;
+        this.type = op;
     }
 
     /**
@@ -69,13 +64,13 @@ public class OperationNode extends ExpressionNode {
      */
     @Override
     public String toString() {
-        return operation.toString();
+        return type.toString();
     }
 
     @Override
     public String indentedToString(int level) {
         String answer = this.indentation(level);
-        answer += "Operation: " + this.operation + "\n";
+        answer += "Operation: " + this.type + "\n";
         answer += left.indentedToString(level + 1);
         answer += right.indentedToString(level + 1);
         return (answer);
@@ -86,7 +81,7 @@ public class OperationNode extends ExpressionNode {
         boolean answer = false;
         if (o instanceof OperationNode) {
             OperationNode other = (OperationNode) o;
-            if ((this.operation == other.operation) && this.left.equals(other.left) && this.right.equals(other.right))
+            if ((this.type == other.type) && this.left.equals(other.left) && this.right.equals(other.right))
                 answer = true;
         }
         return answer;

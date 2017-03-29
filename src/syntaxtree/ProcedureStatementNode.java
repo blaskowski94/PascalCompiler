@@ -40,8 +40,8 @@ public class ProcedureStatementNode extends StatementNode {
     @Override
     public String indentedToString(int level) {
         String answer = this.indentation(level);
-        answer += "ProcedureStatementNode\n";
-        answer += this.variable;
+        answer += "Procedure: ";
+        answer += this.variable + "\n";
         for (ExpressionNode exp : expNode) {
             answer += exp.indentedToString(level + 1);
         }

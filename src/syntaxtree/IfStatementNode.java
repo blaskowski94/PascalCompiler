@@ -38,10 +38,10 @@ public class IfStatementNode extends StatementNode {
     @Override
     public String indentedToString(int level) {
         String answer = this.indentation(level);
-        answer += "If\n";
-        if (test != null) answer += this.test.indentedToString(level + 1);
-        answer += this.thenStatement.indentedToString(level + 1);
-        answer += this.elseStatement.indentedToString(level + 1);
+        answer += "If:\n";
+        answer += this.test.indentedToString(level + 1);
+        answer += this.indentation(level) + "Then:\n" + this.thenStatement.indentedToString(level + 1);
+        answer += this.indentation(level) + "Else:\n" + this.elseStatement.indentedToString(level + 1);
         return answer;
     }
 

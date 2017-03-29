@@ -40,7 +40,7 @@ public class SubProgramNode extends SubProgramDeclarationsNode {
     @Override
     public String indentedToString(int level) {
         String answer = this.indentation(level);
-        answer += "Program: " + name + "\n";
+        answer += "SubProgram: " + name + "\n";
         answer += variables.indentedToString(level + 1);
         answer += functions.indentedToString(level + 1);
         answer += main.indentedToString(level + 1);

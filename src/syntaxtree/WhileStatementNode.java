@@ -26,9 +26,9 @@ public class WhileStatementNode extends StatementNode {
     @Override
     public String indentedToString(int level) {
         String answer = this.indentation(level);
-        answer += "While\n";
+        answer += "While:\n";
         answer += this.test.indentedToString(level + 1);
-        answer += this.doStatement.indentedToString(level + 1);
+        answer += this.indentation(level) + "Do:\n" + this.doStatement.indentedToString(level + 1);
         return answer;
     }
 }
