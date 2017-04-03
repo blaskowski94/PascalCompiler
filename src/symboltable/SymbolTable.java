@@ -4,6 +4,7 @@ import scanner.Type;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -17,11 +18,13 @@ import java.util.Objects;
  * symbol stores a Type enum. Programs store the program name. Variables store the variable name and type (real or int).
  * Arrays store the name, type, begin and end index. Functions store the name, return type and an ArrayList of the
  * arguments.
+ *
+ * @author Bob Laskowski
  */
 public class SymbolTable {
 
     // protected so it can be accessed for testing
-    protected HashMap<String, Symbol> symbTable;
+    public HashMap<String, Symbol> symbTable;
 
     ///////////////////////////////
     //    Instance Variables
@@ -45,7 +48,11 @@ public class SymbolTable {
      */
     @Override
     public String toString() {
-        return "SymbolTable{" + "symbTable=" + symbTable + '}';
+        String retVal = "SymbolTable:\n";
+        for (Map.Entry<String, Symbol> entry : symbTable.entrySet()) {
+            retVal += entry.getKey() + " : " + entry.getValue();
+        }
+        return retVal;
     }
 
     ///////////////////////////////
@@ -181,6 +188,10 @@ public class SymbolTable {
      */
     public boolean isProcedureName(String name) {
         return symbTable.containsKey(name) && symbTable.get(name).getKind() == Kind.PROCEDURE;
+    }
+
+    public Type getType(String name) {
+        return symbTable.get(name).getType();
     }
 
     /**
@@ -346,7 +357,7 @@ public class SymbolTable {
          */
         @Override
         public String toString() {
-            return "Symbol{" + "id='" + id + '\'' + ", kind=" + kind + ", type=" + type + ", beginidx=" + beginidx + ", endidx=" + endidx + '}';
+            return "id='" + id + '\'' + ", kind=" + kind + ", type=" + type + ", beginidx=" + beginidx + ", endidx=" + endidx + "\n";
         }
 
         /**
