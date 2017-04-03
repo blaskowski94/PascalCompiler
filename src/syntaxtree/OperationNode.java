@@ -5,19 +5,12 @@ import scanner.Type;
 /**
  * Represents any operation in an expression.
  *
- * @author Erik Steinmetz
+ * @author Bob Laskowski
  */
 public class OperationNode extends ExpressionNode {
 
-    /**
-     * The left operator of this operation.
-     */
-    private ExpressionNode left;
-
-    /**
-     * The right operator of this operation.
-     */
-    private ExpressionNode right;
+    private ExpressionNode left; // The left operator of this operation.
+    private ExpressionNode right; // The right operator of this operation.
 
     /**
      * Creates an operation node given an operation token.
@@ -28,33 +21,24 @@ public class OperationNode extends ExpressionNode {
         this.type = op;
     }
 
-
-    // Getters
-    public ExpressionNode getLeft() {
-        return (this.left);
-    }
-
-    // Setters
+    /**
+     * Set the left hand side of the operation
+     *
+     * @param node The ExpressionNode on the left
+     */
     public void setLeft(ExpressionNode node) {
         // If we already have a left, remove it from our child list.
         this.left = node;
     }
 
-    public ExpressionNode getRight() {
-        return (this.right);
-    }
-
+    /**
+     * Set the right hand side of the operation
+     *
+     * @param node The ExpressionNode on the right
+     */
     public void setRight(ExpressionNode node) {
         // If we already have a right, remove it from our child list.
         this.right = node;
-    }
-
-    public Type getOperation() {
-        return (this.type);
-    }
-
-    public void setOperation(Type op) {
-        this.type = op;
     }
 
     /**
@@ -67,6 +51,12 @@ public class OperationNode extends ExpressionNode {
         return type.toString();
     }
 
+    /**
+     * Print out the node with proper indentation to build a visual syntax tree
+     *
+     * @param level The level of indentation, counting begins at zero
+     * @return A String with the tree representation of the Node
+     */
     @Override
     public String indentedToString(int level) {
         String answer = this.indentation(level);
@@ -76,13 +66,19 @@ public class OperationNode extends ExpressionNode {
         return (answer);
     }
 
+    /**
+     * Determines if two OperationNodes are equal. They are equal if they have the same operation type and the same
+     * expressions on the left and right
+     *
+     * @param o Another OperationNode
+     * @return True if equal, False otherwise
+     */
     @Override
     public boolean equals(Object o) {
         boolean answer = false;
         if (o instanceof OperationNode) {
             OperationNode other = (OperationNode) o;
-            if ((this.type == other.type) && this.left.equals(other.left) && this.right.equals(other.right))
-                answer = true;
+            if ((this.type == other.type) && this.left.equals(other.left) && this.right.equals(other.right)) answer = true;
         }
         return answer;
     }

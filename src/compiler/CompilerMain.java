@@ -1,6 +1,7 @@
 package compiler;
 
 import parser.Parser;
+import syntaxtree.SyntaxTreeNode;
 
 /**
  * Bob Laskowski,
@@ -8,8 +9,12 @@ import parser.Parser;
  * Dr. Erik Steinmetz,
  * February 3rd, 2017
  * <p>
- * Main driver for the compiler.
- * TODO: output simple.tree, simple.table
+ * Main driver for the compiler. Run with a mini-pascal program to parse as the only command line argument, "help"/"-h"
+ * for instructions, or no command line arguments for a sample program to be parsed. This sample program can be found
+ * in src/parser/test/simple.pas.
+ *
+ * Output will be two text files, foo.table and foo.tree with the symbol table and syntax tree.
+ * @author Bob Laskowski
  */
 
 public class CompilerMain {
@@ -21,7 +26,7 @@ public class CompilerMain {
         if (args.length == 0) {
             program = "src/parser/test/simple.pas";
         }
-        // If one argument passed in, use that as program
+        // If one argument passed in, use that as program or help()
         else if (args.length == 1) {
             if (args[0].equals("-h") || args[0].equals("-help")) {
                 help();
@@ -36,7 +41,13 @@ public class CompilerMain {
 
         if (!help) {
             Parser parser = new Parser(program, true);
-            parser.program();
+            SyntaxTreeNode tree = parser.program();
+            //SemanticAnalyzer sa = new SemanticAnalyzer(tree);
+            //tree = sa.codeFolding(); // optional
+            //CodeGeneration cg = new CodeGeneration(tree);
+            //String theCode = cg.generate();
+            //String assemblyFileName = filename + ".asm";
+            // Write assembly to a file
         }
     }
 

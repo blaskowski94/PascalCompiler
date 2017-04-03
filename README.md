@@ -3,7 +3,7 @@ This project will eventually be a Mini-Pascal to MIPS assembly compiler. It is w
 
 The program can be run from the command line by compiling all the .java files with javac and then running:
 
-java CompilerMain input.txt
+java CompilerMain program.pas
 
-where input.txt is any text file that you wish to parse. The program will print out the Tokens as they are matched and whether or not it parsed successfully.
+where program.pas is a a Mini-pascal program you wish to parse. The program will write the symbol table and syntax tree to .table and .tree files.
 

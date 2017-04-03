@@ -18,6 +18,8 @@ import java.util.Objects;
  * symbol stores a Type enum. Programs store the program name. Variables store the variable name and type (real or int).
  * Arrays store the name, type, begin and end index. Functions store the name, return type and an ArrayList of the
  * arguments.
+ *
+ * @author Bob Laskowski
  */
 public class SymbolTable {
 
@@ -186,6 +188,10 @@ public class SymbolTable {
      */
     public boolean isProcedureName(String name) {
         return symbTable.containsKey(name) && symbTable.get(name).getKind() == Kind.PROCEDURE;
+    }
+
+    public Type getType(String name) {
+        return symbTable.get(name).getType();
     }
 
     /**

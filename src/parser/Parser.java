@@ -124,6 +124,8 @@ public class Parser {
      * subprogram_declarations
      * compound_statement
      * <strong>.</strong>
+     *
+     * @return A ProgramNode of the whole program
      */
     public ProgramNode program() {
         match(PROGRAM);
@@ -181,6 +183,8 @@ public class Parser {
      * Declarations contain the following:
      * <p>
      * <strong>var</strong> identifier_list <strong>:</strong> type <strong>;</strong> declarations | lambda
+     *
+     * @return A DeclarationsNode containing all the variables declared
      */
     public DeclarationsNode declarations() {
         DeclarationsNode dec = new DeclarationsNode();
@@ -205,6 +209,7 @@ public class Parser {
      * standard_type | <strong>array[num:num] of</strong> standard_type
      *
      * @param idList An ArrayList of ID names to be added to symbol table
+     * @return A standard Type (INTEGER/REAL)
      */
     public Type type(ArrayList<String> idList) {
         int beginidx, endidx;
@@ -255,6 +260,8 @@ public class Parser {
      * Subprogram_declarations contain the following:
      * <p>
      * subprogram_declaration <strong>;</strong> subprogram_declarations | lambda
+     *
+     * @return A SubProgramDeclarationsNode containing all the functions/procedures declared
      */
     public SubProgramDeclarationsNode subprogram_declarations() {
         SubProgramDeclarationsNode spdNode = new SubProgramDeclarationsNode();
@@ -274,9 +281,12 @@ public class Parser {
      * declarations
      * subprogram_declarations
      * compound_statement
+     *
+     * @return A SubProgramNode for a function/procedure declared
      */
     public SubProgramNode subprogram_declaration() {
         SubProgramNode spNode = subprogram_head();
+        spNode.setReturnType(symbolTable.getType(spNode.getName()));
         spNode.setVariables(declarations());
         spNode.setFunctions(subprogram_declarations());
         spNode.setMain(compound_statement());
@@ -288,6 +298,8 @@ public class Parser {
      * <p>
      * <strong>function id</strong> arguments <strong>:</strong> standard_type <strong>;</strong> |
      * <strong>procedure id</strong> arguments <strong>;</strong>
+     *
+     * @return A SubProgramNode for a function/procedure declared
      */
     public SubProgramNode subprogram_head() {
         SubProgramNode spNode = null;
@@ -347,6 +359,8 @@ public class Parser {
      * A compound_statement contains the following:
      * <p>
      * <strong>begin</strong> optional_statements <strong>end</strong>
+     *
+     * @return A CompoundStatementNode for the body of the function/procedure
      */
     public CompoundStatementNode compound_statement() {
         CompoundStatementNode comp;
@@ -360,6 +374,8 @@ public class Parser {
      * Optional_statements contain the following:
      * <p>
      * statement_list | lambda
+     *
+     * @return A CompoundStatementNode for the body of the function/procedure
      */
     public CompoundStatementNode optional_statements() {
         CompoundStatementNode comp = new CompoundStatementNode();
@@ -373,6 +389,8 @@ public class Parser {
      * A statement_list contains the following:
      * <p>
      * statement_list | statement <strong>;</strong> statement_list
+     *
+     * @return An ArrayList of StatementNodes
      */
     public ArrayList<StatementNode> statement_list() {
         ArrayList<StatementNode> nodes = new ArrayList();
@@ -396,9 +414,10 @@ public class Parser {
      * read(id) |
      * write(expression)
      * <p>
-     * Note: for the time being we have not included procedure_statement, read(id) or write(id) in our parser. It will
-     * not recognize these in Pascal code and will throw an error. This has been done until we have a way to eliminate
-     * ambiguity and recognize built-in functions.
+     * Note: for the time being we have not included read(id) or write(id) in our parser. It will not recognize these in
+     * Pascal code and will throw an error. This has been done until we have a way to recognize built-in functions.
+     *
+     * @return A StatementNode for a single statement
      */
     public StatementNode statement() {
         StatementNode state = null;
@@ -441,6 +460,8 @@ public class Parser {
      * <p>
      * <strong>id</strong> |
      * <strong>id [</strong> expression <strong>]</strong>
+     *
+     * @return A VariableNode holding a variable
      */
     public VariableNode variable() {
         VariableNode var = new VariableNode(lookahead.getLexeme());
@@ -462,6 +483,8 @@ public class Parser {
      * <p>
      * Note: this has not yet been implemented due to ambiguity in the grammar (no way to choose between variable and
      * procedure_statement at the moment).
+     *
+     * @return A ProcedureStatementNode for a procedure call
      */
     public ProcedureStatementNode procedure_statement() {
         ProcedureStatementNode psNode = new ProcedureStatementNode();
@@ -481,6 +504,8 @@ public class Parser {
      * An expression_list contains the following:
      * <p>
      * expression | expression <strong>,</strong> expression_list
+     *
+     * @return An ArrayList of Expression Nodes
      */
     public ArrayList<ExpressionNode> expression_list() {
         ArrayList<ExpressionNode> exNodeList = new ArrayList();
@@ -496,6 +521,8 @@ public class Parser {
      * An expression contains the following:
      * <p>
      * simple_expression | simple_expression <strong>relop</strong> simple_expression
+     *
+     * @return A single ExpressionNode
      */
     public ExpressionNode expression() {
         ExpressionNode left = simple_expression();
@@ -513,6 +540,8 @@ public class Parser {
      * A simple_expression contains the following:
      * <p>
      * term simple_part | sign term simple_part
+     *
+     * @return A single ExpressionNode
      */
     public ExpressionNode simple_expression() {
         ExpressionNode expNode = null;
@@ -532,6 +561,8 @@ public class Parser {
      * A simple_part contains the following:
      * <p>
      * <strong>addop</strong> term simple_part | lambda
+     *
+     * @return A single ExpressionNode
      */
     public ExpressionNode simple_part(ExpressionNode posLeft) {
 
@@ -551,6 +582,8 @@ public class Parser {
      * A term contains the following:
      * <p>
      * factor term_part
+     *
+     * @return A single ExpressionNode
      */
     public ExpressionNode term() {
         ExpressionNode left = factor();
@@ -561,6 +594,8 @@ public class Parser {
      * A term_part contains the following:
      * <p>
      * <strong>mulop</strong> factor term_part | lambda
+     *
+     * @return A single ExpressionNode
      */
     public ExpressionNode term_part(ExpressionNode posLeft) {
         if (isMulOp(lookahead.getType())) {
@@ -580,6 +615,8 @@ public class Parser {
      * <p>
      * <strong>id</strong> | <strong>id [</strong> expression <strong>]</strong> | <strong>id (</strong> expression_list <strong>)</strong> |
      * <strong>num</strong> | <strong>(</strong> expression <strong>)</strong> | <strong>not</strong> factor
+     *
+     * @return A single ExpressionNode
      */
     public ExpressionNode factor() {
         ExpressionNode ex = null;
@@ -624,6 +661,8 @@ public class Parser {
      * A sign contains the following:
      * <p>
      * <strong>+</strong> | <strong>-</strong>
+     *
+     * @return A UnaryOperationNode holding not, + or - and the expression
      */
     public UnaryOperationNode sign() {
         UnaryOperationNode uoNode = null;

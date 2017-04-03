@@ -3,14 +3,11 @@ package syntaxtree;
 /**
  * Represents a value or number in an expression.
  *
- * @author Erik Steinmetz
+ * @author Bob Laskowski
  */
 public class ValueNode extends ExpressionNode {
 
-    /**
-     * The attribute associated with this node.
-     */
-    String attribute;
+    private String attribute; // The attribute associated with this node.
 
     /**
      * Creates a ValueNode with the given attribute.
@@ -40,6 +37,12 @@ public class ValueNode extends ExpressionNode {
         return (attribute);
     }
 
+    /**
+     * Print out the node with proper indentation to build a visual syntax tree
+     *
+     * @param level The level of indentation, counting begins at zero
+     * @return A String with the tree representation of the Node
+     */
     @Override
     public String indentedToString(int level) {
         String answer = this.indentation(level);
@@ -47,6 +50,12 @@ public class ValueNode extends ExpressionNode {
         return answer;
     }
 
+    /**
+     * Determines if two ValueNodes are equal. They are equal if they have the same attribute
+     *
+     * @param o Another ValueNode
+     * @return True if equal, False otherwise
+     */
     @Override
     public boolean equals(Object o) {
         boolean answer = false;
