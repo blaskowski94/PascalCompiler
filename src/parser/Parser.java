@@ -308,7 +308,7 @@ public class Parser {
             String funcName = lookahead.getLexeme();
             spNode = new SubProgramNode(funcName);
             match(ID);
-            arguments();
+            spNode.setArgs(arguments());
             match(COLON);
             Type t = standard_type();
             symbolTable.addFunction(funcName, t);
@@ -318,7 +318,7 @@ public class Parser {
             String procName = lookahead.getLexeme();
             spNode = new SubProgramNode(procName);
             match(ID);
-            arguments();
+            spNode.setArgs(arguments());
             symbolTable.addProcedure(procName);
             match(SEMI);
         } else error("subprogram_head");
@@ -330,13 +330,16 @@ public class Parser {
      * <p>
      * <strong>(</strong> parameter_list <strong>)</strong> | lambda
      */
-    public void arguments() {
+    public ArrayList<VariableNode> arguments() {
+        ArrayList<VariableNode> args = new ArrayList();
         if (lookahead.getType() == LPAREN) {
             match(LPAREN);
-            parameter_list();
+            args = parameter_list();
             match(RPAREN);
         }
         // else lambda case
+
+        return args;
     }
 
     /**
@@ -345,14 +348,19 @@ public class Parser {
      * identifier_list <strong>:</strong> type |
      * identifier_list <strong>:</strong> type <strong>;</strong> parameter_list
      */
-    public void parameter_list() {
+    public ArrayList<VariableNode> parameter_list() {
         ArrayList<String> idList = identifier_list();
+        ArrayList<VariableNode> args = new ArrayList();
         match(COLON);
-        type(idList);
+        Type t = type(idList);
+        for (String id : idList) {
+            args.add(new VariableNode(id, t));
+        }
         if (lookahead.getType() == SEMI) {
             match(SEMI);
-            parameter_list();
+            args.addAll(parameter_list());
         }
+        return args;
     }
 
     /**
