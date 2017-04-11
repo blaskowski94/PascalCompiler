@@ -24,7 +24,7 @@ public class CompilerMain {
         String program = "";
         // Default program to use if no command line arguments
         if (args.length == 0) {
-            program = "src/parser/test/simple.pas";
+            program = "src/parser/test/sample.pas";
         }
         // If one argument passed in, use that as program or help()
         else if (args.length == 1) {

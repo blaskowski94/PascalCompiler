@@ -2,6 +2,8 @@ package syntaxtree;
 
 import scanner.Type;
 
+import java.util.ArrayList;
+
 /**
  * Represents a single subprogram declarations
  *
@@ -15,6 +17,8 @@ public class SubProgramNode extends SubProgramDeclarationsNode {
     private SubProgramDeclarationsNode functions; // Functions/procedures declared in this sub program
     private CompoundStatementNode main; // Main body of this subprogram
     private Type returnType; // Return type of the subprogram (REAL/INTEGER for functions, NULL for procedures)
+    private ArrayList<VariableNode> args; // Function arguments
+    private ExpressionNode returnVal;
 
     /**
      * Create a new SubProgram with a name
@@ -88,6 +92,14 @@ public class SubProgramNode extends SubProgramDeclarationsNode {
         returnType = t;
     }
 
+    public void setArgs(ArrayList<VariableNode> args) {
+        this.args = args;
+    }
+
+    public void setReturnVal(ExpressionNode ex) {
+        returnVal = ex;
+    }
+
     /**
      * Print out the node with proper indentation to build a visual syntax tree
      *
@@ -98,6 +110,14 @@ public class SubProgramNode extends SubProgramDeclarationsNode {
     public String indentedToString(int level) {
         String answer = this.indentation(level);
         answer += "SubProgram: " + name + ", Return: " + returnType + "\n";
+        answer += this.indentation(level) + "Arguments: (";
+        if (args != null) {
+            for (int i = 0; i < args.size(); i++) {
+                if (i != args.size() - 1) answer += args.get(i).getName() + " [" + args.get(i).getType() + "], ";
+                else answer += args.get(i).getName() + " [" + args.get(i).getType() + "]";
+            }
+        }
+        answer += ")\n";
         answer += variables.indentedToString(level + 1);
         answer += functions.indentedToString(level + 1);
         answer += main.indentedToString(level + 1);

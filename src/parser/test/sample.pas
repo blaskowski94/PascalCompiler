@@ -1,35 +1,13 @@
 program foo;
 var
-    fee, fi, fo, fum: integer;
+    fee, fi: integer;
 var
-    arr: array[3:9] of real;
-function test( this, is, a, example:real ) : real;
-var
-    greg, w, dorr: integer;
+    fo, fum: real;
 begin
-    greg := not 5;
-    if greg <> 10
-    then
-        w := -4
-    else
-        dorr := 9
-end;
-procedure proc (first, second, thrid: real);
-var
-    one, two: integer;
-begin
-end;
-begin
-
-    fee := 4 - test(fee,fi - 10 * 255,arr[9]);
-
-    arr[fee - 9] := 10;
-    arr[9] := 5;
-    proc(fee,fi,arr[9]);
-
-    fi := 5;
+    fee := fee + fo;
     fo := 3 * fee + fi;
-    if fo < 13
+    if
+    fo < 13
     then
         fo := 13
     else
