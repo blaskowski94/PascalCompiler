@@ -11,6 +11,7 @@ public class OperationNode extends ExpressionNode {
 
     private ExpressionNode left; // The left operator of this operation.
     private ExpressionNode right; // The right operator of this operation.
+    private Type operation;
 
     /**
      * Creates an operation node given an operation token.
@@ -18,7 +19,7 @@ public class OperationNode extends ExpressionNode {
      * @param op The token representing this node's math operation.
      */
     public OperationNode(Type op) {
-        this.type = op;
+        this.operation = op;
     }
 
     /**
@@ -29,6 +30,8 @@ public class OperationNode extends ExpressionNode {
     public void setLeft(ExpressionNode node) {
         // If we already have a left, remove it from our child list.
         this.left = node;
+        if (type == null) type = node.type;
+        else if (type.equals(Type.INTEGER) && node.getType().equals(Type.REAL)) type = Type.REAL;
     }
 
     /**
@@ -39,6 +42,8 @@ public class OperationNode extends ExpressionNode {
     public void setRight(ExpressionNode node) {
         // If we already have a right, remove it from our child list.
         this.right = node;
+        if (type == null) type = node.type;
+        else if (type.equals(Type.INTEGER) && node.getType().equals(Type.REAL)) type = Type.REAL;
     }
 
     /**
@@ -48,7 +53,11 @@ public class OperationNode extends ExpressionNode {
      */
     @Override
     public String toString() {
-        return type.toString();
+        String retVal = "Operation: " + operation.toString() + " ";
+        if (type != null) retVal = "Type: " + type.toString() + " ";
+        if (right != null) retVal += "Right: " + right.toString() + " ";
+        if (left != null) retVal += "Left: " + left.toString();
+        return retVal;
     }
 
     /**
@@ -60,7 +69,7 @@ public class OperationNode extends ExpressionNode {
     @Override
     public String indentedToString(int level) {
         String answer = this.indentation(level);
-        answer += "Operation: " + this.type + "\n";
+        answer += "Operation: " + this.operation + ", Type: " + this.type + "\n";
         answer += left.indentedToString(level + 1);
         answer += right.indentedToString(level + 1);
         return (answer);
@@ -78,7 +87,8 @@ public class OperationNode extends ExpressionNode {
         boolean answer = false;
         if (o instanceof OperationNode) {
             OperationNode other = (OperationNode) o;
-            if ((this.type == other.type) && this.left.equals(other.left) && this.right.equals(other.right)) answer = true;
+            if ((this.type == other.type) && this.left.equals(other.left) && this.right.equals(other.right))
+                answer = true;
         }
         return answer;
     }

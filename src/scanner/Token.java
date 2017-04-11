@@ -15,11 +15,18 @@ package scanner;
 public class Token {
     private String lexeme;
     private Type type;
+    private int lineNumber;
 
-    public Token(String input, Type t) {
+    public Token(String input, Type t, int lineNumber) {
         this.lexeme = input;
         this.type = t;
+        this.lineNumber = lineNumber;
     }
+
+//    public Token(String input, Type t) {
+//        this.lexeme = input;
+//        this.type = t;
+//    }
 
     /**
      * Returns the String the Token holds
@@ -39,6 +46,10 @@ public class Token {
         return this.type;
     }
 
+    public int getLineNumber() {
+        return lineNumber;
+    }
+
     /**
      * Formats the output of a Token: Type: xxxx, Lexeme: xxxx
      *
@@ -46,7 +57,7 @@ public class Token {
      */
     @Override
     public String toString() {
-        return "Type: " + this.type + ", Lexeme: " + this.lexeme;
+        return "Type: " + this.type + ", Lexeme: " + this.lexeme + ", Line number: " + lineNumber;
     }
 
     /**

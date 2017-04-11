@@ -27,6 +27,7 @@ import java.util.HashMap;
 %{
     // Hash map to hold all token types for lookup
     private HashMap<String, Type> tokenTypes;
+    int lineNumber = 1;
 %}
 /* Code is copied into constructor of MyScanner, initializes the tokenTypes hash map with all Type values */
 %init{
@@ -95,21 +96,23 @@ whitespace          = [ \n\t\r\f]|{comment}
                 Type type = tokenTypes.get(lexeme);
                 // If lexeme found in hashmap, lexeme is a keyword
                 if(type != null)
-                    return (new Token(lexeme, type));
+                    return (new Token(lexeme, type, lineNumber));
                 // Otherwise lexeme is an ID
-                return(new Token(lexeme, Type.ID));
+                return(new Token(lexeme, Type.ID, lineNumber));
             }
             
 {symbols}   {
-                return(new Token(yytext(), tokenTypes.get(yytext())));
+                return(new Token(yytext(), tokenTypes.get(yytext()), lineNumber));
             }
             
 {num}       {
-                return(new Token(yytext(), Type.NUMBER));
+                return(new Token(yytext(), Type.NUMBER, lineNumber));
             }
 
 {whitespace} {
                 /* Ignore Whitespace */
+                if(yytext().equals("\n"))
+                    lineNumber++;
             }
 
 {other}     {

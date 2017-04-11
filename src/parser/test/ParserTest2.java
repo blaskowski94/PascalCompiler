@@ -2,7 +2,7 @@ package parser.test;
 
 import org.junit.jupiter.api.Test;
 import parser.Parser;
-import symboltable.SymbolTable;
+import symboltable.SymbolTableScope;
 import syntaxtree.*;
 
 import static org.junit.Assert.assertEquals;
@@ -119,7 +119,7 @@ class ParserTest2 {
     @Test
     void statement() {
         Parser parser = new Parser("fub := foo * 8 + bar < not foo - 8 / bar", false);
-        SymbolTable tempTable = parser.getSymbolTable();
+        SymbolTableScope tempTable = parser.getSymbolTable();
         tempTable.addVariable("foo", VAR);
         tempTable.addVariable("bar", VAR);
         tempTable.addVariable("fub", VAR);

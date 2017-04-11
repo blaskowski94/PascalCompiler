@@ -18,6 +18,7 @@ public class SubProgramNode extends SubProgramDeclarationsNode {
     private CompoundStatementNode main; // Main body of this subprogram
     private Type returnType; // Return type of the subprogram (REAL/INTEGER for functions, NULL for procedures)
     private ArrayList<VariableNode> args; // Function arguments
+    private ExpressionNode returnVal;
 
     /**
      * Create a new SubProgram with a name
@@ -93,6 +94,10 @@ public class SubProgramNode extends SubProgramDeclarationsNode {
 
     public void setArgs(ArrayList<VariableNode> args) {
         this.args = args;
+    }
+
+    public void setReturnVal(ExpressionNode ex) {
+        returnVal = ex;
     }
 
     /**

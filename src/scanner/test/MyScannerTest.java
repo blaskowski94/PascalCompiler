@@ -150,42 +150,42 @@ class MyScannerTest {
     @org.junit.jupiter.api.Test
     void nextToken() throws IOException {
         System.out.println("-----test nextToken-----");
-        Token expRes = new Token("program", Type.PROGRAM);
+        Token expRes = new Token("program", Type.PROGRAM, 0);
         System.out.println("Expected result: " + expRes);
         Token result = scanner.nextToken();
         System.out.println("Actual result:   " + result);
         assertEquals(expRes, result);
         System.out.println("test case 1 pass.\n");
 
-        expRes = new Token("foo", Type.ID);
+        expRes = new Token("foo", Type.ID, 0);
         System.out.println("Expected result: " + expRes);
         result = scanner.nextToken();
         System.out.println("Actual result:   " + result);
         assertEquals(expRes, result);
         System.out.println("test case 2 pass.\n");
 
-        expRes = new Token(";", Type.SEMI);
+        expRes = new Token(";", Type.SEMI, 0);
         System.out.println("Expected result: " + expRes);
         result = scanner.nextToken();
         System.out.println("Actual result:   " + result);
         assertEquals(expRes, result);
         System.out.println("test case 3 pass.\n");
 
-        expRes = new Token("begin", Type.BEGIN);
+        expRes = new Token("begin", Type.BEGIN, 0);
         System.out.println("Expected result: " + expRes);
         result = scanner.nextToken();
         System.out.println("Actual result:   " + result);
         assertEquals(expRes, result);
         System.out.println("test case 4 pass.\n");
 
-        expRes = new Token("end", Type.END);
+        expRes = new Token("end", Type.END, 0);
         System.out.println("Expected result: " + expRes);
         result = scanner.nextToken();
         System.out.println("Actual result:   " + result);
         assertEquals(expRes, result);
         System.out.println("test case 5 pass.\n");
 
-        expRes = new Token(".", Type.PERIOD);
+        expRes = new Token(".", Type.PERIOD, 0);
         System.out.println("Expected result: " + expRes);
         result = scanner.nextToken();
         System.out.println("Actual result:   " + result);

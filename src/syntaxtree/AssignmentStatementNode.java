@@ -1,5 +1,7 @@
 package syntaxtree;
 
+import scanner.Type;
+
 /**
  * Represents a single assignment statement.
  *
@@ -35,6 +37,8 @@ public class AssignmentStatementNode extends StatementNode {
      */
     public void setExpression(ExpressionNode expression) {
         this.expression = expression;
+        if (expression.getType().equals(Type.INTEGER) && lvalue.getType().equals(Type.REAL))
+            expression.setType(Type.REAL);
     }
 
     /**
