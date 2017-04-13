@@ -1,5 +1,7 @@
 package syntaxtree;
 
+import scanner.Type;
+
 import java.util.ArrayList;
 
 /**
@@ -11,7 +13,7 @@ import java.util.ArrayList;
 public class FunctionNode extends VariableNode {
 
     // The name of the arguments associated with this node
-    private ArrayList<ExpressionNode> expNode;
+    private ArrayList<ExpressionNode> args;
 
     /**
      * Creates a FunctionNode and the parent variableNode with the given name
@@ -20,8 +22,14 @@ public class FunctionNode extends VariableNode {
      */
     public FunctionNode(String attr) {
         super(attr);
-        expNode = null;
+        args = new ArrayList<>();
         this.type = null;
+    }
+
+    public FunctionNode(String attr, Type t) {
+        super(attr);
+        args = new ArrayList<>();
+        this.type = t;
     }
 
     /**
@@ -38,8 +46,8 @@ public class FunctionNode extends VariableNode {
      *
      * @return ArrayList of ExpressionNodes
      */
-    public ArrayList<ExpressionNode> getExpNode() {
-        return this.expNode;
+    public ArrayList<ExpressionNode> getArgs() {
+        return this.args;
     }
 
     /**
@@ -47,8 +55,19 @@ public class FunctionNode extends VariableNode {
      *
      * @param input an ArrayList of ExpressionNodes for function args
      */
-    public void setExpNode(ArrayList<ExpressionNode> input) {
-        this.expNode = input;
+    public void setArgs(ArrayList<ExpressionNode> input) {
+        this.args = input;
+    }
+
+    public void addArg(ExpressionNode ex) {
+        args.add(ex);
+    }
+
+    public ArrayList<ExpressionNode> removeArgs() {
+        ArrayList<ExpressionNode> temp = new ArrayList<>();
+        temp.addAll(args);
+        args.clear();
+        return temp;
     }
 
     /**
@@ -58,7 +77,7 @@ public class FunctionNode extends VariableNode {
      */
     @Override
     public String toString() {
-        return ("VariableNode: " + super.getName() + "ExpressionNode: " + expNode);
+        return ("VariableNode: " + super.getName() + "ExpressionNode: " + args);
     }
 
     /**
@@ -73,7 +92,7 @@ public class FunctionNode extends VariableNode {
         answer.append("Name: ").append(super.getName()).append("\n");
         answer.append(this.indentation(level));
         answer.append("Arguments: \n");
-        for (ExpressionNode expression : expNode) {
+        for (ExpressionNode expression : args) {
             answer.append(expression.indentedToString(level + 1));
         }
         return answer.toString();
@@ -90,7 +109,7 @@ public class FunctionNode extends VariableNode {
         boolean answer = false;
         if (o instanceof FunctionNode) {
             FunctionNode other = (FunctionNode) o;
-            if (super.getName().equals(other.getName()) && (this.expNode.equals(other.getExpNode()))) answer = true;
+            if (super.getName().equals(other.getName()) && (this.args.equals(other.getArgs()))) answer = true;
         }
         return answer;
     }

@@ -1,5 +1,7 @@
 package syntaxtree;
 
+import scanner.Type;
+
 /**
  * Represents a value or number in an expression.
  *
@@ -16,6 +18,8 @@ public class ValueNode extends ExpressionNode {
      */
     public ValueNode(String attr) {
         this.attribute = attr;
+        if (attribute.contains(".")) type = Type.REAL;
+        else type = Type.INTEGER;
     }
 
     /**
@@ -46,7 +50,7 @@ public class ValueNode extends ExpressionNode {
     @Override
     public String indentedToString(int level) {
         String answer = this.indentation(level);
-        answer += "Value: " + this.attribute + "\n";
+        answer += "Value: " + this.attribute + ", Type: " + type + "\n";
         return answer;
     }
 

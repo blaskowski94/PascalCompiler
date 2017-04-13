@@ -143,7 +143,6 @@ public class Parser {
         program.setMain(compound_statement());
         match(PERIOD);
 
-
         // Write syntax tree and contents of symbol table to files
         try (Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("src/compiler/output/" + name + ".tree"), "utf-8"))) {
             writer.write(program.indentedToString(0));
@@ -440,7 +439,10 @@ public class Parser {
     public StatementNode statement() {
         StatementNode state = null;
         if (lookahead.getType() == ID) {
-            if (!symbolTable.doesExist(lookahead.getLexeme())) error(lookahead.getLexeme() + " has not been declared");
+            if (!symbolTable.doesExist(lookahead.getLexeme())) {
+                error(lookahead.getLexeme() + " has not been declared");
+                System.exit(1);
+            }
             if (symbolTable.isVariableName(lookahead.getLexeme()) || symbolTable.isArrayName((lookahead.getLexeme()))) {
                 AssignmentStatementNode assign = new AssignmentStatementNode();
                 VariableNode varNode = variable();
@@ -511,9 +513,7 @@ public class Parser {
      * @return A ProcedureStatementNode for a procedure call
      */
     public ProcedureStatementNode procedure_statement() {
-        ProcedureStatementNode psNode = new ProcedureStatementNode();
-        String procName = lookahead.getLexeme();
-        psNode.setVariable(new VariableNode(procName));
+        ProcedureStatementNode psNode = new ProcedureStatementNode(lookahead.getLexeme());
         match(ID);
         if (lookahead.getType() == LPAREN) {
             match(LPAREN);
@@ -577,6 +577,7 @@ public class Parser {
         } else if (lookahead.getType() == PLUS || lookahead.getType() == MINUS) {
             UnaryOperationNode uoNode = sign();
             expNode = term();
+            uoNode.setType(expNode.getType());
             uoNode.setExpression(simple_part(expNode));
             return uoNode;
         } else error("simple_expression");
@@ -648,6 +649,10 @@ public class Parser {
         ExpressionNode ex = null;
         if (lookahead.getType() == ID) {
             String name = lookahead.getLexeme();
+            if (!symbolTable.doesExist(name)) {
+                error(name + " has not been declared");
+                System.exit(1);
+            }
             match(ID);
             Type t = symbolTable.getType(name);
             if (lookahead.getType() == LBRACE) {
@@ -662,7 +667,7 @@ public class Parser {
                 FunctionNode fNode = new FunctionNode(name);
                 fNode.setType(t);
                 match(LPAREN);
-                fNode.setExpNode(expression_list());
+                fNode.setArgs(expression_list());
                 match(RPAREN);
                 return fNode;
             } else {
