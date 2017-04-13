@@ -1,7 +1,11 @@
 package compiler;
 
+import codefolding.CodeFolding;
 import parser.Parser;
-import syntaxtree.SyntaxTreeNode;
+import symboltable.SymbolTableScope;
+import syntaxtree.ProgramNode;
+
+import java.io.*;
 
 /**
  * Bob Laskowski,
@@ -21,27 +25,30 @@ public class CompilerMain {
 
     public static void main(String[] args) {
         boolean help = false;
-        String program = "";
+        File program = null;
         // Default program to use if no command line arguments
         if (args.length == 0) {
-            program = "src/parser/test/foo.pas";
+            program = new File("src/parser/test/foo.pas");
         }
         // If one argument passed in, use that as program or help()
         else if (args.length == 1) {
             if (args[0].equals("-h") || args[0].equals("-help")) {
                 help();
                 help = true;
-            } else program = args[0];
+            } else program = new File(args[0]);
         }
         // If more than one argument, print error
         else {
-            System.out.println("Please enter program to parse as the only command line argument.");
+            System.out.println("Please enter program to parse as the only command line argument or enter \"-h\" for help.");
             System.exit(1);
         }
 
         if (!help) {
-            Parser parser = new Parser(program, true);
-            SyntaxTreeNode tree = parser.program();
+            Parser parser = new Parser(program);
+            CodeFolding cf = new CodeFolding();
+            ProgramNode tree = parser.program();
+            cf.foldProgram(tree);
+            writeToFile(tree, parser, program);
             //SemanticAnalyzer sa = new SemanticAnalyzer(tree);
             //tree = sa.codeFolding(); // optional
             //CodeGeneration cg = new CodeGeneration(tree);
@@ -54,5 +61,33 @@ public class CompilerMain {
     public static void help() {
         String help = "This program parses a Mini-pascal file.\n" + "To see an example, run with no command line arguments.\n" + "This will parse the \"simple.pas\" file. To parse your own file, run with the absolute or relative path of the file as the only command line argument.\n" + "The program will output two files, one with the syntax tree and the other with the contents of the symbol table. The will be named \"YourProgramName.tree\"" + "and \"YourProgramName.table and located in the output folder of the compilers package.\"\n\n" + "Example usage:\njava CompilerMain src/parser/test/simple.pas";
         System.out.println(help);
+    }
+
+    public static void writeToFile(ProgramNode program, Parser pars, File f) {
+        SymbolTableScope STC = pars.getSymbolTable();
+        String name;
+        try {
+            name = f.getName().split("[.]")[0];
+        } catch (ArrayIndexOutOfBoundsException ex) {
+            error("Invalid file name");
+            name = "foo";
+        }
+        // Write syntax tree and contents of symbol table to files
+        try (Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("src/compiler/output/" + name + ".tree"), "utf-8"))) {
+            writer.write(program.indentedToString(0));
+        } catch (Exception ex) {
+            error("Problem with tree output file.");
+        }
+
+        try (Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("src/compiler/output/" + name + ".table"), "utf-8"))) {
+            writer.write(STC.toString());
+        } catch (Exception ex) {
+            error("Problem with table output file.");
+        }
+    }
+
+    private static void error(String message) {
+        System.out.println("Error: " + message);
+        //System.exit(1);
     }
 }

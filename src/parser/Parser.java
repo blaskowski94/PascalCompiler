@@ -47,24 +47,32 @@ public class Parser {
      * if a file path is being passed in as the String and false if pascal code is passed in as the String.
      *
      * @param input Either a filename in src/parser/test or a String to parse
-     * @param file  Make true if using file as input, false if using String
      */
-    public Parser(String input, boolean file) {
+    public Parser(String input) {
         InputStreamReader isr;
 
-        if (file) {
-            FileInputStream fis = null;
-            try {
-                fis = new FileInputStream(input);
-            } catch (FileNotFoundException ex) {
-                error("File \"" + input + "\" not found. Check file name and path to ensure it exists.");
-            }
-            assert fis != null;
-            isr = new InputStreamReader(fis);
-            scanny = new MyScanner(isr);
-        } else {
-            scanny = new MyScanner(new StringReader(input));
+        scanny = new MyScanner(new StringReader(input));
+
+        try {
+            lookahead = scanny.nextToken();
+        } catch (IOException ex) {
+            error("Scan error");
         }
+        symbolTable = new SymbolTableScope();
+    }
+
+    public Parser(File input) {
+        InputStreamReader isr;
+
+        FileInputStream fis = null;
+        try {
+            fis = new FileInputStream(input);
+        } catch (FileNotFoundException ex) {
+            error("File \"" + input + "\" not found. Check file name and path to ensure it exists.");
+        }
+        assert fis != null;
+        isr = new InputStreamReader(fis);
+        scanny = new MyScanner(isr);
 
         try {
             lookahead = scanny.nextToken();
@@ -143,18 +151,6 @@ public class Parser {
         program.setMain(compound_statement());
         match(PERIOD);
 
-        // Write syntax tree and contents of symbol table to files
-        try (Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("src/compiler/output/" + name + ".tree"), "utf-8"))) {
-            writer.write(program.indentedToString(0));
-        } catch (Exception ex) {
-            error("Problem with output file.");
-        }
-
-        try (Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("src/compiler/output/" + name + ".table"), "utf-8"))) {
-            writer.write(symbolTable.toString());
-        } catch (Exception ex) {
-            error("Problem with output file.");
-        }
 
         return program;
     }
@@ -598,8 +594,8 @@ public class Parser {
             match(lookahead.getType());
             ExpressionNode right = term();
             op.setLeft(posLeft);
-            op.setRight(right);
-            return simple_part(op);
+            op.setRight(simple_part(right));
+            return op;
         }
         // else lambda case
         return posLeft;

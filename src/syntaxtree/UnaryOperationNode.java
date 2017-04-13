@@ -41,6 +41,10 @@ public class UnaryOperationNode extends ExpressionNode {
         this.expression = node;
     }
 
+    public Type getOperation() {
+        return operation;
+    }
+
     /**
      * Returns the operation token as a String.
      *

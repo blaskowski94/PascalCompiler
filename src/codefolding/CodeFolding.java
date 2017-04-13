@@ -55,7 +55,7 @@ public class CodeFolding {
                 StatementNode ifThen = ifState.getThen();
                 ifState.setThenStatement(foldStatement(ifThen));
                 StatementNode ifElse = ifState.getElse();
-                ifState.setThenStatement(foldStatement(ifElse));
+                ifState.setElseStatement(foldStatement(ifElse));
                 return ifState;
             case "WhileStatementNode":
                 WhileStatementNode whileState = (WhileStatementNode) state;
@@ -81,8 +81,45 @@ public class CodeFolding {
         if (ex instanceof OperationNode) {
             OperationNode op = (OperationNode) ex;
             ex = codeFolding(op);
+        } else if (ex instanceof UnaryOperationNode) {
+            UnaryOperationNode uo = (UnaryOperationNode) ex;
+            ex = foldUnary(uo);
         }
         return ex;
+    }
+
+    public ExpressionNode foldUnary(ExpressionNode uo) {
+        ExpressionNode ex = foldExpression(((UnaryOperationNode) uo).getExpression());
+
+        Type operation = ((UnaryOperationNode) uo).getOperation();
+
+        if (ex instanceof ValueNode) {
+            if (operation == Type.PLUS) {
+                uo = new ValueNode(((ValueNode) ex).getAttribute());
+                return uo;
+            } else if (operation == Type.MINUS) {
+                return new ValueNode("-" + ((ValueNode) ex).getAttribute());
+            } else if (operation == Type.NOT) {
+                Double val = Double.parseDouble(((ValueNode) ex).getAttribute());
+                if (val == 0) {
+                    return new ValueNode("1");
+                } else {
+                    return new ValueNode("0");
+                }
+            }
+        }
+        // If not a value
+        else {
+            if (operation == Type.PLUS) {
+                return ex;
+            } else if (operation == Type.MINUS) {
+                OperationNode op = new OperationNode(operation);
+                op.setLeft(new ValueNode("0"));
+                op.setRight(ex);
+                return op;
+            }
+        }
+        return uo;
     }
 
     public VariableNode foldVariable(VariableNode var) {
@@ -138,7 +175,6 @@ public class CodeFolding {
 
             double leftVal = Double.parseDouble(((ValueNode) left).getAttribute());
             double rightVal = Double.parseDouble(((ValueNode) right).getAttribute());
-            boolean leftBool, rightBool;
 
             ValueNode value = null;
             switch (node.getOperation()) {
@@ -169,23 +205,12 @@ public class CodeFolding {
                     else value = new ValueNode("0");
                     break;
                 case AND:
-                    if ((leftVal == 0 || leftVal == 1) && (rightVal == 0 || rightVal == 1)) {
-                        leftBool = !(leftVal == 0);
-                        rightBool = !(rightVal == 0);
-
-                        if (leftBool && rightBool) value = new ValueNode("1");
-                        else value = new ValueNode("0");
-                    } else return node;
+                    if (leftVal == 0 || rightVal == 0) value = new ValueNode("0");
+                    else value = new ValueNode("1");
                     break;
                 case OR:
-                    if ((leftVal == 0 || leftVal == 1) && (rightVal == 0 || rightVal == 1)) {
-                        leftBool = !(leftVal == 0);
-
-                        rightBool = !(rightVal == 0);
-
-                        if (leftBool || rightBool) value = new ValueNode("1");
-                        else value = new ValueNode("0");
-                    } else return node;
+                    if (leftVal == 0 && rightVal == 0) value = new ValueNode("0");
+                    else value = new ValueNode("1");
                     break;
                 case LTHAN:
                     if (leftVal < rightVal) value = new ValueNode("1");

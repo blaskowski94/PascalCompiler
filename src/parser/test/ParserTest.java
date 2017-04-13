@@ -4,6 +4,8 @@ import org.junit.jupiter.api.Test;
 import parser.Parser;
 import scanner.Type;
 
+import java.io.File;
+
 /**
  * Bob Laskowski,
  * Compilers II,
@@ -26,9 +28,9 @@ class ParserTest {
     @Test
     void program() {
         System.out.println("-----program-----");
-        String input = "src/parser/test/simple.pas";
+        File input = new File("src/parser/test/simple.pas");
         System.out.println("File to be parsed: " + input);
-        Parser instance = new Parser(input, true);
+        Parser instance = new Parser(input);
         instance.program();
         System.out.println("It Parsed!\n");
     }
@@ -53,13 +55,13 @@ class ParserTest {
         System.out.println("-----declarations-----");
         String input = "var fee: integer;";
         System.out.println("String to be parsed: " + input);
-        Parser instance = new Parser(input, false);
+        Parser instance = new Parser(input);
         instance.declarations();
         System.out.println("It Parsed!\n");
 
         input = "var fee, fi, fo: real;";
         System.out.println("String to be parsed: " + input);
-        instance = new Parser(input, false);
+        instance = new Parser(input);
         instance.declarations();
         System.out.println("It Parsed!\n");
     }
@@ -99,13 +101,13 @@ class ParserTest {
         System.out.println("-----subprogram_declaration-----");
         String input = "function doSomething(fee: integer): integer; " + "var fo: integer; " + "begin " + "fo := 2*fee " + "end";
         System.out.println("String to be parsed: " + input);
-        Parser instance = new Parser(input, false);
+        Parser instance = new Parser(input);
         instance.subprogram_declaration();
         System.out.println("It Parsed!\n");
 
         input = "function doSomething(fee, fi: integer): integer; " + "var fo: integer; " + "function doSomethingElse: integer; " + "begin " + "fo := fee + fi; " + "fo := 2 " + "end " + "; " + "begin " + "fo := 2 * fo " + "end";
         System.out.println("String to be parsed: " + input);
-        instance = new Parser(input, false);
+        instance = new Parser(input);
         instance.subprogram_declaration();
         System.out.println("It Parsed!\n");
     }
@@ -144,21 +146,21 @@ class ParserTest {
         System.out.println("-----statement-----");
         String input = "foo := 4";
         System.out.println("String to be parsed: " + input);
-        Parser instance = new Parser(input, false);
+        Parser instance = new Parser(input);
         instance.getSymbolTable().addVariable("foo", Type.INTEGER);
         instance.statement();
         System.out.println("It Parsed!\n");
 
         input = "foo := 4*5";
         System.out.println("String to be parsed: " + input);
-        instance = new Parser(input, false);
+        instance = new Parser(input);
         instance.getSymbolTable().addVariable("foo", Type.INTEGER);
         instance.statement();
         System.out.println("It Parsed!\n");
 
         input = "begin " + "if foo < 5 " + "then fi := 5 " + "else fi := 10 " + "end";
         System.out.println("String to be parsed: " + input);
-        instance = new Parser(input, false);
+        instance = new Parser(input);
         instance.getSymbolTable().addVariable("foo", Type.INTEGER);
         instance.getSymbolTable().addVariable("fi", Type.INTEGER);
         instance.statement();
@@ -166,7 +168,7 @@ class ParserTest {
 
         input = "while foo < 5 " + "do foo := foo + 1";
         System.out.println("String to be parsed: " + input);
-        instance = new Parser(input, false);
+        instance = new Parser(input);
         instance.getSymbolTable().addVariable("foo", Type.INTEGER);
         instance.statement();
         System.out.println("It Parsed!\n");
@@ -211,43 +213,43 @@ class ParserTest {
         System.out.println("-----simple_expression-----");
         String input = "foo + fi";
         System.out.println("String to be parsed: " + input);
-        Parser instance = new Parser(input, false);
+        Parser instance = new Parser(input);
         instance.simple_expression();
         System.out.println("It Parsed!\n");
 
         input = "-4";
         System.out.println("String to be parsed: " + input);
-        instance = new Parser(input, false);
+        instance = new Parser(input);
         instance.simple_expression();
         System.out.println("It Parsed!\n");
 
         input = "foo[foo+fi]";
         System.out.println("String to be parsed: " + input);
-        instance = new Parser(input, false);
+        instance = new Parser(input);
         instance.simple_expression();
         System.out.println("It Parsed!\n");
 
         input = "foo(foo+fi, fi-fo)";
         System.out.println("String to be parsed: " + input);
-        instance = new Parser(input, false);
+        instance = new Parser(input);
         instance.simple_expression();
         System.out.println("It Parsed!\n");
 
         input = "(foo+fi)";
         System.out.println("String to be parsed: " + input);
-        instance = new Parser(input, false);
+        instance = new Parser(input);
         instance.simple_expression();
         System.out.println("It Parsed!\n");
 
         input = "(4+5)";
         System.out.println("String to be parsed: " + input);
-        instance = new Parser(input, false);
+        instance = new Parser(input);
         instance.simple_expression();
         System.out.println("It Parsed!\n");
 
         input = "not foo";
         System.out.println("String to be parsed: " + input);
-        instance = new Parser(input, false);
+        instance = new Parser(input);
         instance.simple_expression();
         System.out.println("It Parsed!\n");
     }
@@ -290,43 +292,43 @@ class ParserTest {
         System.out.println("-----factor-----");
         String input = "foo";
         System.out.println("String to be parsed: " + input);
-        Parser instance = new Parser(input, false);
+        Parser instance = new Parser(input);
         instance.simple_expression();
         System.out.println("It Parsed!\n");
 
         input = "foo[fe < fo]";
         System.out.println("String to be parsed: " + input);
-        instance = new Parser(input, false);
+        instance = new Parser(input);
         instance.simple_expression();
         System.out.println("It Parsed!\n");
 
         input = "foo(fe < fo, fu <> fum)";
         System.out.println("String to be parsed: " + input);
-        instance = new Parser(input, false);
+        instance = new Parser(input);
         instance.simple_expression();
         System.out.println("It Parsed!\n");
 
         input = "4";
         System.out.println("String to be parsed: " + input);
-        instance = new Parser(input, false);
+        instance = new Parser(input);
         instance.simple_expression();
         System.out.println("It Parsed!\n");
 
         input = "(foo+fi)";
         System.out.println("String to be parsed: " + input);
-        instance = new Parser(input, false);
+        instance = new Parser(input);
         instance.simple_expression();
         System.out.println("It Parsed!\n");
 
         input = "(4+5)";
         System.out.println("String to be parsed: " + input);
-        instance = new Parser(input, false);
+        instance = new Parser(input);
         instance.simple_expression();
         System.out.println("It Parsed!\n");
 
         input = "not foo";
         System.out.println("String to be parsed: " + input);
-        instance = new Parser(input, false);
+        instance = new Parser(input);
         instance.simple_expression();
         System.out.println("It Parsed!\n");
     }

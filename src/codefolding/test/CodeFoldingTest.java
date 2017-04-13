@@ -4,8 +4,11 @@ import codefolding.CodeFolding;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import parser.Parser;
 import scanner.Type;
 import syntaxtree.*;
+
+import java.io.File;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -28,9 +31,82 @@ class CodeFoldingTest {
     }
 
     @Test
+    void foldUnary() {
+        System.out.println("----- UnaryFolding 1 -----");
+        System.out.println("+5");
+        UnaryOperationNode uo = new UnaryOperationNode(Type.PLUS);
+        uo.setExpression(new ValueNode("5"));
+        System.out.println("Original:\n\t" + uo.indentedToString(0).replaceAll("\n", "\n\t"));
+        ValueNode val = (ValueNode) cf.foldExpression(uo);
+        System.out.println("5");
+        System.out.println("New:\n\t" + val.indentedToString(0).replaceAll("\n", "\n\t"));
+
+        System.out.println("----- UnaryFolding 2 -----");
+        System.out.println("-5");
+        uo = new UnaryOperationNode(Type.MINUS);
+        uo.setExpression(new ValueNode("5"));
+        System.out.println("Original:\n\t" + uo.indentedToString(0).replaceAll("\n", "\n\t"));
+        val = (ValueNode) cf.foldExpression(uo);
+        System.out.println("-5");
+        System.out.println("New:\n\t" + val.indentedToString(0).replaceAll("\n", "\n\t"));
+
+        System.out.println("----- UnaryFolding 3 -----");
+        System.out.println("not 5");
+        uo = new UnaryOperationNode(Type.NOT);
+        uo.setExpression(new ValueNode("5"));
+        System.out.println("Original:\n\t" + uo.indentedToString(0).replaceAll("\n", "\n\t"));
+        val = (ValueNode) cf.foldExpression(uo);
+        System.out.println("0");
+        System.out.println("New:\n\t" + val.indentedToString(0).replaceAll("\n", "\n\t"));
+
+        System.out.println("----- UnaryFolding 4 -----");
+        System.out.println("not 0");
+        uo = new UnaryOperationNode(Type.NOT);
+        uo.setExpression(new ValueNode("0"));
+        System.out.println("Original:\n\t" + uo.indentedToString(0).replaceAll("\n", "\n\t"));
+        val = (ValueNode) cf.foldExpression(uo);
+        System.out.println("1");
+        System.out.println("New:\n\t" + val.indentedToString(0).replaceAll("\n", "\n\t"));
+
+        System.out.println("----- UnaryFolding 5 -----");
+        System.out.println("not foo");
+        uo = new UnaryOperationNode(Type.NOT);
+        uo.setExpression(new VariableNode("foo", Type.INTEGER));
+        System.out.println("Original:\n\t" + uo.indentedToString(0).replaceAll("\n", "\n\t"));
+        ExpressionNode val1 = cf.foldExpression(uo);
+        System.out.println("not foo");
+        System.out.println("New:\n\t" + val1.indentedToString(0).replaceAll("\n", "\n\t"));
+
+        System.out.println("----- UnaryFolding 6 -----");
+        System.out.println("not 5+5");
+        uo = new UnaryOperationNode(Type.NOT);
+        OperationNode op = new OperationNode(Type.PLUS);
+        op.setLeft(new ValueNode("5"));
+        op.setRight(new ValueNode("5"));
+        uo.setExpression(op);
+        System.out.println("Original:\n\t" + uo.indentedToString(0).replaceAll("\n", "\n\t"));
+        val = (ValueNode) cf.foldExpression(uo);
+        System.out.println("0");
+        System.out.println("New:\n\t" + val.indentedToString(0).replaceAll("\n", "\n\t"));
+
+        System.out.println("----- UnaryFolding 7 -----");
+        System.out.println("- 5+5");
+        uo = new UnaryOperationNode(Type.MINUS);
+        op = new OperationNode(Type.PLUS);
+        op.setLeft(new ValueNode("5"));
+        op.setRight(new ValueNode("5"));
+        uo.setExpression(op);
+        System.out.println("Original:\n\t" + uo.indentedToString(0).replaceAll("\n", "\n\t"));
+        val = (ValueNode) cf.foldExpression(uo);
+        System.out.println("-10");
+        System.out.println("New:\n\t" + val.indentedToString(0).replaceAll("\n", "\n\t"));
+    }
+
+    @Test
     void foldStatement() {
         //ASSIGNMENTNODE
-        System.out.println("\n------AssignmentStatementNode------");
+        System.out.println("\n------Basic AssignmentStatementNode------");
+        System.out.println("test := 8*8+8*8");
         //expression node
         OperationNode op = new OperationNode(Type.PLUS);
         //nested statement
@@ -49,12 +125,14 @@ class CodeFoldingTest {
         //calling the fold
         cf.foldStatement(assign);
         int end = assign.indentedToString(0).split("\n").length;
+        System.out.println("test := 128");
         System.out.println("New:\n\t" + assign.indentedToString(0).replaceAll("\n", "\n\t"));
         System.out.println("Difference: " + (original - end));
 
 
         //Assignment2
-        System.out.println("\n------AssignmentStatementNode------");
+        System.out.println("\n------Array AssignmentStatementNode------");
+        System.out.println("array[8+8+8+8] := 10.5");
         //expression node
         op = new OperationNode(Type.PLUS);
         //nested statement
@@ -79,11 +157,13 @@ class CodeFoldingTest {
         //calling the fold
         cf.foldStatement(assign);
         end = assign.indentedToString(0).split("\n").length;
+        System.out.println("array[32] := 10.5");
         System.out.println("New:\n\t" + assign.indentedToString(0).replaceAll("\n", "\n\t"));
         System.out.println("Difference: " + (original - end));
 
         //Assignment3
-        System.out.println("\n------AssignmentStatementNode------");
+        System.out.println("\n------ Array 2 AssignmentStatementNode------");
+        System.out.println("array[8+8+8+8] := 8+8+8+8");
         //expression node
         op = new OperationNode(Type.PLUS);
         //nested statement
@@ -116,12 +196,14 @@ class CodeFoldingTest {
         //calling the fold
         cf.foldStatement(assign);
         end = assign.indentedToString(0).split("\n").length;
+        System.out.println("array[32] := 32");
         System.out.println("New:\n\t" + assign.indentedToString(0).replaceAll("\n", "\n\t"));
         System.out.println("Difference: " + (original - end));
 
 
         //IfStatementNode
         System.out.println("\n------IfStatementNode------");
+        System.out.println("if \n  varNode < 5 \nthen \n  var2 := 8+8+8+8 \nelse \n  fum := 5+5");
         //ifstatement
         OperationNode ifop = new OperationNode(Type.LTHAN);
         ifop.setLeft(new VariableNode("varNode", Type.INTEGER));
@@ -144,7 +226,7 @@ class CodeFoldingTest {
         elseop.setLeft(new ValueNode("5"));
         elseop.setRight(new ValueNode("5"));
         AssignmentStatementNode elseState = new AssignmentStatementNode();
-        elseState.setLvalue(new VariableNode("array", Type.INTEGER));
+        elseState.setLvalue(new VariableNode("fum", Type.INTEGER));
         elseState.setExpression(elseop);
 
         //if statement node
@@ -158,11 +240,13 @@ class CodeFoldingTest {
         //calling the fold
         cf.foldStatement(ifstate);
         end = ifstate.indentedToString(0).split("\n").length;
+        System.out.println("if \n  varNode < 5 \nthen \n  var2 := 32 \nelse \n  fum := 10");
         System.out.println("New:\n\t" + ifstate.indentedToString(0).replaceAll("\n", "\n\t"));
         System.out.println("Difference: " + (original - end));
 
         //procedureStatementNode
         System.out.println("\n------ProcedureStatementNode------");
+        System.out.println("test(8+8+8+8, 5+5)");
         //statement1
         op = new OperationNode(Type.PLUS);
         //nested statement
@@ -187,12 +271,13 @@ class CodeFoldingTest {
         //calling the fold
         cf.foldStatement(psn);
         end = psn.indentedToString(0).split("\n").length;
+        System.out.println("test(32, 10)");
         System.out.println("New:\n\t" + psn.indentedToString(0).replaceAll("\n", "\n\t"));
         System.out.println("Difference: " + (original - end));
 
         //while statement node
-        System.out.println("\n------IfStatementNode------");
-        //ifstatement
+        System.out.println("\n------WhileStatementNode------");
+        System.out.println("while \n  varNode < 5 \ndo \n  var2 := 8+8+8+8");
         ifop = new OperationNode(Type.LTHAN);
         ifop.setLeft(new VariableNode("varNode", Type.INTEGER));
         ifop.setRight(new ValueNode("5"));
@@ -219,12 +304,13 @@ class CodeFoldingTest {
         //calling the fold
         cf.foldStatement(whilestate);
         end = whilestate.indentedToString(0).split("\n").length;
+        System.out.println("while \n  varNode < 5 \ndo \n  var2 := 32");
         System.out.println("New:\n\t" + whilestate.indentedToString(0).replaceAll("\n", "\n\t"));
         System.out.println("Difference: " + (original - end));
 
-//compoundstatementNode
-        //ASSIGNMENTNODE
+        //compoundstatementNode
         System.out.println("\n------CompoundStatementNode------");
+        System.out.println("Test := 8+8+8+8 ; \nif \n  varNode < 5 \nthen \n  var2 := 8+8+8+8 \nelse \n  foo := 5+5 ; \nvar(8+8+8+8, 5+5) ; \nwhile \n  varNode < 5 " + "\ndo \n  var2 := 8+8+8+8");
         //expression node
         op = new OperationNode(Type.PLUS);
         //nested statement
@@ -259,9 +345,9 @@ class CodeFoldingTest {
         //else statement
         elseop = new OperationNode(Type.PLUS);
         elseop.setLeft(new ValueNode("5"));
-        elseop.setRight(new VariableNode("5"));
+        elseop.setRight(new ValueNode("5"));
         elseState = new AssignmentStatementNode();
-        elseState.setLvalue(new VariableNode("array", Type.INTEGER));
+        elseState.setLvalue(new VariableNode("foo", Type.INTEGER));
         elseState.setExpression(elseop);
 
         //if statement node
@@ -283,7 +369,7 @@ class CodeFoldingTest {
         //statement2
         elseop = new OperationNode(Type.PLUS);
         elseop.setLeft(new ValueNode("5"));
-        elseop.setRight(new VariableNode("5"));
+        elseop.setRight(new ValueNode("5"));
 
         //ProcedureStatementNode
         psn = new ProcedureStatementNode("var");
@@ -294,7 +380,7 @@ class CodeFoldingTest {
         //ifstatement
         ifop = new OperationNode(Type.LTHAN);
         ifop.setLeft(new VariableNode("varNode", Type.INTEGER));
-        ifop.setRight(new VariableNode("5"));
+        ifop.setRight(new ValueNode("5"));
 
         //Do statement
         op = new OperationNode(Type.PLUS);
@@ -325,6 +411,7 @@ class CodeFoldingTest {
         //calling the fold
         cf.foldStatement(csn);
         end = csn.indentedToString(0).split("\n").length;
+        System.out.println("Test := 32 ; \nif \n  varNode < 5 \nthen \n  var2 := 32 \nelse \n  foo := 10 ; \nvar(32, 10) ; \nwhile \n  varNode < 5 " + "\ndo \n  var2 := 32");
         System.out.println("New:\n\t" + csn.indentedToString(0).replaceAll("\n", "\n\t"));
         System.out.println("Difference: " + (original - end));
 
@@ -332,7 +419,7 @@ class CodeFoldingTest {
     }
 
     @Test
-    void foldVariable() throws Exception {
+    void foldVariable() {
         //Testing standard variable
         VariableNode var = new VariableNode("foo", Type.INTEGER);
         VariableNode result = cf.foldVariable(var);
@@ -552,6 +639,14 @@ class CodeFoldingTest {
 
     @Test
     void codeFolding() {
+        Parser pars = new Parser(new File("src/parser/test/foo.pas"));
+        ProgramNode pro = pars.program();
+        int original = pro.indentedToString(0).split("\n").length;
+        System.out.println("Original:\n\t" + pro.indentedToString(0).replaceAll("\n", "\n\t"));
+        cf.foldProgram(pro);
+        int end = pro.indentedToString(0).split("\n").length;
+        System.out.println("New:\n\t" + pro.indentedToString(0).replaceAll("\n", "\n\t"));
+        System.out.println("Difference: " + (original - end));
     }
 
 }
