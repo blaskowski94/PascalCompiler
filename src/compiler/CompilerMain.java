@@ -47,10 +47,13 @@ public class CompilerMain {
             Parser parser = new Parser(program);
             CodeFolding cf = new CodeFolding();
             ProgramNode tree = parser.program();
+            int original = tree.indentedToString(0).split("\n").length;
+            System.out.println(tree.indentedToString(0));
             cf.foldProgram(tree);
+            int end = tree.indentedToString(0).split("\n").length;
+            System.out.println(tree.indentedToString(0));
+            System.out.println("Difference: " + (original - end));
             writeToFile(tree, parser, program);
-            //SemanticAnalyzer sa = new SemanticAnalyzer(tree);
-            //tree = sa.codeFolding(); // optional
             //CodeGeneration cg = new CodeGeneration(tree);
             //String theCode = cg.generate();
             //String assemblyFileName = filename + ".asm";

@@ -161,9 +161,13 @@ public class CodeFolding {
     public ExpressionNode codeFolding(OperationNode node) {
         if (node.getLeft() instanceof OperationNode) {
             node.setLeft(codeFolding((OperationNode) node.getLeft()));
+        } else if (node.getLeft() instanceof FunctionNode || node.getLeft() instanceof ArrayNode) {
+            node.setLeft(foldVariable((VariableNode) node.getLeft()));
         }
         if (node.getRight() instanceof OperationNode) {
             node.setRight(codeFolding((OperationNode) node.getRight()));
+        } else if (node.getRight() instanceof FunctionNode || node.getRight() instanceof ArrayNode) {
+            node.setRight(foldVariable((VariableNode) node.getRight()));
         }
         if (node.getLeft() instanceof ValueNode && node.getRight() instanceof ValueNode) {
             boolean intOp = false;
