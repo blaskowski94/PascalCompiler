@@ -10,12 +10,8 @@ import java.util.ArrayList;
  * Created by Bob on 3/4/2017.
  * @author Bob Laskowski
  */
-public class SubProgramNode extends SubProgramDeclarationsNode {
+public class SubProgramNode extends ProgramNode {
 
-    private String name; // Name of function/procedure
-    private DeclarationsNode variables; // Variables declared
-    private SubProgramDeclarationsNode functions; // Functions/procedures declared in this sub program
-    private CompoundStatementNode main; // Main body of this subprogram
     private Type returnType; // Return type of the subprogram (REAL/INTEGER for functions, NULL for procedures)
     private ArrayList<VariableNode> args; // Function arguments
     private ExpressionNode returnVal;
@@ -36,6 +32,19 @@ public class SubProgramNode extends SubProgramDeclarationsNode {
      */
     public String getName() {
         return name;
+    }
+
+    public CompoundStatementNode getMain() {
+        return main;
+    }
+
+    /**
+     * Set the main body of the SubProgram
+     *
+     * @param main A CompoundStatementNode with the main body of the program
+     */
+    public void setMain(CompoundStatementNode main) {
+        this.main = main;
     }
 
     /**
@@ -72,15 +81,6 @@ public class SubProgramNode extends SubProgramDeclarationsNode {
      */
     public void setFunctions(SubProgramDeclarationsNode functions) {
         this.functions = functions;
-    }
-
-    /**
-     * Set the main body of the SubProgram
-     *
-     * @param main A CompoundStatementNode with the main body of the program
-     */
-    public void setMain(CompoundStatementNode main) {
-        this.main = main;
     }
 
     /**

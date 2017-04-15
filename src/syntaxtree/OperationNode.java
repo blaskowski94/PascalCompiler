@@ -22,6 +22,10 @@ public class OperationNode extends ExpressionNode {
         this.operation = op;
     }
 
+    public ExpressionNode getLeft() {
+        return this.left;
+    }
+
     /**
      * Set the left hand side of the operation
      *
@@ -30,8 +34,15 @@ public class OperationNode extends ExpressionNode {
     public void setLeft(ExpressionNode node) {
         // If we already have a left, remove it from our child list.
         this.left = node;
-        if (type == null) type = node.type;
-        else if (type.equals(Type.INTEGER) && node.getType().equals(Type.REAL)) type = Type.REAL;
+        // handle this
+        if (node.type != null) {
+            if (type == null) type = node.type;
+            else if (type.equals(Type.INTEGER) && node.getType().equals(Type.REAL)) type = Type.REAL;
+        }
+    }
+
+    public ExpressionNode getRight() {
+        return this.right;
     }
 
     /**
@@ -42,8 +53,19 @@ public class OperationNode extends ExpressionNode {
     public void setRight(ExpressionNode node) {
         // If we already have a right, remove it from our child list.
         this.right = node;
-        if (type == null) type = node.type;
-        else if (type.equals(Type.INTEGER) && node.getType().equals(Type.REAL)) type = Type.REAL;
+        // handle this
+        if (node.type != null) {
+            if (type == null) type = node.type;
+            else if (type.equals(Type.INTEGER) && node.getType().equals(Type.REAL)) type = Type.REAL;
+        }
+    }
+
+    public Type getOperation() {
+        return this.operation;
+    }
+
+    public void setOperation(Type t) {
+        operation = t;
     }
 
     /**
@@ -54,7 +76,7 @@ public class OperationNode extends ExpressionNode {
     @Override
     public String toString() {
         String retVal = "Operation: " + operation.toString() + " ";
-        if (type != null) retVal = "Type: " + type.toString() + " ";
+        if (type != null) retVal += "Type: " + type.toString() + " ";
         if (right != null) retVal += "Right: " + right.toString() + " ";
         if (left != null) retVal += "Left: " + left.toString();
         return retVal;

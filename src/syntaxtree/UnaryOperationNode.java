@@ -41,6 +41,10 @@ public class UnaryOperationNode extends ExpressionNode {
         this.expression = node;
     }
 
+    public Type getOperation() {
+        return operation;
+    }
+
     /**
      * Returns the operation token as a String.
      *
@@ -60,7 +64,7 @@ public class UnaryOperationNode extends ExpressionNode {
     @Override
     public String indentedToString(int level) {
         String answer = this.indentation(level);
-        answer += "Unary Operation: " + this.operation + "\n";
+        answer += "Unary Operation: " + this.operation + ", Type: " + type + "\n";
         answer += expression.indentedToString(level + 1);
         return (answer);
     }

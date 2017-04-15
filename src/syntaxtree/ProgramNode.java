@@ -7,11 +7,17 @@ package syntaxtree;
  */
 public class ProgramNode extends SyntaxTreeNode {
 
-    private String name; // Name of the program
-    private DeclarationsNode variables; // Declarations made in the program
-    private SubProgramDeclarationsNode functions; // Functions/procedures declared in the program
-    private CompoundStatementNode main; // Main body of the program
+    protected String name; // Name of the program
+    protected DeclarationsNode variables; // Declarations made in the program
+    protected SubProgramDeclarationsNode functions; // Functions/procedures declared in the program
+    protected CompoundStatementNode main; // Main body of the program
 
+    public ProgramNode() {
+        name = null;
+        variables = null;
+        functions = null;
+        main = null;
+    }
     /**
      * Create a new ProgramNode with a name
      *
@@ -39,6 +45,10 @@ public class ProgramNode extends SyntaxTreeNode {
         this.variables = variables;
     }
 
+    public SubProgramDeclarationsNode getFunctions() {
+        return functions;
+    }
+
     /**
      * Set the functions declared in the program
      *
@@ -46,6 +56,10 @@ public class ProgramNode extends SyntaxTreeNode {
      */
     public void setFunctions(SubProgramDeclarationsNode functions) {
         this.functions = functions;
+    }
+
+    public CompoundStatementNode getMain() {
+        return main;
     }
 
     /**

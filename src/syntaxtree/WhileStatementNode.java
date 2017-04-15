@@ -38,6 +38,10 @@ public class WhileStatementNode extends StatementNode {
         this.doStatement = doStatement;
     }
 
+    public StatementNode getDo() {
+        return doStatement;
+    }
+
     /**
      * Print out the node with proper indentation to build a visual syntax tree
      *

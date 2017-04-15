@@ -47,24 +47,32 @@ public class Parser {
      * if a file path is being passed in as the String and false if pascal code is passed in as the String.
      *
      * @param input Either a filename in src/parser/test or a String to parse
-     * @param file  Make true if using file as input, false if using String
      */
-    public Parser(String input, boolean file) {
+    public Parser(String input) {
         InputStreamReader isr;
 
-        if (file) {
-            FileInputStream fis = null;
-            try {
-                fis = new FileInputStream(input);
-            } catch (FileNotFoundException ex) {
-                error("File \"" + input + "\" not found. Check file name and path to ensure it exists.");
-            }
-            assert fis != null;
-            isr = new InputStreamReader(fis);
-            scanny = new MyScanner(isr);
-        } else {
-            scanny = new MyScanner(new StringReader(input));
+        scanny = new MyScanner(new StringReader(input));
+
+        try {
+            lookahead = scanny.nextToken();
+        } catch (IOException ex) {
+            error("Scan error");
         }
+        symbolTable = new SymbolTableScope();
+    }
+
+    public Parser(File input) {
+        InputStreamReader isr;
+
+        FileInputStream fis = null;
+        try {
+            fis = new FileInputStream(input);
+        } catch (FileNotFoundException ex) {
+            error("File \"" + input + "\" not found. Check file name and path to ensure it exists.");
+        }
+        assert fis != null;
+        isr = new InputStreamReader(fis);
+        scanny = new MyScanner(isr);
 
         try {
             lookahead = scanny.nextToken();
@@ -143,19 +151,6 @@ public class Parser {
         program.setMain(compound_statement());
         match(PERIOD);
 
-
-        // Write syntax tree and contents of symbol table to files
-        try (Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("src/compiler/output/" + name + ".tree"), "utf-8"))) {
-            writer.write(program.indentedToString(0));
-        } catch (Exception ex) {
-            error("Problem with output file.");
-        }
-
-        try (Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("src/compiler/output/" + name + ".table"), "utf-8"))) {
-            writer.write(symbolTable.toString());
-        } catch (Exception ex) {
-            error("Problem with output file.");
-        }
 
         return program;
     }
@@ -440,7 +435,10 @@ public class Parser {
     public StatementNode statement() {
         StatementNode state = null;
         if (lookahead.getType() == ID) {
-            if (!symbolTable.doesExist(lookahead.getLexeme())) error(lookahead.getLexeme() + " has not been declared");
+            if (!symbolTable.doesExist(lookahead.getLexeme())) {
+                error(lookahead.getLexeme() + " has not been declared");
+                System.exit(1);
+            }
             if (symbolTable.isVariableName(lookahead.getLexeme()) || symbolTable.isArrayName((lookahead.getLexeme()))) {
                 AssignmentStatementNode assign = new AssignmentStatementNode();
                 VariableNode varNode = variable();
@@ -511,9 +509,7 @@ public class Parser {
      * @return A ProcedureStatementNode for a procedure call
      */
     public ProcedureStatementNode procedure_statement() {
-        ProcedureStatementNode psNode = new ProcedureStatementNode();
-        String procName = lookahead.getLexeme();
-        psNode.setVariable(new VariableNode(procName));
+        ProcedureStatementNode psNode = new ProcedureStatementNode(lookahead.getLexeme());
         match(ID);
         if (lookahead.getType() == LPAREN) {
             match(LPAREN);
@@ -577,6 +573,7 @@ public class Parser {
         } else if (lookahead.getType() == PLUS || lookahead.getType() == MINUS) {
             UnaryOperationNode uoNode = sign();
             expNode = term();
+            uoNode.setType(expNode.getType());
             uoNode.setExpression(simple_part(expNode));
             return uoNode;
         } else error("simple_expression");
@@ -597,8 +594,8 @@ public class Parser {
             match(lookahead.getType());
             ExpressionNode right = term();
             op.setLeft(posLeft);
-            op.setRight(right);
-            return simple_part(op);
+            op.setRight(simple_part(right));
+            return op;
         }
         // else lambda case
         return posLeft;
@@ -648,6 +645,10 @@ public class Parser {
         ExpressionNode ex = null;
         if (lookahead.getType() == ID) {
             String name = lookahead.getLexeme();
+            if (!symbolTable.doesExist(name)) {
+                error(name + " has not been declared");
+                System.exit(1);
+            }
             match(ID);
             Type t = symbolTable.getType(name);
             if (lookahead.getType() == LBRACE) {
@@ -662,7 +663,7 @@ public class Parser {
                 FunctionNode fNode = new FunctionNode(name);
                 fNode.setType(t);
                 match(LPAREN);
-                fNode.setExpNode(expression_list());
+                fNode.setArgs(expression_list());
                 match(RPAREN);
                 return fNode;
             } else {

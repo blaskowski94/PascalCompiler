@@ -1,5 +1,7 @@
 package syntaxtree;
 
+import scanner.Type;
+
 /**
  * Node to store a call to an Array variable. Allows an expression inside the brackets.
  *
@@ -8,7 +10,6 @@ package syntaxtree;
  */
 public class ArrayNode extends VariableNode {
 
-    // The name of the variable associated with this node
     private ExpressionNode expNode;
 
     /**
@@ -19,6 +20,12 @@ public class ArrayNode extends VariableNode {
     public ArrayNode(String attr) {
         super(attr);
         expNode = null;
+    }
+
+    public ArrayNode(String attr, Type t) {
+        super(attr);
+        expNode = null;
+        type = t;
     }
 
     /**
@@ -69,7 +76,7 @@ public class ArrayNode extends VariableNode {
     @Override
     public String indentedToString(int level) {
         String answer = this.indentation(level);
-        answer += "Array: " + super.getName() + "\n";
+        answer += "Array: " + super.getName() + ", Type: " + type + "\n";
         answer += this.expNode.indentedToString(level + 1);
         return answer;
     }

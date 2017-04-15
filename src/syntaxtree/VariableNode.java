@@ -47,7 +47,7 @@ public class VariableNode extends ExpressionNode {
      */
     @Override
     public String toString() {
-        return (name);
+        return "Name: " + name + ", Type: " + type;
     }
 
     /**

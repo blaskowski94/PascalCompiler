@@ -31,6 +31,14 @@ public class IfStatementNode extends StatementNode {
         this.test = test;
     }
 
+    public StatementNode getThen() {
+        return thenStatement;
+    }
+
+    public StatementNode getElse() {
+        return elseStatement;
+    }
+
     /**
      * Set the statement to be executed if the test is true
      *

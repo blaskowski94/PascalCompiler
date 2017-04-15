@@ -22,6 +22,14 @@ public class CompoundStatementNode extends StatementNode {
         statements.addAll(nodes);
     }
 
+    public ArrayList<StatementNode> getStatements() {
+        return statements;
+    }
+
+    public void addStatement(StatementNode state) {
+        statements.add(state);
+    }
+
     /**
      * Print out the node with proper indentation to build a visual syntax tree
      *

@@ -37,8 +37,12 @@ public class AssignmentStatementNode extends StatementNode {
      */
     public void setExpression(ExpressionNode expression) {
         this.expression = expression;
-        if (expression.getType().equals(Type.INTEGER) && lvalue.getType().equals(Type.REAL))
+        if (expression.getType() != null && lvalue.getType() != null && expression.getType().equals(Type.INTEGER) && lvalue.getType().equals(Type.REAL))
             expression.setType(Type.REAL);
+    }
+
+    public VariableNode getLValue() {
+        return lvalue;
     }
 
     /**

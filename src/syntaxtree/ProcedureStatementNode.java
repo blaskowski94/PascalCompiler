@@ -11,9 +11,13 @@ import java.util.ArrayList;
 public class ProcedureStatementNode extends StatementNode {
 
     // The function variable
-    private VariableNode variable = null;
+    private String name;
     // An ArrayList of the Argument Expressions
-    private ArrayList<ExpressionNode> expNode = new ArrayList();
+    private ArrayList<ExpressionNode> args = new ArrayList();
+
+    public ProcedureStatementNode(String name) {
+        this.name = name;
+    }
 
     /**
      * Add an ArrayList of ExpressionNodes for the function arguments
@@ -21,7 +25,11 @@ public class ProcedureStatementNode extends StatementNode {
      * @param input ArrayList of ExpressionNodes
      */
     public void addAllExpNode(ArrayList<ExpressionNode> input) {
-        expNode.addAll(input);
+        args.addAll(input);
+    }
+
+    public void addArg(ExpressionNode exp) {
+        args.add(exp);
     }
 
     /**
@@ -29,8 +37,8 @@ public class ProcedureStatementNode extends StatementNode {
      *
      * @return VariableNode of function
      */
-    public VariableNode getVariable() {
-        return this.variable;
+    public String getName() {
+        return this.name;
     }
 
     /**
@@ -38,8 +46,19 @@ public class ProcedureStatementNode extends StatementNode {
      *
      * @param input A function VariableNode
      */
-    public void setVariable(VariableNode input) {
-        this.variable = input;
+    public void setName(String input) {
+        this.name = input;
+    }
+
+    public ArrayList<ExpressionNode> removeArgs() {
+        ArrayList<ExpressionNode> temp = new ArrayList<>();
+        temp.addAll(args);
+        args.clear();
+        return temp;
+    }
+
+    public ArrayList<ExpressionNode> getArgs() {
+        return args;
     }
 
     /**
@@ -52,8 +71,8 @@ public class ProcedureStatementNode extends StatementNode {
     public String indentedToString(int level) {
         String answer = this.indentation(level);
         answer += "Procedure: ";
-        answer += this.variable + "\n";
-        for (ExpressionNode exp : expNode) {
+        answer += this.name + "\n";
+        for (ExpressionNode exp : args) {
             answer += exp.indentedToString(level + 1);
         }
         return answer;
