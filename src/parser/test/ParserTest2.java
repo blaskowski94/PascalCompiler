@@ -3,7 +3,7 @@ package parser.test;
 import org.junit.jupiter.api.Test;
 import parser.Parser;
 import scanner.Type;
-import symboltable.SymbolTableScope;
+import symboltable.SymbolTable;
 import syntaxtree.*;
 
 import java.io.File;
@@ -131,7 +131,7 @@ class ParserTest2 {
     @Test
     void statement() {
         Parser parser = new Parser("fub := foo * 8 + bar < not foo - 8 / bar");
-        SymbolTableScope tempTable = parser.getSymbolTable();
+        SymbolTable tempTable = parser.getSymbolTable();
         tempTable.addVariable("foo", Type.INTEGER);
         tempTable.addVariable("bar", Type.INTEGER);
         tempTable.addVariable("fub", Type.INTEGER);

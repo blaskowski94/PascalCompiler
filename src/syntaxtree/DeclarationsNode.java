@@ -30,6 +30,10 @@ public class DeclarationsNode extends SyntaxTreeNode {
         vars.addAll(dec.vars);
     }
 
+    public ArrayList<VariableNode> getVars() {
+        return vars;
+    }
+
     /**
      * Print out the node with proper indentation to build a visual syntax tree
      *

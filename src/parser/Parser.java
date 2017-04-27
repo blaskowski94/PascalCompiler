@@ -3,7 +3,7 @@ package parser;
 import scanner.MyScanner;
 import scanner.Token;
 import scanner.Type;
-import symboltable.SymbolTableScope;
+import symboltable.SymbolTable;
 import syntaxtree.*;
 
 import java.io.*;
@@ -36,7 +36,7 @@ public class Parser {
 
     private Token lookahead;
     private MyScanner scanny;
-    private SymbolTableScope symbolTable;
+    private SymbolTable symbolTable;
 
     ///////////////////////////////
     //       Constructors
@@ -58,7 +58,7 @@ public class Parser {
         } catch (IOException ex) {
             error("Scan error");
         }
-        symbolTable = new SymbolTableScope();
+        symbolTable = new SymbolTable();
     }
 
     public Parser(File input) {
@@ -79,7 +79,7 @@ public class Parser {
         } catch (IOException ex) {
             error("Scan error");
         }
-        symbolTable = new SymbolTableScope();
+        symbolTable = new SymbolTable();
     }
 
     ///////////////////////////////
@@ -124,7 +124,7 @@ public class Parser {
         return t == ASTERISK || t == FSLASH || t == DIV || t == MOD || t == AND;
     }
 
-    public SymbolTableScope getSymbolTable() {
+    public SymbolTable getSymbolTable() {
         return symbolTable;
     }
 
@@ -311,10 +311,21 @@ public class Parser {
             spNode = new SubProgramNode(funcName);
             match(ID);
             symbolTable.addNewScope();
-            spNode.setArgs(arguments());
+            ArrayList<VariableNode> args = arguments();
+
+            ArrayList<Type> argTypes = new ArrayList<>();
+            for (VariableNode var : args) {
+                Type t = var.getType();
+                symbolTable.get(funcName).addArg(t);
+                argTypes.add(t);
+            }
+            symbolTable.get(funcName).setArgs(argTypes);
             match(COLON);
             Type t = standard_type();
+            args.add(new VariableNode(funcName, t));
+            spNode.setArgs(args);
             symbolTable.setType(funcName, t);
+            symbolTable.addVariable(funcName, t);
             match(SEMI);
         } else if (lookahead.getType() == PROCEDURE) {
             match(PROCEDURE);
@@ -323,7 +334,15 @@ public class Parser {
             if (!symbolTable.addProcedure(procName)) error(procName + " already exists in symbol table");
             match(ID);
             symbolTable.addNewScope();
-            spNode.setArgs(arguments());
+            ArrayList<VariableNode> args = arguments();
+            ArrayList<Type> argTypes = new ArrayList<>();
+            for (VariableNode var : args) {
+                Type t = var.getType();
+                symbolTable.get(procName).addArg(t);
+                argTypes.add(t);
+            }
+            symbolTable.get(procName).setArgs(argTypes);
+            spNode.setArgs(args);
             match(SEMI);
         } else error("subprogram_head");
         return spNode;
@@ -335,8 +354,7 @@ public class Parser {
      * <strong>(</strong> parameter_list <strong>)</strong> | lambda
      */
     public ArrayList<VariableNode> arguments() {
-
-        ArrayList<VariableNode> args = new ArrayList();
+        ArrayList<VariableNode> args = new ArrayList<>();
         if (lookahead.getType() == LPAREN) {
             match(LPAREN);
             args = parameter_list();
@@ -355,7 +373,7 @@ public class Parser {
      */
     public ArrayList<VariableNode> parameter_list() {
         ArrayList<String> idList = identifier_list();
-        ArrayList<VariableNode> args = new ArrayList();
+        ArrayList<VariableNode> args = new ArrayList<>();
         match(COLON);
         Type t = type(idList);
         for (String id : idList) {
@@ -392,7 +410,7 @@ public class Parser {
      */
     public CompoundStatementNode optional_statements() {
         CompoundStatementNode comp = new CompoundStatementNode();
-        if (lookahead.getType() == ID || lookahead.getType() == BEGIN || lookahead.getType() == IF || lookahead.getType() == WHILE)
+        if (lookahead.getType() == ID || lookahead.getType() == BEGIN || lookahead.getType() == IF || lookahead.getType() == WHILE || lookahead.getType() == READ || lookahead.getType() == WRITE)
             comp.addAll(statement_list());
         // else lambda case
         return comp;
@@ -406,7 +424,7 @@ public class Parser {
      * @return An ArrayList of StatementNodes
      */
     public ArrayList<StatementNode> statement_list() {
-        ArrayList<StatementNode> nodes = new ArrayList();
+        ArrayList<StatementNode> nodes = new ArrayList<>();
         nodes.add(statement());
         if (lookahead.getType() == SEMI) {
             match(SEMI);
@@ -468,6 +486,20 @@ public class Parser {
             match(DO);
             whileState.setDoStatement(statement());
             return whileState;
+        } else if (lookahead.getType() == READ) {
+            match(Type.READ);
+            match(Type.LPAREN);
+            String varName = lookahead.getLexeme();
+            if (!symbolTable.isVariableName(varName)) error(varName + " has not been declared");
+            match(Type.ID);
+            match(Type.RPAREN);
+            return new ReadNode(new VariableNode(varName));
+        } else if (lookahead.getType() == WRITE) {
+            match(Type.WRITE);
+            match(Type.LPAREN);
+            WriteNode write = new WriteNode(expression());
+            match(Type.RPAREN);
+            return write;
         } else {
             error("statement" + lookahead.getLexeme());
         }
@@ -512,8 +544,17 @@ public class Parser {
         ProcedureStatementNode psNode = new ProcedureStatementNode(lookahead.getLexeme());
         match(ID);
         if (lookahead.getType() == LPAREN) {
+            ArrayList<Type> argTypes = symbolTable.get(psNode.getName()).getArgs();
             match(LPAREN);
-            psNode.addAllExpNode(expression_list());
+            ArrayList<ExpressionNode> expList = expression_list(psNode.getName());
+            for (int i = 0; i < argTypes.size(); i++) {
+                Type expectedArg = argTypes.get(i);
+                Type actualArg = expList.get(i).getType();
+                if (!expectedArg.equals(actualArg)) {
+                    error("Type mismatch in arguments for " + psNode.getName());
+                }
+            }
+            psNode.addAllExpNode(expList);
             match(RPAREN);
         }
         return psNode;
@@ -526,12 +567,12 @@ public class Parser {
      *
      * @return An ArrayList of Expression Nodes
      */
-    public ArrayList<ExpressionNode> expression_list() {
-        ArrayList<ExpressionNode> exNodeList = new ArrayList();
+    public ArrayList<ExpressionNode> expression_list(String name) {
+        ArrayList<ExpressionNode> exNodeList = new ArrayList<>();
         exNodeList.add(expression());
         if (lookahead.getType() == COMMA) {
             match(COMMA);
-            exNodeList.addAll(expression_list());
+            exNodeList.addAll(expression_list(name));
         }
         return exNodeList;
     }
@@ -660,10 +701,20 @@ public class Parser {
                 match(RBRACE);
                 return aNode;
             } else if (lookahead.getType() == LPAREN) {
+                // check arg types here
                 FunctionNode fNode = new FunctionNode(name);
+                ArrayList<Type> argTypes = symbolTable.get(name).getArgs();
                 fNode.setType(t);
                 match(LPAREN);
-                fNode.setArgs(expression_list());
+                ArrayList<ExpressionNode> actualArgs = expression_list(name);
+                for (int i = 0; i < argTypes.size(); i++) {
+                    Type expected = argTypes.get(i);
+                    Type actual = actualArgs.get(i).getType();
+                    if (!expected.equals(actual)) {
+                        error("Type mismatch for arguments of " + name);
+                    }
+                }
+                fNode.setArgs(actualArgs);
                 match(RPAREN);
                 return fNode;
             } else {

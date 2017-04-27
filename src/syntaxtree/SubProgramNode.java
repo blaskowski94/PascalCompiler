@@ -92,6 +92,10 @@ public class SubProgramNode extends ProgramNode {
         returnType = t;
     }
 
+    public ArrayList<VariableNode> getArgs() {
+        return args;
+    }
+
     public void setArgs(ArrayList<VariableNode> args) {
         this.args = args;
     }

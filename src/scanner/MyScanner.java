@@ -49,17 +49,17 @@ public class MyScanner {
    * Translates characters to character classes
    */
   private static final char[] ZZ_CMAP = zzUnpackCMap(ZZ_CMAP_PACKED);
-  private static final String ZZ_ACTION_PACKED_0 = "\1\0\1\1\1\2\1\3\1\4\3\5\1\1\3\0" + "\2\4\1\0";
+    private static final String ZZ_ACTION_PACKED_0 = "\1\0\1\1\1\2\1\3\1\4\3\5\1\1\3\0" + "\2\4\1\0";
   /**
    * Translates DFA states to action switch labels.
    */
   private static final int[] ZZ_ACTION = zzUnpackAction();
-  private static final String ZZ_ROWMAP_PACKED_0 = "\0\0\0\17\0\17\0\36\0\55\0\17\0\74\0\113" + "\0\132\0\151\0\170\0\132\0\207\0\226\0\226";
+    private static final String ZZ_ROWMAP_PACKED_0 = "\0\0\0\17\0\17\0\36\0\55\0\17\0\74\0\113" + "\0\132\0\151\0\170\0\132\0\207\0\226\0\226";
   /**
    * Translates a state to a row index in the transition table
    */
   private static final int[] ZZ_ROWMAP = zzUnpackRowMap();
-  private static final String ZZ_TRANS_PACKED_0 = "\1\2\1\3\1\0\1\4\1\5\1\6\1\4\2\6" + "\1\7\1\6\1\10\1\7\1\2\1\11\22\0\2\4" + "\1\0\1\4\14\0\1\5\1\12\1\13\22\0\1\6" + "\16\0\1\6\1\0\1\6\2\0\15\14\1\3\5\0" + "\1\15\16\0\1\16\2\0\1\17\13\0\1\15\1\0" + "\1\13\14\0\1\16\12\0";
+    private static final String ZZ_TRANS_PACKED_0 = "\1\2\1\3\1\0\1\4\1\5\1\6\1\4\2\6" + "\1\7\1\6\1\10\1\7\1\2\1\11\22\0\2\4" + "\1\0\1\4\14\0\1\5\1\12\1\13\22\0\1\6" + "\16\0\1\6\1\0\1\6\2\0\15\14\1\3\5\0" + "\1\15\16\0\1\16\2\0\1\17\13\0\1\15\1\0" + "\1\13\14\0\1\16\12\0";
   /**
    * The transition table of the DFA
    */
@@ -69,9 +69,8 @@ public class MyScanner {
   private static final int ZZ_NO_MATCH = 1;
   private static final int ZZ_PUSHBACK_2BIG = 2;
   /* error messages for the codes above */
-  private static final String ZZ_ERROR_MSG[] = {"Unknown internal scanner error", "Error: could not match input", "Error: pushback value was too large"
-  };
-  private static final String ZZ_ATTRIBUTE_PACKED_0 = "\1\0\2\11\2\1\1\11\3\1\3\0\2\1\1\0";
+  private static final String ZZ_ERROR_MSG[] = {"Unknown internal scanner error", "Error: could not match input", "Error: pushback value was too large"};
+    private static final String ZZ_ATTRIBUTE_PACKED_0 = "\1\0\2\11\2\1\1\11\3\1\3\0\2\1\1\0";
   /**
    * ZZ_ATTRIBUTE[aState] contains the attributes of state <code>aState</code>
    */
@@ -169,6 +168,8 @@ public class MyScanner {
     tokenTypes.put("*", Type.ASTERISK);
     tokenTypes.put("/", Type.FSLASH);
     tokenTypes.put(":=", Type.ASSIGN);
+      tokenTypes.put("read", Type.READ);
+      tokenTypes.put("write", Type.WRITE);
     this.zzReader = in;
   }
 
@@ -188,7 +189,7 @@ public class MyScanner {
       int value = packed.charAt(i++);
       do result[j++] = value; while (--count > 0);
     }
-    return j;
+        return j;
     }
 
     private static int[] zzUnpackRowMap() {
@@ -206,7 +207,7 @@ public class MyScanner {
       int high = packed.charAt(i++) << 16;
       result[j++] = high | packed.charAt(i++);
     }
-    return j;
+        return j;
     }
 
     private static int[] zzUnpackTrans() {
@@ -226,7 +227,7 @@ public class MyScanner {
       value--;
       do result[j++] = value; while (--count > 0);
     }
-    return j;
+        return j;
     }
 
     private static int[] zzUnpackAttribute() {
@@ -280,7 +281,7 @@ public class MyScanner {
     if (zzStartRead > 0) {
       zzEndRead += zzFinalHighSurrogate;
       zzFinalHighSurrogate = 0;
-      System.arraycopy(zzBuffer, zzStartRead, zzBuffer, 0, zzEndRead - zzStartRead);
+        System.arraycopy(zzBuffer, zzStartRead, zzBuffer, 0, zzEndRead - zzStartRead);
 
       /* translate stored positions */
       zzEndRead-= zzStartRead;
@@ -571,7 +572,8 @@ public class MyScanner {
             case 4: {
                 return (new Token(yytext(), Type.NUMBER, lineNumber));
             }
-          case 9: break;
+          case 9:
+              break;
             case 5: {
                 return (new Token(yytext(), tokenTypes.get(yytext()), lineNumber));
             }

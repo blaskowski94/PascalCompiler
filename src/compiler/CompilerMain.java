@@ -1,8 +1,9 @@
 package compiler;
 
 import codefolding.CodeFolding;
+import codegeneration.CodeGeneration;
 import parser.Parser;
-import symboltable.SymbolTableScope;
+import symboltable.SymbolTable;
 import syntaxtree.ProgramNode;
 
 import java.io.*;
@@ -28,7 +29,7 @@ public class CompilerMain {
         File program = null;
         // Default program to use if no command line arguments
         if (args.length == 0) {
-            program = new File("src/parser/test/foo.pas");
+            program = new File("src/parser/test/example.pas");
         }
         // If one argument passed in, use that as program or help()
         else if (args.length == 1) {
@@ -48,14 +49,16 @@ public class CompilerMain {
             CodeFolding cf = new CodeFolding();
             ProgramNode tree = parser.program();
             int original = tree.indentedToString(0).split("\n").length;
-            System.out.println(tree.indentedToString(0));
+            //System.out.println(tree.indentedToString(0));
             cf.foldProgram(tree);
             int end = tree.indentedToString(0).split("\n").length;
-            System.out.println(tree.indentedToString(0));
-            System.out.println("Difference: " + (original - end));
-            writeToFile(tree, parser, program);
-            //CodeGeneration cg = new CodeGeneration(tree);
-            //String theCode = cg.generate();
+            //System.out.println(tree.indentedToString(0));
+            //System.out.println("Difference: " + (original - end));
+
+            CodeGeneration cg = new CodeGeneration(tree, parser.getSymbolTable());
+            String theCode = cg.writeCodeForRoot();
+            writeToFile(tree, parser, program, theCode);
+            System.out.println(theCode);
             //String assemblyFileName = filename + ".asm";
             // Write assembly to a file
         }
@@ -66,8 +69,8 @@ public class CompilerMain {
         System.out.println(help);
     }
 
-    public static void writeToFile(ProgramNode program, Parser pars, File f) {
-        SymbolTableScope STC = pars.getSymbolTable();
+    public static void writeToFile(ProgramNode program, Parser pars, File f, String code) {
+        SymbolTable STC = pars.getSymbolTable();
         String name;
         try {
             name = f.getName().split("[.]")[0];
@@ -86,6 +89,12 @@ public class CompilerMain {
             writer.write(STC.toString());
         } catch (Exception ex) {
             error("Problem with table output file.");
+        }
+
+        try (Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("src/compiler/output/" + name + ".asm"), "utf-8"))) {
+            writer.write(code);
+        } catch (Exception ex) {
+            error("Problem with assembly output file.");
         }
     }
 

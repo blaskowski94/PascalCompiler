@@ -60,9 +60,6 @@ class SymbolTableTest {
      */
     @AfterEach
     void tearDown() {
-        symbolT.symbTable.clear();
-        symbolT.symbTable = null;
-        symbolT = null;
     }
 
     /**

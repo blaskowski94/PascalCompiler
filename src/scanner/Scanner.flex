@@ -71,6 +71,8 @@ import java.util.HashMap;
     tokenTypes.put("*", Type.ASTERISK);
     tokenTypes.put("/", Type.FSLASH);
     tokenTypes.put(":=", Type.ASSIGN);
+    tokenTypes.put("read", Type.READ);
+    tokenTypes.put("write", Type.WRITE);
 %init}
 
 /* Patterns */
