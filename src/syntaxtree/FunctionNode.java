@@ -5,15 +5,27 @@ import scanner.Type;
 import java.util.ArrayList;
 
 /**
+ * Bob Laskowski,
+ * Compilers II,
+ * Dr. Erik Steinmetz,
+ * April 27th, 2017
+ * <p>
  * The node for a call to a function. Stores the name and an ArrayList of the arguments.
  *
- * Created by Bob on 3/15/2017.
  * @author Bob Laskowski
  */
 public class FunctionNode extends VariableNode {
 
+    ///////////////////////////////
+    //    Instance Variables
+    ///////////////////////////////
+
     // The name of the arguments associated with this node
     private ArrayList<ExpressionNode> args;
+
+    ///////////////////////////////
+    //       Constructors
+    ///////////////////////////////
 
     /**
      * Creates a FunctionNode and the parent variableNode with the given name
@@ -26,11 +38,21 @@ public class FunctionNode extends VariableNode {
         this.type = null;
     }
 
+    /**
+     * Creates a FuncitonNode and the parent variableNode with the given name and Type
+     *
+     * @param attr Name of functionNode
+     * @param t    Type of functionNode
+     */
     public FunctionNode(String attr, Type t) {
         super(attr);
         args = new ArrayList<>();
         this.type = t;
     }
+
+    ///////////////////////////////
+    //       Methods
+    ///////////////////////////////
 
     /**
      * Returns the name of the function
@@ -59,10 +81,20 @@ public class FunctionNode extends VariableNode {
         this.args = input;
     }
 
+    /**
+     * Add an argument to the FunctionNode
+     *
+     * @param ex An ExpressionNode to be an argument
+     */
     public void addArg(ExpressionNode ex) {
         args.add(ex);
     }
 
+    /**
+     * Remove the ArrayList of arguments from the function and return that list
+     *
+     * @return ArrayList of ExpressionNodes
+     */
     public ArrayList<ExpressionNode> removeArgs() {
         ArrayList<ExpressionNode> temp = new ArrayList<>();
         temp.addAll(args);

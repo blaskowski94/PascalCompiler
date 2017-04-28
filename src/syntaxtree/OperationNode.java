@@ -3,15 +3,28 @@ package syntaxtree;
 import scanner.Type;
 
 /**
+ * Bob Laskowski,
+ * Compilers II,
+ * Dr. Erik Steinmetz,
+ * April 27th, 2017
+ * <p>
  * Represents any operation in an expression.
  *
  * @author Bob Laskowski
  */
 public class OperationNode extends ExpressionNode {
 
+    ///////////////////////////////
+    //    Instance Variables
+    ///////////////////////////////
+
     private ExpressionNode left; // The left operator of this operation.
     private ExpressionNode right; // The right operator of this operation.
-    private Type operation;
+    private Type operation; // Operation to be performed such as plus or minus
+
+    ///////////////////////////////
+    //       Constructors
+    ///////////////////////////////
 
     /**
      * Creates an operation node given an operation token.
@@ -22,6 +35,15 @@ public class OperationNode extends ExpressionNode {
         this.operation = op;
     }
 
+    ///////////////////////////////
+    //       Methods
+    ///////////////////////////////
+
+    /**
+     * Get the left side of the OperationNode
+     *
+     * @return An ExpressionNode on the left side of the operation
+     */
     public ExpressionNode getLeft() {
         return this.left;
     }
@@ -32,15 +54,18 @@ public class OperationNode extends ExpressionNode {
      * @param node The ExpressionNode on the left
      */
     public void setLeft(ExpressionNode node) {
-        // If we already have a left, remove it from our child list.
         this.left = node;
-        // handle this
         if (node.type != null) {
             if (type == null) type = node.type;
             else if (type.equals(Type.INTEGER) && node.getType().equals(Type.REAL)) type = Type.REAL;
         }
     }
 
+    /**
+     * Get the right side of the OperationNode
+     *
+     * @return An ExpressionNode on the right side of the OperationNode
+     */
     public ExpressionNode getRight() {
         return this.right;
     }
@@ -51,19 +76,27 @@ public class OperationNode extends ExpressionNode {
      * @param node The ExpressionNode on the right
      */
     public void setRight(ExpressionNode node) {
-        // If we already have a right, remove it from our child list.
         this.right = node;
-        // handle this
         if (node.type != null) {
             if (type == null) type = node.type;
             else if (type.equals(Type.INTEGER) && node.getType().equals(Type.REAL)) type = Type.REAL;
         }
     }
 
+    /**
+     * Get the type of the operation such as plus, minus, asterisk (multiplication), etc.
+     *
+     * @return The Type of operation in the OperationNode
+     */
     public Type getOperation() {
         return this.operation;
     }
 
+    /**
+     * Set the type of operation to be perfromed such as plus or minus
+     *
+     * @param t The Type of operation in the OperationNode
+     */
     public void setOperation(Type t) {
         operation = t;
     }

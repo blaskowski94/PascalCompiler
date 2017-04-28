@@ -119,6 +119,5 @@ whitespace          = [ \n\t\r\f]|{comment}
 
 {other}     {
                 /* Display an error message and exit program when error found */
-                System.out.println("Invalid syntax found.");
-                System.exit(1);
+                System.out.println("Invalid syntax found on line " + lineNumber);
             }

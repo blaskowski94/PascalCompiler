@@ -3,14 +3,27 @@ package syntaxtree;
 import java.util.ArrayList;
 
 /**
+ * Bob Laskowski,
+ * Compilers II,
+ * Dr. Erik Steinmetz,
+ * April 27th, 2017
+ * <p>
  * Represents a set of declarations in a Mini-Pascal program.
  *
  * @author Bob Laskowski
  */
 public class DeclarationsNode extends SyntaxTreeNode {
 
+    ///////////////////////////////
+    //    Instance Variables
+    ///////////////////////////////
+
     // The variables declared in this declaration
     private ArrayList<VariableNode> vars = new ArrayList<>();
+
+    ///////////////////////////////
+    //       Methods
+    ///////////////////////////////
 
     /**
      * Add one variable declared in this declarations statement
@@ -30,6 +43,11 @@ public class DeclarationsNode extends SyntaxTreeNode {
         vars.addAll(dec.vars);
     }
 
+    /**
+     * Get the ArrayList of VariableNodes declared
+     *
+     * @return An ArrayList of VariableNodes
+     */
     public ArrayList<VariableNode> getVars() {
         return vars;
     }

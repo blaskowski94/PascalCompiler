@@ -1,0 +1,33 @@
+Program: foo
+|-- Declarations
+|-- --- Name: fee, Type: INTEGER
+|-- --- Name: fi, Type: INTEGER
+|-- --- Name: fo, Type: INTEGER
+|-- --- Name: fum, Type: INTEGER
+|-- SubProgramDeclarations
+|-- Compound Statement
+|-- --- Assignment:
+|-- --- --- Name: fee, Type: INTEGER
+|-- --- --- Value: 4, Type: INTEGER
+|-- --- Assignment:
+|-- --- --- Name: fi, Type: INTEGER
+|-- --- --- Value: 5, Type: INTEGER
+|-- --- Assignment:
+|-- --- --- Name: fo, Type: INTEGER
+|-- --- --- Operation: PLUS, Type: INTEGER
+|-- --- --- --- Operation: ASTERISK, Type: INTEGER
+|-- --- --- --- --- Value: 3, Type: INTEGER
+|-- --- --- --- --- Name: fee, Type: INTEGER
+|-- --- --- --- Name: fi, Type: INTEGER
+|-- --- If:
+|-- --- --- Operation: LTHAN, Type: INTEGER
+|-- --- --- --- Name: fo, Type: INTEGER
+|-- --- --- --- Value: 13, Type: INTEGER
+|-- --- Then:
+|-- --- --- Assignment:
+|-- --- --- --- Name: fo, Type: INTEGER
+|-- --- --- --- Value: 13, Type: INTEGER
+|-- --- Else:
+|-- --- --- Assignment:
+|-- --- --- --- Name: fo, Type: INTEGER
+|-- --- --- --- Value: 26, Type: INTEGER

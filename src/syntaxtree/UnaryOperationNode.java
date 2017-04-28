@@ -3,15 +3,27 @@ package syntaxtree;
 import scanner.Type;
 
 /**
+ * Bob Laskowski,
+ * Compilers II,
+ * Dr. Erik Steinmetz,
+ * April 27th, 2017
+ * <p>
  * A special kind of ExpressionNode for the "not" operator, PLUS (+) and MINUS (-)
  *
- * Created by Bob on 3/13/2017.
  * @author Bob Laskowski
  */
 public class UnaryOperationNode extends ExpressionNode {
 
+    ///////////////////////////////
+    //    Instance Variables
+    ///////////////////////////////
+
     private ExpressionNode expression; // The right operator of this operation.
     private Type operation; // The kind of operation.
+
+    ///////////////////////////////
+    //       Constructors
+    ///////////////////////////////
 
     /**
      * Creates an operation node given an operation token.
@@ -21,6 +33,10 @@ public class UnaryOperationNode extends ExpressionNode {
     public UnaryOperationNode(Type op) {
         this.operation = op;
     }
+
+    ///////////////////////////////
+    //       Methods
+    ///////////////////////////////
 
     /**
      * Get the Expression associated with the Unary Operation
@@ -37,10 +53,14 @@ public class UnaryOperationNode extends ExpressionNode {
      * @param node An ExpressionNode after the UnaryOperation
      */
     public void setExpression(ExpressionNode node) {
-        // If we already have a left, remove it from our child list.
         this.expression = node;
     }
 
+    /**
+     * Get the unary operation for the node
+     *
+     * @return The Type of unary operation such as plus or minus
+     */
     public Type getOperation() {
         return operation;
     }

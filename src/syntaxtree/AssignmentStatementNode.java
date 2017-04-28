@@ -3,14 +3,27 @@ package syntaxtree;
 import scanner.Type;
 
 /**
+ * Bob Laskowski,
+ * Compilers II,
+ * Dr. Erik Steinmetz,
+ * April 27th, 2017
+ * <p>
  * Represents a single assignment statement.
  *
  * @author Bob Laskowski
  */
 public class AssignmentStatementNode extends StatementNode {
 
+    ///////////////////////////////
+    //    Instance Variables
+    ///////////////////////////////
+
     private VariableNode lvalue; // The variable the value is being assigned to
     private ExpressionNode expression; // The value being assigned
+
+    ///////////////////////////////
+    //       Methods
+    ///////////////////////////////
 
     /**
      * Set the variable the value is being assigned to
@@ -41,6 +54,11 @@ public class AssignmentStatementNode extends StatementNode {
             expression.setType(Type.REAL);
     }
 
+    /**
+     * Get the variable the value is being assigned to
+     *
+     * @return A VariableNode the value is stored in
+     */
     public VariableNode getLValue() {
         return lvalue;
     }

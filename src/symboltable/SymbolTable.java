@@ -11,7 +11,7 @@ import java.util.Stack;
  * Bob Laskowski,
  * Compilers II,
  * Dr. Erik Steinmetz,
- * February 9th, 2017
+ * April 27th, 2017
  * <p>
  * This class creates a HashMap of different types of symbols we encounter in a pascal program. These symbols include
  * variables, programs, arrays and functions. Different information is stored depending on the type of symbol. Every
@@ -27,7 +27,6 @@ public class SymbolTable {
     //    Instance Variables
     ///////////////////////////////
 
-    // protected so it can be accessed for testing
     private Stack<HashMap<String, Symbol>> symbTable;
 
     ///////////////////////////////
@@ -61,10 +60,19 @@ public class SymbolTable {
         return "SymbolTable { \n" + "Global Table = \n" + text + '}';
     }
 
+    /**
+     * Add a new HashMap to the stack for local variables inside functions/procedures
+     */
     public void addNewScope() {
         symbTable.push(new HashMap<>());
     }
 
+    /**
+     * Remove a HashMap from the stack after it is no longer needed. Don't allow removal of the HashMap for global
+     * variables.
+     *
+     * @return Return the HashMap removed from the list, null if nothing removed
+     */
     public HashMap<String, Symbol> removeScope() {
         if (symbTable.size() > 1) {
             return symbTable.pop();
@@ -72,6 +80,12 @@ public class SymbolTable {
         return null;
     }
 
+    /**
+     * Get a Symbol from the HashMap. Searches map on top of Stack first and goes down until found. Null if not found.
+     *
+     * @param name Name of Symbol we are looking for
+     * @return The Symbol with a matching name or null if not found
+     */
     public Symbol get(String name) {
         for (int i = symbTable.size() - 1; i >= 0; i--) {
             if (symbTable.elementAt(i).containsKey(name)) return symbTable.elementAt(i).get(name);
@@ -158,10 +172,8 @@ public class SymbolTable {
     /**
      * Add a procedure symbol to the symbol table.
      * <p>
-     * Note: removed args parameter, will re-add later
      *
      * @param name procedure name
-     *             param args procedure arguments
      * @return true if added, false if already exists
      */
     public boolean addProcedure(String name) {
@@ -245,6 +257,12 @@ public class SymbolTable {
         return false;
     }
 
+    /**
+     * Get the Type of a specific symbol (REAL/INTEGER)
+     *
+     * @param name Name of symbol we are looking for
+     * @return The Symbol found or null if not found
+     */
     public Type getType(String name) {
         for (int i = symbTable.size() - 1; i >= 0; i--) {
             if (symbTable.elementAt(i).containsKey(name)) return symbTable.elementAt(i).get(name).getType();
@@ -252,16 +270,27 @@ public class SymbolTable {
         return null;
     }
 
+    /**
+     * Set the local table for a specific function or procedure Symbol
+     *
+     * @param name       Name of the function/procedure to assign local table to
+     * @param localTable The HashMap to set as the local table
+     */
     public void setLocalTable(String name, HashMap<String, Symbol> localTable) {
-
         for (int i = symbTable.size() - 1; i >= 0; i--) {
-            if (symbTable.elementAt(i).containsKey(name) && (symbTable.elementAt(i).get(name).getKind() == Kind.FUNCTION || symbTable.elementAt(i).get(name).getKind() == Kind.PROCEDURE))
+            if (symbTable.elementAt(i).containsKey(name) && (symbTable.elementAt(i).get(name).getKind() == Kind.FUNCTION || symbTable.elementAt(i).get(name).getKind() == Kind.PROCEDURE)) {
                 symbTable.elementAt(i).get(name).setLocalTable(localTable);
-            return;
+                return;
+            }
         }
-
     }
 
+    /**
+     * Get the local table for a specific function or procedure Symbol
+     *
+     * @param name Name of the function/procedure we are looking for
+     * @return The local table HashMap
+     */
     public HashMap<String, Symbol> getLocalTable(String name) {
         for (int i = symbTable.size() - 1; i >= 0; i--) {
             if (symbTable.elementAt(i).containsKey(name) && (symbTable.elementAt(i).get(name).getKind() == Kind.FUNCTION || symbTable.elementAt(i).get(name).getKind() == Kind.PROCEDURE))
@@ -270,6 +299,12 @@ public class SymbolTable {
         return null;
     }
 
+    /**
+     * Set the type of a specific Symbol
+     *
+     * @param name Name of the Symbol
+     * @param t    Type to set
+     */
     public void setType(String name, Type t) {
         for (int i = symbTable.size() - 1; i >= 0; i--) {
             if (symbTable.elementAt(i).containsKey(name)) {
@@ -279,7 +314,12 @@ public class SymbolTable {
         }
     }
 
-
+    /**
+     * Check to see if a specific Symbol exists in any of the symbol tables
+     *
+     * @param name Name of the Symbol to look for
+     * @return True if it exists, false otherwise
+     */
     public boolean doesExist(String name) {
         for (int i = symbTable.size() - 1; i >= 0; i--) {
             if (symbTable.elementAt(i).containsKey(name)) return true;
@@ -287,7 +327,11 @@ public class SymbolTable {
         return false;
     }
 
-
+    /**
+     * Add a populated HashMap to the top of the SymbolTable stack
+     *
+     * @param local The HashMap to be pushed
+     */
     public void pushLocalTable(HashMap<String, Symbol> local) {
         symbTable.push(local);
     }
@@ -396,22 +440,47 @@ public class SymbolTable {
             return type;
         }
 
+        /**
+         * Set the Type of a Symbol
+         *
+         * @param t Type to be set
+         */
         public void setType(Type t) {
             type = t;
         }
 
+        /**
+         * Get the array list of argument types for a Symbol, applies only to functions and procedures
+         *
+         * @return ArrayList of argument Types
+         */
         public ArrayList<Type> getArgs() {
             return args;
         }
 
+        /**
+         * Set the argument arrayList with the Types of arguments the function/procedure takes in
+         *
+         * @param types An ArrayList of Types
+         */
         public void setArgs(ArrayList<Type> types) {
             args = types;
         }
 
+        /**
+         * Get the memory address of the Symbol
+         *
+         * @return The memory address for MIPS reference
+         */
         public String getMemAddress() {
             return memAddress;
         }
 
+        /**
+         * Set the memory address of the Symbol
+         *
+         * @param address The memory address for MIPS reference
+         */
         public void setMemAddress(String address) {
             memAddress = address;
         }
@@ -421,7 +490,7 @@ public class SymbolTable {
          *
          * @return beginning index of an array
          */
-        public int getBeginidx() {
+        int getBeginidx() {
             return beginidx;
         }
 
@@ -430,31 +499,45 @@ public class SymbolTable {
          *
          * @return ending index of an array
          */
-        public int getEndidx() {
+        int getEndidx() {
             return endidx;
         }
 
+        /**
+         * Add an argument to the ArrayList of arg Types
+         *
+         * @param t The Type of argument to add
+         */
         public void addArg(Type t) {
             args.add(t);
         }
 
+        /**
+         * Get the length of the array by subtracting the end and begin index
+         *
+         * @return The length of the array
+         */
         public int getArrayLength() {
             return endidx - beginidx;
         }
 
         /**
-         * Gets the arguments of a function
+         * Gets the arguments of a function *package private*
          *
          * @return An ArrayList of function arguments
          */
-        public HashMap<String, Symbol> getLocalTable() {
+        HashMap<String, Symbol> getLocalTable() {
             return localTable;
         }
 
-        public void setLocalTable(HashMap<String, Symbol> local) {
+        /**
+         * Set the local symbol table of the function or procedure
+         *
+         * @param local The HashMap of the local symbol table
+         */
+        void setLocalTable(HashMap<String, Symbol> local) {
             localTable = local;
         }
-
 
         /**
          * @return a string version of the object

@@ -15,7 +15,7 @@ import static scanner.Type.*;
  * Bob Laskowski,
  * Compilers II,
  * Dr. Erik Steinmetz,
- * February 3rd, 2017
+ * April 27th, 2017
  * <p>
  * The parser recognizes whether an input string of tokens is a valid Mini-Pascal program as defined in the grammar.
  * <p>
@@ -43,14 +43,11 @@ public class Parser {
     ///////////////////////////////
 
     /**
-     * Creates a new Parser object to parse either a file or a String input. The boolean value passed in is true
-     * if a file path is being passed in as the String and false if pascal code is passed in as the String.
+     * Creates a new Parser object to parse a String input.
      *
-     * @param input Either a filename in src/parser/test or a String to parse
+     * @param input A String to parse
      */
     public Parser(String input) {
-        InputStreamReader isr;
-
         scanny = new MyScanner(new StringReader(input));
 
         try {
@@ -61,6 +58,11 @@ public class Parser {
         symbolTable = new SymbolTable();
     }
 
+    /**
+     * Creates a new Parser object to parse a File input
+     *
+     * @param input A File to parse
+     */
     public Parser(File input) {
         InputStreamReader isr;
 
@@ -124,6 +126,11 @@ public class Parser {
         return t == ASTERISK || t == FSLASH || t == DIV || t == MOD || t == AND;
     }
 
+    /**
+     * Get the symbol table from the parse
+     *
+     * @return The symbol table populated by the parser
+     */
     public SymbolTable getSymbolTable() {
         return symbolTable;
     }
@@ -151,7 +158,6 @@ public class Parser {
         program.setMain(compound_statement());
         match(PERIOD);
 
-
         return program;
     }
 
@@ -166,7 +172,7 @@ public class Parser {
      *
      * @return An ArrayList of names of ids declared
      */
-    public ArrayList<String> identifier_list() {
+    private ArrayList<String> identifier_list() {
         ArrayList<String> idList = new ArrayList<>();
         idList.add(lookahead.getLexeme());
         match(ID);
@@ -185,7 +191,7 @@ public class Parser {
      *
      * @return A DeclarationsNode containing all the variables declared
      */
-    public DeclarationsNode declarations() {
+    private DeclarationsNode declarations() {
         DeclarationsNode dec = new DeclarationsNode();
         if (lookahead.getType() == VAR) {
             match(VAR);
@@ -210,7 +216,7 @@ public class Parser {
      * @param idList An ArrayList of ID names to be added to symbol table
      * @return A standard Type (INTEGER/REAL)
      */
-    public Type type(ArrayList<String> idList) {
+    private Type type(ArrayList<String> idList) {
         int beginidx, endidx;
         Type t = null;
         if (lookahead.getType() == ARRAY) {
@@ -244,7 +250,7 @@ public class Parser {
      *
      * @return Returns the Type of the declared item, either Type.INTEGER or Type.REAL
      */
-    public Type standard_type() {
+    private Type standard_type() {
         Type t = null;
         if (lookahead.getType() == INTEGER) {
             t = INTEGER;
@@ -263,7 +269,7 @@ public class Parser {
      *
      * @return A SubProgramDeclarationsNode containing all the functions/procedures declared
      */
-    public SubProgramDeclarationsNode subprogram_declarations() {
+    private SubProgramDeclarationsNode subprogram_declarations() {
         SubProgramDeclarationsNode spdNode = new SubProgramDeclarationsNode();
         if (lookahead.getType() == FUNCTION || lookahead.getType() == PROCEDURE) {
             spdNode.addSubProgramDeclaration(subprogram_declaration());
@@ -284,7 +290,7 @@ public class Parser {
      *
      * @return A SubProgramNode for a function/procedure declared
      */
-    public SubProgramNode subprogram_declaration() {
+    private SubProgramNode subprogram_declaration() {
         SubProgramNode spNode = subprogram_head();
         spNode.setReturnType(symbolTable.getType(spNode.getName()));
         spNode.setVariables(declarations());
@@ -302,7 +308,7 @@ public class Parser {
      *
      * @return A SubProgramNode for a function/procedure declared
      */
-    public SubProgramNode subprogram_head() {
+    private SubProgramNode subprogram_head() {
         SubProgramNode spNode = null;
         if (lookahead.getType() == FUNCTION) {
             match(FUNCTION);
@@ -353,7 +359,7 @@ public class Parser {
      * <p>
      * <strong>(</strong> parameter_list <strong>)</strong> | lambda
      */
-    public ArrayList<VariableNode> arguments() {
+    private ArrayList<VariableNode> arguments() {
         ArrayList<VariableNode> args = new ArrayList<>();
         if (lookahead.getType() == LPAREN) {
             match(LPAREN);
@@ -371,7 +377,7 @@ public class Parser {
      * identifier_list <strong>:</strong> type |
      * identifier_list <strong>:</strong> type <strong>;</strong> parameter_list
      */
-    public ArrayList<VariableNode> parameter_list() {
+    private ArrayList<VariableNode> parameter_list() {
         ArrayList<String> idList = identifier_list();
         ArrayList<VariableNode> args = new ArrayList<>();
         match(COLON);
@@ -393,7 +399,7 @@ public class Parser {
      *
      * @return A CompoundStatementNode for the body of the function/procedure
      */
-    public CompoundStatementNode compound_statement() {
+    private CompoundStatementNode compound_statement() {
         CompoundStatementNode comp;
         match(BEGIN);
         comp = optional_statements();
@@ -408,7 +414,7 @@ public class Parser {
      *
      * @return A CompoundStatementNode for the body of the function/procedure
      */
-    public CompoundStatementNode optional_statements() {
+    private CompoundStatementNode optional_statements() {
         CompoundStatementNode comp = new CompoundStatementNode();
         if (lookahead.getType() == ID || lookahead.getType() == BEGIN || lookahead.getType() == IF || lookahead.getType() == WHILE || lookahead.getType() == READ || lookahead.getType() == WRITE)
             comp.addAll(statement_list());
@@ -423,7 +429,7 @@ public class Parser {
      *
      * @return An ArrayList of StatementNodes
      */
-    public ArrayList<StatementNode> statement_list() {
+    private ArrayList<StatementNode> statement_list() {
         ArrayList<StatementNode> nodes = new ArrayList<>();
         nodes.add(statement());
         if (lookahead.getType() == SEMI) {
@@ -450,7 +456,7 @@ public class Parser {
      *
      * @return A StatementNode for a single statement
      */
-    public StatementNode statement() {
+    private StatementNode statement() {
         StatementNode state = null;
         if (lookahead.getType() == ID) {
             if (!symbolTable.doesExist(lookahead.getLexeme())) {
@@ -514,7 +520,7 @@ public class Parser {
      *
      * @return A VariableNode holding a variable
      */
-    public VariableNode variable() {
+    private VariableNode variable() {
         String varName = lookahead.getLexeme();
         if (!symbolTable.doesExist(varName)) error(varName + " has not been declared");
         VariableNode var = new VariableNode(varName);
@@ -540,13 +546,13 @@ public class Parser {
      *
      * @return A ProcedureStatementNode for a procedure call
      */
-    public ProcedureStatementNode procedure_statement() {
+    private ProcedureStatementNode procedure_statement() {
         ProcedureStatementNode psNode = new ProcedureStatementNode(lookahead.getLexeme());
         match(ID);
         if (lookahead.getType() == LPAREN) {
             ArrayList<Type> argTypes = symbolTable.get(psNode.getName()).getArgs();
             match(LPAREN);
-            ArrayList<ExpressionNode> expList = expression_list(psNode.getName());
+            ArrayList<ExpressionNode> expList = expression_list();
             for (int i = 0; i < argTypes.size(); i++) {
                 Type expectedArg = argTypes.get(i);
                 Type actualArg = expList.get(i).getType();
@@ -567,12 +573,12 @@ public class Parser {
      *
      * @return An ArrayList of Expression Nodes
      */
-    public ArrayList<ExpressionNode> expression_list(String name) {
+    private ArrayList<ExpressionNode> expression_list() {
         ArrayList<ExpressionNode> exNodeList = new ArrayList<>();
         exNodeList.add(expression());
         if (lookahead.getType() == COMMA) {
             match(COMMA);
-            exNodeList.addAll(expression_list(name));
+            exNodeList.addAll(expression_list());
         }
         return exNodeList;
     }
@@ -584,7 +590,7 @@ public class Parser {
      *
      * @return A single ExpressionNode
      */
-    public ExpressionNode expression() {
+    private ExpressionNode expression() {
         ExpressionNode left = simple_expression();
         Type leftType = left.getType();
         if (isRelOp(lookahead.getType())) {
@@ -606,7 +612,7 @@ public class Parser {
      *
      * @return A single ExpressionNode
      */
-    public ExpressionNode simple_expression() {
+    private ExpressionNode simple_expression() {
         ExpressionNode expNode = null;
         if (lookahead.getType() == ID || lookahead.getType() == NUMBER || lookahead.getType() == LPAREN || lookahead.getType() == NOT) {
             expNode = term();
@@ -628,7 +634,7 @@ public class Parser {
      *
      * @return A single ExpressionNode
      */
-    public ExpressionNode simple_part(ExpressionNode posLeft) {
+    private ExpressionNode simple_part(ExpressionNode posLeft) {
 
         if (isAddOp(lookahead.getType())) {
             OperationNode op = new OperationNode(lookahead.getType());
@@ -649,7 +655,7 @@ public class Parser {
      *
      * @return A single ExpressionNode
      */
-    public ExpressionNode term() {
+    private ExpressionNode term() {
         ExpressionNode left = factor();
         return term_part(left);
     }
@@ -661,7 +667,7 @@ public class Parser {
      *
      * @return A single ExpressionNode
      */
-    public ExpressionNode term_part(ExpressionNode posLeft) {
+    private ExpressionNode term_part(ExpressionNode posLeft) {
         if (isMulOp(lookahead.getType())) {
             OperationNode op = new OperationNode(lookahead.getType());
             match(lookahead.getType());
@@ -682,7 +688,7 @@ public class Parser {
      *
      * @return A single ExpressionNode
      */
-    public ExpressionNode factor() {
+    private ExpressionNode factor() {
         ExpressionNode ex = null;
         if (lookahead.getType() == ID) {
             String name = lookahead.getLexeme();
@@ -706,7 +712,7 @@ public class Parser {
                 ArrayList<Type> argTypes = symbolTable.get(name).getArgs();
                 fNode.setType(t);
                 match(LPAREN);
-                ArrayList<ExpressionNode> actualArgs = expression_list(name);
+                ArrayList<ExpressionNode> actualArgs = expression_list();
                 for (int i = 0; i < argTypes.size(); i++) {
                     Type expected = argTypes.get(i);
                     Type actual = actualArgs.get(i).getType();
@@ -753,7 +759,7 @@ public class Parser {
      *
      * @return A UnaryOperationNode holding not, + or - and the expression
      */
-    public UnaryOperationNode sign() {
+    private UnaryOperationNode sign() {
         UnaryOperationNode uoNode = null;
         if (lookahead.getType() == PLUS) {
             uoNode = new UnaryOperationNode(PLUS);
@@ -789,13 +795,12 @@ public class Parser {
     }
 
     /**
-     * Errors out of the parser. Prints an error message and then exits the program.
+     * Errors out of the parser. Prints an error message to standard error.
      *
      * @param message The error message to print.
      */
     private void error(String message) {
-        System.out.println("Error: " + message + " Line: " + lookahead.getLineNumber());
-        //System.exit(1);
+        System.err.println("Error: " + message + " Line: " + lookahead.getLineNumber());
     }
 
 }

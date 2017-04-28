@@ -3,14 +3,27 @@ package syntaxtree;
 import scanner.Type;
 
 /**
+ * Bob Laskowski,
+ * Compilers II,
+ * Dr. Erik Steinmetz,
+ * April 27th, 2017
+ * <p>
  * General representation of any expression.
  *
  * @author Bob Laskowski
  */
 public abstract class ExpressionNode extends SyntaxTreeNode {
 
-    // The data type of this expression, either REAL or INTEGER
-    protected Type type;
+    ///////////////////////////////
+    //    Instance Variables
+    ///////////////////////////////
+
+    // The data type of this expression, either REAL or INTEGER *package-private*
+    Type type;
+
+    ///////////////////////////////
+    //       Methods
+    ///////////////////////////////
 
     /**
      * Create a default ExpressionNode with a null type
@@ -45,6 +58,5 @@ public abstract class ExpressionNode extends SyntaxTreeNode {
     public void setType(Type t) {
         this.type = t;
     }
-
 
 }

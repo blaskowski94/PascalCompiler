@@ -1,17 +1,32 @@
 package syntaxtree;
 
 /**
- * Represents an if statement in Mini-Pascal. An if statement includes a boolean expression and two statements.
+ * Bob Laskowski,
+ * Compilers II,
+ * Dr. Erik Steinmetz,
+ * April 27th, 2017
+ * <p>
+ * Represents an if statement in Mini-Pascal. An if statement includes a boolean expression and two statements (then
+ * and else).
  *
  * @author Bob Laskowski
  */
 public class IfStatementNode extends StatementNode {
+
+    ///////////////////////////////
+    //    Instance Variables
+    ///////////////////////////////
+
     // The test of the if statement
     private ExpressionNode test;
     // What to do if the test is true
     private StatementNode thenStatement;
     // What to do if the test is false
     private StatementNode elseStatement;
+
+    ///////////////////////////////
+    //       Methods
+    ///////////////////////////////
 
     /**
      * Get the if statement test
@@ -31,10 +46,20 @@ public class IfStatementNode extends StatementNode {
         this.test = test;
     }
 
+    /**
+     * Get the Then Statement of the IfStatementNode
+     *
+     * @return A StatementNode representing what to do if the if test is true
+     */
     public StatementNode getThen() {
         return thenStatement;
     }
 
+    /**
+     * Get the Else Statement of the IfStatementNode
+     *
+     * @return A StatementNode representing what to do if the test is false
+     */
     public StatementNode getElse() {
         return elseStatement;
     }

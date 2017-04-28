@@ -1,15 +1,5 @@
 package parser.test;
 
-import org.junit.jupiter.api.Test;
-import parser.Parser;
-import scanner.Type;
-import symboltable.SymbolTable;
-import syntaxtree.*;
-
-import java.io.File;
-
-import static org.junit.Assert.assertEquals;
-
 /**
  * Bob Laskowski,
  * Compilers II,
@@ -23,7 +13,7 @@ import static org.junit.Assert.assertEquals;
  * @author Bob Laskowski
  */
 class ParserTest2 {
-
+/*
     @Test
     void factor() {
         // Just a value
@@ -249,5 +239,5 @@ class ParserTest2 {
         assertEquals(expectedString, actualString);
         System.out.println("Program test 3 passed.");
     }
-
+*/
 }

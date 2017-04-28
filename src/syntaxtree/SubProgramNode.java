@@ -5,16 +5,27 @@ import scanner.Type;
 import java.util.ArrayList;
 
 /**
+ * Bob Laskowski,
+ * Compilers II,
+ * Dr. Erik Steinmetz,
+ * April 27th, 2017
+ * <p>
  * Represents a single subprogram declarations
  *
- * Created by Bob on 3/4/2017.
  * @author Bob Laskowski
  */
 public class SubProgramNode extends ProgramNode {
 
+    ///////////////////////////////
+    //    Instance Variables
+    ///////////////////////////////
+
     private Type returnType; // Return type of the subprogram (REAL/INTEGER for functions, NULL for procedures)
     private ArrayList<VariableNode> args; // Function arguments
-    private ExpressionNode returnVal;
+
+    ///////////////////////////////
+    //       Constructors
+    ///////////////////////////////
 
     /**
      * Create a new SubProgram with a name
@@ -25,6 +36,10 @@ public class SubProgramNode extends ProgramNode {
         this.name = aName;
     }
 
+    ///////////////////////////////
+    //       Methods
+    ///////////////////////////////
+
     /**
      * Get the name of the function/procedure
      *
@@ -34,6 +49,11 @@ public class SubProgramNode extends ProgramNode {
         return name;
     }
 
+    /**
+     * Gets the main function of the subprogram
+     *
+     * @return A CompoundStatementNode representing the main function of the subprogram
+     */
     public CompoundStatementNode getMain() {
         return main;
     }
@@ -92,16 +112,22 @@ public class SubProgramNode extends ProgramNode {
         returnType = t;
     }
 
+    /**
+     * Get the arguments of the subprogram
+     *
+     * @return An ArrayList of VariableNodes for the arguments of the subprogram
+     */
     public ArrayList<VariableNode> getArgs() {
         return args;
     }
 
+    /**
+     * Set the arguments of the subprogram
+     *
+     * @param args An ArrayList of VariableNodes for the arguments of the subprogram
+     */
     public void setArgs(ArrayList<VariableNode> args) {
         this.args = args;
-    }
-
-    public void setReturnVal(ExpressionNode ex) {
-        returnVal = ex;
     }
 
     /**
@@ -112,19 +138,20 @@ public class SubProgramNode extends ProgramNode {
      */
     @Override
     public String indentedToString(int level) {
-        String answer = this.indentation(level);
-        answer += "SubProgram: " + name + ", Return: " + returnType + "\n";
-        answer += this.indentation(level) + "Arguments: (";
+        StringBuilder answer = new StringBuilder(this.indentation(level));
+        answer.append("SubProgram: ").append(name).append(", Return: ").append(returnType).append("\n");
+        answer.append(this.indentation(level)).append("Arguments: (");
         if (args != null) {
             for (int i = 0; i < args.size(); i++) {
-                if (i != args.size() - 1) answer += args.get(i).getName() + " [" + args.get(i).getType() + "], ";
-                else answer += args.get(i).getName() + " [" + args.get(i).getType() + "]";
+                if (i != args.size() - 1)
+                    answer.append(args.get(i).getName()).append(" [").append(args.get(i).getType()).append("], ");
+                else answer.append(args.get(i).getName()).append(" [").append(args.get(i).getType()).append("]");
             }
         }
-        answer += ")\n";
-        answer += variables.indentedToString(level + 1);
-        answer += functions.indentedToString(level + 1);
-        answer += main.indentedToString(level + 1);
-        return answer;
+        answer.append(")\n");
+        answer.append(variables.indentedToString(level + 1));
+        answer.append(functions.indentedToString(level + 1));
+        answer.append(main.indentedToString(level + 1));
+        return answer.toString();
     }
 }

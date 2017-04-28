@@ -1,17 +1,45 @@
 package syntaxtree;
 
 /**
- * Created by Bob on 4/15/2017.
+ * Bob Laskowski,
+ * Compilers II,
+ * Dr. Erik Steinmetz,
+ * April 27th, 2017
+ * <p>
+ * Represents a write node for built in write function. Displays output to console.
+ *
+ * @author Bob Laskowski
  */
 public class WriteNode extends StatementNode {
 
-    ExpressionNode data;
+    ///////////////////////////////
+    //    Instance Variables
+    ///////////////////////////////
 
+    private ExpressionNode data;
 
+    ///////////////////////////////
+    //       Constructors
+    ///////////////////////////////
+
+    /**
+     * Create a new write node with the expression to write
+     *
+     * @param data An ExpressionNode to be written to the console
+     */
     public WriteNode(ExpressionNode data) {
         this.data = data;
     }
 
+    ///////////////////////////////
+    //       Methods
+    ///////////////////////////////
+
+    /**
+     * Get the data stored in the write node to be written
+     *
+     * @return The ExpressionNode to be written
+     */
     public ExpressionNode getData() {
         return data;
     }

@@ -1,17 +1,45 @@
 package syntaxtree;
 
-
 /**
- * Created by Bob on 4/15/2017.
+ * Bob Laskowski,
+ * Compilers II,
+ * Dr. Erik Steinmetz,
+ * April 27th, 2017
+ * <p>
+ * A node for the built in read function of pascal. Takes in input from the console.
+ *
+ * @author Bob Laskowski
  */
 public class ReadNode extends StatementNode {
 
+    ///////////////////////////////
+    //    Instance Variables
+    ///////////////////////////////
+
     private VariableNode id;
 
+    ///////////////////////////////
+    //       Constructors
+    ///////////////////////////////
+
+    /**
+     * Creates a ReadNode with a VariableNode id
+     *
+     * @param id The VariableNode to store the input in
+     */
     public ReadNode(VariableNode id) {
         this.id = id;
     }
 
+    ///////////////////////////////
+    //       Methods
+    ///////////////////////////////
+
+    /**
+     * Get the id of the ReadNode
+     *
+     * @return A VariableNode the input is stored in
+     */
     public VariableNode getId() {
         return id;
     }

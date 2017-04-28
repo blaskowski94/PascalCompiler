@@ -3,6 +3,11 @@ package syntaxtree;
 import java.util.ArrayList;
 
 /**
+ * Bob Laskowski,
+ * Compilers II,
+ * Dr. Erik Steinmetz,
+ * April 27th, 2017
+ * <p>
  * Represents a compound statement in Mini-Pascal. A compound statement is a block of zero or more statements to be run
  * sequentially.
  *
@@ -10,11 +15,19 @@ import java.util.ArrayList;
  */
 public class CompoundStatementNode extends StatementNode {
 
+    ///////////////////////////////
+    //    Instance Variables
+    ///////////////////////////////
+
     // Stores all the statements in the Compound Statement
     private ArrayList<StatementNode> statements = new ArrayList<>();
 
+    ///////////////////////////////
+    //       Methods
+    ///////////////////////////////
+
     /**
-     * When used, an ArrayList of StatemetNodes is built. This adds all the of the statements at once
+     * When used, an ArrayList of StatementNodes is built. This adds all the of the statements at once
      *
      * @param nodes ArrayList of StatementNodes inside the CompoundStatement
      */
@@ -22,10 +35,20 @@ public class CompoundStatementNode extends StatementNode {
         statements.addAll(nodes);
     }
 
+    /**
+     * Get the ArrayList of StatementNodes for the CompoundStatement
+     *
+     * @return ArrayList of StatementNodes
+     */
     public ArrayList<StatementNode> getStatements() {
         return statements;
     }
 
+    /**
+     * Add a StatementNode to the arrayList of statements
+     *
+     * @param state The StatementNode to be added
+     */
     public void addStatement(StatementNode state) {
         statements.add(state);
     }

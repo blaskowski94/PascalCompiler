@@ -3,21 +3,42 @@ package syntaxtree;
 import java.util.ArrayList;
 
 /**
+ * Bob Laskowski,
+ * Compilers II,
+ * Dr. Erik Steinmetz,
+ * April 27th, 2017
+ * <p>
  * The node for a call to a procedure. Stores the name and an ArrayList of the arguments.
  *
- * Created by Bob on 3/13/2017.
  * @author Bob Laskowski
  */
 public class ProcedureStatementNode extends StatementNode {
 
+    ///////////////////////////////
+    //    Instance Variables
+    ///////////////////////////////
+
     // The function variable
     private String name;
     // An ArrayList of the Argument Expressions
-    private ArrayList<ExpressionNode> args = new ArrayList();
+    private ArrayList<ExpressionNode> args = new ArrayList<>();
 
+    ///////////////////////////////
+    //       Constructors
+    ///////////////////////////////
+
+    /**
+     * Creates a ProcedureStatementNode with the given name
+     *
+     * @param name The name of the Procedure
+     */
     public ProcedureStatementNode(String name) {
         this.name = name;
     }
+
+    ///////////////////////////////
+    //       Methods
+    ///////////////////////////////
 
     /**
      * Add an ArrayList of ExpressionNodes for the function arguments
@@ -28,6 +49,11 @@ public class ProcedureStatementNode extends StatementNode {
         args.addAll(input);
     }
 
+    /**
+     * Add an argument to the procedure
+     *
+     * @param exp An ExpressionNode to be a procedure argument
+     */
     public void addArg(ExpressionNode exp) {
         args.add(exp);
     }
@@ -50,6 +76,11 @@ public class ProcedureStatementNode extends StatementNode {
         this.name = input;
     }
 
+    /**
+     * Remove the ArrayList of arguments from the procedure and return that list
+     *
+     * @return ArrayList of ExpressionNodes
+     */
     public ArrayList<ExpressionNode> removeArgs() {
         ArrayList<ExpressionNode> temp = new ArrayList<>();
         temp.addAll(args);
@@ -57,6 +88,11 @@ public class ProcedureStatementNode extends StatementNode {
         return temp;
     }
 
+    /**
+     * Return the ArrayList of expression nodes associated with the procedure arguments
+     *
+     * @return ArrayList of ExpressionNodes
+     */
     public ArrayList<ExpressionNode> getArgs() {
         return args;
     }
@@ -69,12 +105,12 @@ public class ProcedureStatementNode extends StatementNode {
      */
     @Override
     public String indentedToString(int level) {
-        String answer = this.indentation(level);
-        answer += "Procedure: ";
-        answer += this.name + "\n";
+        StringBuilder answer = new StringBuilder(this.indentation(level));
+        answer.append("Procedure: ");
+        answer.append(this.name).append("\n");
         for (ExpressionNode exp : args) {
-            answer += exp.indentedToString(level + 1);
+            answer.append(exp.indentedToString(level + 1));
         }
-        return answer;
+        return answer.toString();
     }
 }

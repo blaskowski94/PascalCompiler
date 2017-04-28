@@ -4,13 +4,22 @@ import scanner.Type;
 
 /**
  * Node to store a call to an Array variable. Allows an expression inside the brackets.
- *
+ * <p>
  * Created by Bob on 3/14/2017.
+ *
  * @author Bob Laskowski
  */
 public class ArrayNode extends VariableNode {
 
+    ///////////////////////////////
+    //    Instance Variables
+    ///////////////////////////////
+
     private ExpressionNode expNode;
+
+    ///////////////////////////////
+    //       Constructors
+    ///////////////////////////////
 
     /**
      * Creates an ArrayNode and the parent variableNode with the given attribute.
@@ -22,11 +31,21 @@ public class ArrayNode extends VariableNode {
         expNode = null;
     }
 
+    /**
+     * Creates an arrayNode and the parent VariableNode with the given attribute and type
+     *
+     * @param attr The attribute for this value node
+     * @param t    The type of the value node
+     */
     public ArrayNode(String attr, Type t) {
         super(attr);
         expNode = null;
         type = t;
     }
+
+    ///////////////////////////////
+    //       Methods
+    ///////////////////////////////
 
     /**
      * Returns the name of the variable of this node.
@@ -37,7 +56,6 @@ public class ArrayNode extends VariableNode {
         return (super.getName());
     }
 
-
     /**
      * Return the ExpressionNode associated with the array call
      *
@@ -46,7 +64,6 @@ public class ArrayNode extends VariableNode {
     public ExpressionNode getExpNode() {
         return this.expNode;
     }
-
 
     /**
      * Set the ExpressionNode associated with the array call
