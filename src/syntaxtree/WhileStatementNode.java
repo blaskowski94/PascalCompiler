@@ -1,15 +1,27 @@
 package syntaxtree;
 
 /**
+ * Bob Laskowski,
+ * Compilers II,
+ * Dr. Erik Steinmetz,
+ * April 27th, 2017
+ * <p>
  * Represents a while statement in Mini-Pascal. A while statement includes a boolean expression and a body
  *
- * Created by Bob on 3/4/2017.
  * @author Bob Laskowski
  */
 public class WhileStatementNode extends StatementNode {
 
+    ///////////////////////////////
+    //    Instance Variables
+    ///////////////////////////////
+
     private ExpressionNode test; // The test to be checked on each iteration of the while loop
     private StatementNode doStatement; // The statement to be executed on each iteration
+
+    ///////////////////////////////
+    //       Methods
+    ///////////////////////////////
 
     /**
      * Get the test to be checked on each iteration of the while loop
@@ -38,6 +50,11 @@ public class WhileStatementNode extends StatementNode {
         this.doStatement = doStatement;
     }
 
+    /**
+     * Get the do statement of the while loop
+     *
+     * @return A StatementNode to do as long as the while test is true
+     */
     public StatementNode getDo() {
         return doStatement;
     }

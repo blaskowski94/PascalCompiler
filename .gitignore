@@ -1,9 +1,5 @@
-*.class
-*.jar
 /out/
 .idea/
 Compilers II.iml
-
-/documentation/Javadoc/
 
 

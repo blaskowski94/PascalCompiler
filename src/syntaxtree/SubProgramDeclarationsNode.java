@@ -3,14 +3,27 @@ package syntaxtree;
 import java.util.ArrayList;
 
 /**
+ * Bob Laskowski,
+ * Compilers II,
+ * Dr. Erik Steinmetz,
+ * April 27th, 2017
+ * <p>
  * Represents a collection of subprogram declarations
  *
  * @author Bob Laskowski
  */
 public class SubProgramDeclarationsNode extends SyntaxTreeNode {
 
+    ///////////////////////////////
+    //    Instance Variables
+    ///////////////////////////////
+
     // ArrayList containing all the functions/procedures declared
     private ArrayList<SubProgramNode> procs = new ArrayList<>();
+
+    ///////////////////////////////
+    //       Methods
+    ///////////////////////////////
 
     /**
      * Add a function/procedure to the SubProgramDeclarationsNode
@@ -46,12 +59,12 @@ public class SubProgramDeclarationsNode extends SyntaxTreeNode {
      * @return A String with the tree representation of the Node
      */
     public String indentedToString(int level) {
-        String answer = this.indentation(level);
-        answer += "SubProgramDeclarations\n";
+        StringBuilder answer = new StringBuilder(this.indentation(level));
+        answer.append("SubProgramDeclarations\n");
         for (SubProgramNode subProg : procs) {
-            answer += subProg.indentedToString(level + 1);
+            answer.append(subProg.indentedToString(level + 1));
         }
-        return answer;
+        return answer.toString();
     }
 
 }

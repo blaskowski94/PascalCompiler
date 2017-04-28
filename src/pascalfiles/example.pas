@@ -1,4 +1,4 @@
-program example(input, output);
+program example;
 var
     x, y: integer;
 function gcd(a, b: integer): integer;
@@ -7,6 +7,7 @@ begin
     else gcd := gcd(b, a mod b)
 end;
 begin
-    read(x,y);
+    read(x);
+    read(y);
     write(gcd(x,y))
 end.

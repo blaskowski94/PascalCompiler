@@ -9,6 +9,8 @@ var
 begin
     dollars := 1000000;
     yen := dollars * 114;
-    bitcoins := dollars / 1184
+    write(yen);
+    bitcoins := dollars / 1184;
+    write(bitcoins)
 end
 .

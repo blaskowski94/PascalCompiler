@@ -6,13 +6,28 @@ import syntaxtree.*;
 import java.util.ArrayList;
 
 /**
- * Code folding module of the Mini-Pascal Compiler.
- * This class can perform the code folding analysis on a Program tree.
+ * Bob Laskowski,
+ * Compilers II,
+ * Dr. Erik Steinmetz,
+ * April 27th, 2017
+ * <p>
+ * Code folding module of the Mini-Pascal Compiler. This class can perform the code folding analysis on a Program tree.
+ * It traverses the tree and evaluates expressions where ever possible.
  *
  * @author Bob Laskowski
  */
 public class CodeFolding {
 
+    ///////////////////////////////
+    //       Methods
+    ///////////////////////////////
+
+    /**
+     * Method to be called to perform the code folding on an entire program.
+     *
+     * @param program The ProgramNode to be folded
+     * @return The folded ProgramNode
+     */
     public ProgramNode foldProgram(ProgramNode program) {
         SubProgramDeclarationsNode spdn = program.getFunctions();
         CompoundStatementNode comp = program.getMain();
@@ -32,7 +47,13 @@ public class CodeFolding {
         return program;
     }
 
-    public StatementNode foldStatement(StatementNode state) {
+    /**
+     * Performs code folding for StatementNodes. This includes StatementNodes and all subclasses of StatementNode.
+     *
+     * @param state The StatementNode to be folded
+     * @return The folded StatementNode
+     */
+    private StatementNode foldStatement(StatementNode state) {
         switch (state.getClass().getSimpleName()) {
             case "AssignmentStatementNode":
                 AssignmentStatementNode asn = (AssignmentStatementNode) state;
@@ -77,7 +98,13 @@ public class CodeFolding {
         return state;
     }
 
-    public ExpressionNode foldExpression(ExpressionNode ex) {
+    /**
+     * Performs code folding for ExpressionNodes. This includes ExpressionNode and all subclasses of ExpressionNode.
+     *
+     * @param ex The ExpressionNode to be folded
+     * @return The folded ExpressionNode
+     */
+    private ExpressionNode foldExpression(ExpressionNode ex) {
         if (ex instanceof OperationNode) {
             OperationNode op = (OperationNode) ex;
             ex = codeFolding(op);
@@ -88,7 +115,13 @@ public class CodeFolding {
         return ex;
     }
 
-    public ExpressionNode foldUnary(ExpressionNode uo) {
+    /**
+     * Performs code folding for unary operations in ExpressionNodes.
+     *
+     * @param uo The ExpressionNode to be folded
+     * @return The folded ExpressionNode
+     */
+    private ExpressionNode foldUnary(ExpressionNode uo) {
         ExpressionNode ex = foldExpression(((UnaryOperationNode) uo).getExpression());
 
         Type operation = ((UnaryOperationNode) uo).getOperation();
@@ -122,7 +155,13 @@ public class CodeFolding {
         return uo;
     }
 
-    public VariableNode foldVariable(VariableNode var) {
+    /**
+     * Performs code folding on VariableNodes. This includes VariableNode and all subclasses of VariableNode.
+     *
+     * @param var The VariableNode to be folded
+     * @return The folded VariableNode
+     */
+    private VariableNode foldVariable(VariableNode var) {
         switch (var.getClass().getSimpleName()) {
             case "ArrayNode":
                 ArrayNode ary = (ArrayNode) var;
@@ -158,7 +197,7 @@ public class CodeFolding {
      * @param node The node to check for possible efficiency improvements.
      * @return The folded node or the original node if nothing
      */
-    public ExpressionNode codeFolding(OperationNode node) {
+    private ExpressionNode codeFolding(OperationNode node) {
         if (node.getLeft() instanceof OperationNode) {
             node.setLeft(codeFolding((OperationNode) node.getLeft()));
         } else if (node.getLeft() instanceof FunctionNode || node.getLeft() instanceof ArrayNode) {
@@ -238,7 +277,6 @@ public class CodeFolding {
 
             if (intOp && value != null) value = new ValueNode("" + (int) Double.parseDouble(value.getAttribute()));
             return value;
-
 
         } else {
             return node;

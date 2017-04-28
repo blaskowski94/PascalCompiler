@@ -3,13 +3,26 @@ package syntaxtree;
 import scanner.Type;
 
 /**
+ * Bob Laskowski,
+ * Compilers II,
+ * Dr. Erik Steinmetz,
+ * April 27th, 2017
+ * <p>
  * Represents a value or number in an expression.
  *
  * @author Bob Laskowski
  */
 public class ValueNode extends ExpressionNode {
 
+    ///////////////////////////////
+    //    Instance Variables
+    ///////////////////////////////
+
     private String attribute; // The attribute associated with this node.
+
+    ///////////////////////////////
+    //       Constructors
+    ///////////////////////////////
 
     /**
      * Creates a ValueNode with the given attribute.
@@ -21,6 +34,10 @@ public class ValueNode extends ExpressionNode {
         if (attribute.contains(".")) type = Type.REAL;
         else type = Type.INTEGER;
     }
+
+    ///////////////////////////////
+    //       Methods
+    ///////////////////////////////
 
     /**
      * Returns the attribute of this node.

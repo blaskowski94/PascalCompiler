@@ -1,8 +1,9 @@
 package compiler;
 
 import codefolding.CodeFolding;
+import codegeneration.CodeGeneration;
 import parser.Parser;
-import symboltable.SymbolTableScope;
+import symboltable.SymbolTable;
 import syntaxtree.ProgramNode;
 
 import java.io.*;
@@ -11,86 +12,114 @@ import java.io.*;
  * Bob Laskowski,
  * Compilers II,
  * Dr. Erik Steinmetz,
- * February 3rd, 2017
+ * April 27th, 2017
  * <p>
  * Main driver for the compiler. Run with a mini-pascal program to parse as the only command line argument, "help"/"-h"
  * for instructions, or no command line arguments for a sample program to be parsed. This sample program can be found
- * in src/parser/test/simple.pas.
+ * in src/pascalfiles/money.pas.
+ * <p>
+ * Output will be three text files, "program name".table, "program name".tree and "program name".asm with the symbol table, syntax tree and MIPS assembly
+ * code.
  *
- * Output will be two text files, foo.table and foo.tree with the symbol table and syntax tree.
  * @author Bob Laskowski
  */
 
 public class CompilerMain {
 
+    /**
+     * Main driver function for the compiler. Pass in a program to be parsed and the syntax tree, symbol table and
+     * assembly code will be written to files with the same name as the program passed in. If no file is passed in, the
+     * default file "money.pas" will be run. If "-h" or "-help" is passed in, instructions will be displayed.
+     *
+     * @param args Command line arguments
+     */
     public static void main(String[] args) {
-        boolean help = false;
         File program = null;
         // Default program to use if no command line arguments
         if (args.length == 0) {
-            program = new File("src/parser/test/foo.pas");
+            program = new File("src/pascalfiles/money.pas");
         }
         // If one argument passed in, use that as program or help()
         else if (args.length == 1) {
             if (args[0].equals("-h") || args[0].equals("-help")) {
                 help();
-                help = true;
             } else program = new File(args[0]);
         }
         // If more than one argument, print error
         else {
-            System.out.println("Please enter program to parse as the only command line argument or enter \"-h\" for help.");
+            error("Please enter program to parse as the only command line argument or enter \"-h\" for help.");
             System.exit(1);
         }
 
-        if (!help) {
-            Parser parser = new Parser(program);
-            CodeFolding cf = new CodeFolding();
-            ProgramNode tree = parser.program();
-            int original = tree.indentedToString(0).split("\n").length;
-            System.out.println(tree.indentedToString(0));
-            cf.foldProgram(tree);
-            int end = tree.indentedToString(0).split("\n").length;
-            System.out.println(tree.indentedToString(0));
-            System.out.println("Difference: " + (original - end));
-            writeToFile(tree, parser, program);
-            //CodeGeneration cg = new CodeGeneration(tree);
-            //String theCode = cg.generate();
-            //String assemblyFileName = filename + ".asm";
-            // Write assembly to a file
+        if (program != null) {
+            if (!program.exists() || !program.isFile() || !program.canRead()) {
+                error("Invalid file path or permissions for input");
+            } else {
+                Parser parser = new Parser(program);
+                CodeFolding cf = new CodeFolding();
+                ProgramNode tree = parser.program(); // parse the program
+                cf.foldProgram(tree); // fold the code
+                CodeGeneration cg = new CodeGeneration(tree, parser.getSymbolTable());
+                String theCode = cg.generateCode(); // generate the assembly
+                writeToFile(tree, parser, program, theCode); // write syntax tree, symbol table and code to files
+            }
         }
     }
 
+    /**
+     * Function to display instructions for running the program when "-h" or "-help" is passed in as the only command
+     * line argument.
+     */
     public static void help() {
-        String help = "This program parses a Mini-pascal file.\n" + "To see an example, run with no command line arguments.\n" + "This will parse the \"simple.pas\" file. To parse your own file, run with the absolute or relative path of the file as the only command line argument.\n" + "The program will output two files, one with the syntax tree and the other with the contents of the symbol table. The will be named \"YourProgramName.tree\"" + "and \"YourProgramName.table and located in the output folder of the compilers package.\"\n\n" + "Example usage:\njava CompilerMain src/parser/test/simple.pas";
+        String help = "This program parses a Mini-pascal file and generates assembly code.\n" + "To see an example, run with no command line arguments.\n" + "This will parse the \"money.pas\" file and generate assembly. To generate assembly for your own file, run with the absolute or relative path of the file as the only command line argument.\n" + "The program will output three files, one with the syntax tree, one with the contents of the symbol table and the other with the MIPS assembly code. They will be named \"YourProgramName.tree\"" + ", \"YourProgramName.table and \"YourProgramName.asm\" and located in the output folder of the compilers package.\"\n\n" + "Example usage:\njava -jar compiler.jar input.pas";
         System.out.println(help);
     }
 
-    public static void writeToFile(ProgramNode program, Parser pars, File f) {
-        SymbolTableScope STC = pars.getSymbolTable();
+    /**
+     * Function to handle the writing to file for the symbol table, syntax tree and assembly code.
+     *
+     * @param program The ProgramNode generated from parsing the program
+     * @param pars    The instance of the Parser created from the file passed in
+     * @param f       The File object passed in
+     * @param code    The assembly code generated by the compiler
+     */
+    private static void writeToFile(ProgramNode program, Parser pars, File f, String code) {
+        SymbolTable STC = pars.getSymbolTable();
         String name;
+
         try {
             name = f.getName().split("[.]")[0];
         } catch (ArrayIndexOutOfBoundsException ex) {
             error("Invalid file name");
             name = "foo";
         }
-        // Write syntax tree and contents of symbol table to files
-        try (Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("src/compiler/output/" + name + ".tree"), "utf-8"))) {
+        // Write syntax tree, assembly code and contents of symbol table to files
+        try (Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(name + ".tree"), "utf-8"))) {
             writer.write(program.indentedToString(0));
         } catch (Exception ex) {
             error("Problem with tree output file.");
         }
 
-        try (Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("src/compiler/output/" + name + ".table"), "utf-8"))) {
+        try (Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(name + ".table"), "utf-8"))) {
             writer.write(STC.toString());
         } catch (Exception ex) {
             error("Problem with table output file.");
         }
+
+        try (Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(name + ".asm"), "utf-8"))) {
+            writer.write(code);
+        } catch (Exception ex) {
+            error("Problem with assembly output file.");
+        }
     }
 
+    /**
+     * Function to print an error message for problems with writing to the file or if more than command line argument
+     * is passed in
+     *
+     * @param message The error message to be displayed
+     */
     private static void error(String message) {
-        System.out.println("Error: " + message);
-        //System.exit(1);
+        System.err.println("Error: " + message);
     }
 }

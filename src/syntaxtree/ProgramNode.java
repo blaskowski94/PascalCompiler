@@ -1,23 +1,44 @@
 package syntaxtree;
 
 /**
- * Represents an entire Mini-Pascal Program
+ * Bob Laskowski,
+ * Compilers II,
+ * Dr. Erik Steinmetz,
+ * April 27th, 2017
+ * <p>
+ * Represents an entire Mini-Pascal Program.
  *
  * @author Bob Laskowski
  */
 public class ProgramNode extends SyntaxTreeNode {
 
-    protected String name; // Name of the program
-    protected DeclarationsNode variables; // Declarations made in the program
-    protected SubProgramDeclarationsNode functions; // Functions/procedures declared in the program
-    protected CompoundStatementNode main; // Main body of the program
+    ///////////////////////////////
+    //    Instance Variables
+    ///////////////////////////////
 
+    String name; // Name of the program *package-private*
+    DeclarationsNode variables; // Declarations made in the program *package-private*
+    SubProgramDeclarationsNode functions; // Functions/procedures declared in the program *package-private*
+    CompoundStatementNode main; // Main body of the program *package-private*
+
+    ///////////////////////////////
+    //       Constructors
+    ///////////////////////////////
+
+    /**
+     * Creates a new program node with all instance variables initialized to null
+     */
     public ProgramNode() {
         name = null;
         variables = null;
         functions = null;
         main = null;
     }
+
+    ///////////////////////////////
+    //       Methods
+    ///////////////////////////////
+
     /**
      * Create a new ProgramNode with a name
      *
@@ -45,6 +66,11 @@ public class ProgramNode extends SyntaxTreeNode {
         this.variables = variables;
     }
 
+    /**
+     * Get the functions of the program in the form of a SubProgramDeclarationsNode
+     *
+     * @return The SubProgramDeclarationsNode holding the functions inside the program
+     */
     public SubProgramDeclarationsNode getFunctions() {
         return functions;
     }
@@ -58,6 +84,11 @@ public class ProgramNode extends SyntaxTreeNode {
         this.functions = functions;
     }
 
+    /**
+     * Get the main function of the Program
+     *
+     * @return A CompoundStatementNode of the main function
+     */
     public CompoundStatementNode getMain() {
         return main;
     }

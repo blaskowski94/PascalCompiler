@@ -13,46 +13,50 @@
     Bob Laskowski<br>
     Compilers II<br>
     Dr. Erik Steinmetz<br>
-    4/2/2017<br>
+    4/27/2017<br>
 </p>
 
 <hr>
 
-<h3><u>Introduction</u></h3>
+<h2><u>Introduction</u></h2>
 
 <p>
-    Eventually, this will be a complete compiler to turn Mini-Pascal code into MIPS assembly code. For now, the program
-    has a scanner, parser, syntax tree and symbol table. I have used JFlex to define lexical rules and create a scanner.
-    JFlex takes in a particular language and grammar defined by the user with regular expressions and converts it into
-    java source code. The scanner is designed to scan our modified version of Mini-pascal. It will take in a text file
-    and output tokens to be used later in the actual compiler.
+    This program is a compiler to turn Mini-Pascal code into MIPS assembly code. The program has a scanner, parser,
+    syntax tree, symbol table, performs code folding and generates MIPS assembly. I have used JFlex to define lexical
+    rules and create a scanner. JFlex takes in a particular language and grammar defined by the user with regular
+    expressions and converts it into java source code. The scanner is designed to scan our modified version of
+    Mini-pascal. It will take in a text file and output tokens to be used later in the parser. The entire program was
+    developed using IntelliJ IDEA 2017.1.2 and Java version 1.8.0_101 (Java 8).
 </p>
 
 <p>
     I have also created a parser based on the grammar which can be found in the design section. The parser ensures that
     the tokens appear in an order that is valid according to the grammar. The parser is also integrated with a symbol
     table and builds a syntax tree as it parses. This keeps track of all the symbols declared such as the program name,
-    variable names, function names, etc. and ensures there are no duplicates. The parser/symbol table do not yet deal
-    with scope. For the time being we only deal with the global scope and assume there can not be two symbols with the
-    same name. We will deal with scope in future implementations. The syntax tree that is build is currently printed out
-    for a visual representation of the program. This tree will later be traversed for the code generation.
+    variable names, function names, etc. and ensures there are no duplicates. The syntax tree that is built this has
+    code folding performed on it to optimize compilation. The folded syntax tree is then traversed to generate the
+    assembly code.
 </p>
 
 <hr>
 
-<h3><u>Design</u></h3>
+<h2><u>Design</u></h2>
 
 <p>
-    The design is gradually getting more complex. See Figure 1 for a UML diagram. There will
-    be a scanner.flex file that contains the JFlex code. I will then run this code through JFlex to generate a
-    MyScanner.java file. The scanner will properly parse all but invalid inputs file. When the scanner encounters errors
-    it will display an error message and exit the program.
+    The program is divided up in to seven main modules. See Figure 7 for a UML diagram detailing the classes in all the
+    packages.
 </p>
 
+<h4>Scanner</h4>
 <p>
-    There will also be Token.java and Type.java classes. Token defines a Token object which contains a string with the
-    actual lexeme and a Type. The Type is an enumerated type defined in the Type class. There is a Type for each
-    keyword, symbol as well as types for ID and number. See below for a list of symbols and keywords in Mini-pascal.
+    The first module is the scanner. There is a scanner.flex file that contains the <a href="http://www.jflex.de/"
+                                                                                       target="_blank">JFlex</a> code. I
+    ran this code through JFlex to generate the MyScanner.java file. The scanner will properly parse all but invalid
+    input files. When the scanner encounters errors it will display an error message and try to continue compilation.
+    Also inside the scanner module there are Token.java and Type.java classes. Token defines a Token object which
+    contains a string with the actual lexeme and a Type. The Type is an enumerated type defined in the Type class. There
+    is a Type for each keyword, symbol as well as types for ID and number. See below for a list of symbols and keywords
+    in Mini-pascal. Also see Figure 1 for the UML diagram of this package.
 </p>
 
 <p>The scanner will recognize the following keywords and symbols:</p>
@@ -110,40 +114,117 @@
         href="Mini_Pascal_Grammar.pdf" target="_blank">The Grammar</a>
 </p>
 
+<h4>Parser/Semantic Analysis</h4>
 <p>
     The parser uses the scanner to advance through text token by token and determine if they are in a valid order to be
     a mini-pascal program. Every function in the parser exactly corresponds to a production rule in the grammar. It uses
     a one token lookahead to see what the next token is and make a decision on whether to call other functions or match
     tokens. It begins by calling the top level function, program, which in turn matches <b>program id ;</b> if they are
-    the first three tokens in the file. If it does not see what it expects to match it throws an error and the program
-    stops. After it matches these three tokens it calls the declarations function and proceeds on down the tree of
-    function calls. As it parses the program, whenever it encounters a declaration of a program, function, variable,
-    array or procedure, it adds that name to the symbol table along with some information about the symbol. For
-    variables, the name and type (int/real) are stored. For functions, the name and return type are stored. For arrays,
-    the name, type, beginning and ending index are stored. For procedures and programs, just the name is stored.
-    Function/procedure arguments are just treated like variables for now and in future iterations these will be stored
-    specially to deal with scope. When the program is run, the symbol table will be printed to the "program name".table
-    file.
+    the first three tokens in the file. If it does not see what it expects to match it displays an error message with a
+    line number and the program tries to continue compilation. After it matches these three tokens it calls the
+    declarations function and proceeds on down the tree of function calls. The parser also performs semantic analysis as
+    it traverses the program. The types of semantic analysis performed are: making sure all variables are declared
+    before they are used, ensuring every expression has a type (real/integer), ensuring that types match across
+    assignments and ensuring the arguments passed to function calls match the expected types. For all the semantic
+    analysis, integers are promoted to reals. However, if a real is assigned to an integer or passed to a function when
+    an integer is expected, an error will be thrown. See Figure 2 for the UML diagram of this package.
+</p>
+
+<h4>Symbol Table</h4>
+<p>
+    As the parser traverses the program, whenever it encounters a declaration of a program, function, variable, array or
+    procedure, it adds that name to the symbol table along with some information about the symbol. For variables, the
+    name and type (integer/real) are stored. For functions, the name, list of argument types, a local symbol table and
+    return type are stored. For arrays, the name, type, beginning and ending index are stored. For procedures and
+    programs, just the name is stored. To deal with scope, the function arguments and any variables declared inside the
+    function are stored in the local symbol table. The entire symbol table is actually a stack of hash maps, which use a
+    string name as a key and a symbol object as the value. The symbol object is an internal class inside symbol table
+    that defines what data to store for each entry in the symbol table. To deal with scope, the local symbol tables are
+    pushed and popped off the stack of symbol tables depending on where the parser is in the program. This allows the
+    program to access local variables or global variables within function/procedure scores and only global variables in
+    the global scope. To handle return values of functions, a new VariableNode with the same name and type as the
+    function is added to the local symbol table of that function at the time the function is declared. Thus, the return
+    values of the function should be assigned to the name of the function at some point in the function declaration.
+    When the program is run, the symbol table will be printed to the "program name".table file. This is simply a text
+    file. See Figure 3 for the UML diagram of this package.
+</p>
+
+<h4>Syntax Tree</h4>
+<p>
+    The syntax tree has been integrated into the parser. Now, as it parses the program, nodes corresponding to different
+    parts of the grammar are created and added to a tree. The top level node is the SyntaxTreeNode, which all the nodes
+    inherit from. The various types of nodes store different information about the parts of the program. The syntax tree
+    created will later be traversed for code generation. A visual representation of all the information stored in the
+    syntax tree is printed to the "program name".tree file when the compiler is run. Special nodes have been created for
+    the built in read and write functions of the mini-pascal language. These functions take in input from or display
+    input to the console respectively. See Figure 4 for the UML diagram of this package.
+</p>
+
+<h4>Code Folding</h4>
+<p>
+    Code folding is performed on the syntax tree generated. This helps improve the efficiency of the program by
+    evaluating expressions in the higher level language before they are converted to assembly code. This results in
+    easier code generation and more efficient assembly. Code folding works by evaluating any expressions possible before
+    function/procedure calls, variable assignments or array index access. Examples would include the following:
+</p>
+
+<ul>
+    <li>array[4+5+6] would be folded to array[15]</li>
+    <li>calculate(4*5, 6-3) would be folded to calculate(20, 3)</li>
+    <li>var := 10*2 would be folded to var := 20</li>
+</ul>
+
+<p>
+    Code folding works by traversing the syntax tree generated by the parser and looking for expressions. If the
+    OperationNode contains values, it performs the designated operation and updates the tree. The result of running the
+    code folding is a new Syntax Tree. Code folding is run after the original syntax tree is generated. Only the folded
+    tree is actually saved to the "program name".tree file. See Figure 5 for the UML diagram of this package.
+</p>
+
+<h4>Code Generation</h4>
+
+<p>
+    The final module in the compiler is the code generation. This is the package that actually handles the generation of
+    MIPS assembly code. This works by traversing the folded syntax tree and writing the appropriate MIPS assembly
+    commands to carry out the instructions of the original mini-pascal code. A new CodeGeneration object is created with
+    the Syntax Tree and Symbol Table from the parser passed into it and generateCode() is called. This begins a
+    traversal of the tree, generating a string of assembly code as it goes. When variables are declared, their memory
+    address is added to the symbol table to deal with scope. Variables in the global scope are written to the .data
+    section and local variables/arguments for functions/procedures are handled in a special way by pushing them to the
+    stack at the appropriate time. The global variables will simply have their name as their memory address for
+    reference from the .data section while local variables and function/procedure arguments will have their offset from
+    the stack pointer as their memory address, for example: 4($sp). Both read and write have been implemented, so text
+    can be displayed to and input can be read from the console. To ensure no overwriting of registers, only $s registers
+    are used. Also, all eight $s registers ($s0-$s7) are pushed and popped to and from the stack at the beginning and
+    end of every function call, including main. To handle functions, the frame pointer is used, $fp. The old value of
+    the stack pointer is assigned to the frame pointer before going into a function call. This allows us to push all the
+    $s registers and then store the local variables as offsets of the stack. Then, at the end of the function, we move
+    the value of the frame pointer back to the stack pointer to resume the running of the program. If and while
+    statements have been implemented and work as expected as well as all the basic operations. Note that "and" and "or"
+    are bitwise operations. Our version of mini-pascal treats 0 as false and 1 as true. See Figure 6 for the UML diagram
+    of this package.
 </p>
 
 <p>
-    In this current iteration of the compiler, I have integrated the syntax tree into the parser. Now, as it parses the
-    program, nodes corresponding to different parts of the grammar are created and added to a tree. The top level node
-    is the SyntaxTreeNode, which all the nodes inherit from. See Figure 1 for a visual depiction of all the nodes. The
-    various types of nodes store different information about the parts of the program. The syntax tree will be traversed
-    for code generation in future iterations. For now, a visual representation of all the information stored in the
-    syntax tree is printed to the "program name".tree file.
+    Note: The implementation of code generation is limited. Functions and procedures have been implemented, including
+    recursion. However, real numbers and arrays have not yet been implemented. The code generation also does not handle
+    nested functions (functions defined within functions). Everything up to the code generation handles all of these
+    features.
 </p>
-
 <hr>
 
 <h3><u>Functionality</u></h3>
 
 <p>
-    To use the program to generate a syntax tree and symbol table, compile the .java files to get .class files. Run this
-    from the command line or through an IDE with a text file as the first and only command line argument. The main
-    function takes this file as input. The program will output the tokens recognized to standard out. Ideally this text
-    file should contain a Mini-pascal program.
+    To use this compiler to compile a mini-pascal program, use the .jar file in the "product" folder. Run from the
+    command line using "java -jar compiler.jar input.pas". Alternatively, clone the BitBucket repository and open it as
+    a project in IntelliJ or another Java IDE. Run the "CompilerMain" file in the compiler package with your mini-pascal
+    file as the only command line argument. To then run the generated assembly code, localed the "program name".asm file
+    generated, which should be localed in the same directory as the .jar was run from. Open this file in QtSpim, which
+    can be downloaded <a href="http://spimsimulator.sourceforge.net/" target="_blank">here</a> and click the run button.
+    Note that a .table and .tree file will also be generated along with the .asm file in the same directory for
+    reference. This sample .pas file and others can be found in the pascalfiles package within the src folder. See the
+    user guide PDF located in the product folder for additional use information.
 </p>
 
 <p>
@@ -153,7 +234,7 @@
 
 <code>
 
-    program example(input, output);<br>
+    program example;<br>
     var x, y: integer;<br>
     function gcd(a, b: integer): integer;<br>
     begin
@@ -164,7 +245,8 @@
     end;<br>
     begin
     <ul style="list-style: none;">
-        <li>read(x,y);</li>
+        <li>read(x);</li>
+        <li>read(y);</li>
         <li>write(gcd(x,y))</li>
     </ul>
     end.<br><br>
@@ -172,31 +254,178 @@
 </code>
 
 <p>
-    To use the parser, instantiate the Parser class with either a String to parse or a file. If using a file, pass in
-    true as the second argument. If using a string, pass in false as the second argument. Then call <code>program</code>
-    on the parser object. If successful (it follows the syntax of mini-pascal), the .tree and .table files will be
-    generated. Otherwise, you will see an error message and what token the error occurred on.
+    The following is the corresponding MIPS assembly code the compiler generates for this program:
 </p>
 
-<p>
-    Another way to run the program is through the CompilerMain class in the compiler package. This will eventually be
-    the way to run the whole compiler but for now it has the same effect as running the parser. CompilerMain will take
-    in a file as a command line argument and try to compile that file.
-</p>
+<code>
+    .data<br>
+    __newline__: .asciiz "\n"<br>
+    __input__: .asciiz "input: "<br>
+    x: .word 0<br>
+    y: .word 0<br>
+    <br>
+    .text<br>
+    main:<br>
+    <br>
+    #Push to stack<br>
+    addi $sp, $sp, -40<br>
+    sw $s7, 36($sp)<br>
+    sw $s6, 32($sp)<br>
+    sw $s5, 28($sp)<br>
+    sw $s4, 24($sp)<br>
+    sw $s3, 20($sp)<br>
+    sw $s2, 16($sp)<br>
+    sw $s1, 12($sp)<br>
+    sw $s0, 8($sp)<br>
+    sw $fp, 4($sp)<br>
+    sw $ra, 0($sp)<br>
+    <br>
+    # Read<br>
+    li $v0, 4<br>
+    la $a0, __input__<br>
+    syscall<br>
+    li $v0, 5<br>
+    syscall<br>
+    sw $v0, x<br>
+    <br>
+    # Read<br>
+    li $v0, 4<br>
+    la $a0, __input__<br>
+    syscall<br>
+    li $v0, 5<br>
+    syscall<br>
+    sw $v0, y<br>
+    <br>
+    #Syscall<br>
+    <br>
+    #Expression<br>
+    <br>
+    # Function call<br>
+    <br>
+    #Expression<br>
+    lw $a0, x<br>
+    <br>
+    #Expression<br>
+    lw $a1, y<br>
+    jal gcd<br>
+    move $s0, $v0<br>
+    addi $v0, $zero, 1<br>
+    add $a0, $s0, $zero<br>
+    syscall<br>
+    li $v0, 4<br>
+    la $a0, __newline__<br>
+    syscall<br>
+    <br>
+    #Restore from stack<br>
+    lw $s7, 36($sp)<br>
+    lw $s6, 32($sp)<br>
+    lw $s5, 28($sp)<br>
+    lw $s4, 24($sp)<br>
+    lw $s3, 20($sp)<br>
+    lw $s2, 16($sp)<br>
+    lw $s1, 12($sp)<br>
+    lw $s0, 8($sp)<br>
+    lw $fp, 4($sp)<br>
+    lw $ra, 0($sp)<br>
+    addi $sp, $sp, 40<br>
+    jr $ra<br>
+    <br>
+    # Function<br>
+    gcd:<br>
+    <br>
+    #Push to stack<br>
+    addi $sp, $sp, -40<br>
+    sw $s7, 36($sp)<br>
+    sw $s6, 32($sp)<br>
+    sw $s5, 28($sp)<br>
+    sw $s4, 24($sp)<br>
+    sw $s3, 20($sp)<br>
+    sw $s2, 16($sp)<br>
+    sw $s1, 12($sp)<br>
+    sw $s0, 8($sp)<br>
+    sw $fp, 4($sp)<br>
+    sw $ra, 0($sp)<br>
+    move $fp, $sp<br>
+    addi $sp, $sp, -12<br>
+    sw $a0, 0($sp)<br>
+    sw $a1, 4($sp)<br>
+    sw $a2, 8($sp)<br>
+    <br>
+    #If statement<br>
+    <br>
+    #Expression<br>
+    lw $s0, 4($sp)<br>
+    <br>
+    #Expression<br>
+    li $s1, 0<br>
+    bne $s0, $s1, else0<br>
+    <br>
+    # then<br>
+    <br>
+    #Assignment<br>
+    <br>
+    #Expression<br>
+    lw $s0, 0($sp)<br>
+    sw $s0, 8($sp)<br>
+    j endIf0<br>
+    <br>
+    # else<br>
+    else0:<br>
+    <br>
+    #Assignment<br>
+    <br>
+    #Expression<br>
+    <br>
+    # Function call<br>
+    <br>
+    #Expression<br>
+    lw $a0, 4($sp)<br>
+    <br>
+    #Expression<br>
+    <br>
+    #Expression<br>
+    lw $s2, 0($sp)<br>
+    <br>
+    #Expression<br>
+    lw $s3, 4($sp)<br>
+    div $s2, $s3<br>
+    mfhi $a1<br>
+    jal gcd<br>
+    move $s1, $v0<br>
+    sw $s1, 8($sp)<br>
+    endIf0:<br>
+    lw $v0, 8($sp)<br>
+    addi $sp, $sp, 12<br>
+    move $sp, $fp<br>
+    <br>
+    #Restore from stack<br>
+    lw $s7, 36($sp)<br>
+    lw $s6, 32($sp)<br>
+    lw $s5, 28($sp)<br>
+    lw $s4, 24($sp)<br>
+    lw $s3, 20($sp)<br>
+    lw $s2, 16($sp)<br>
+    lw $s1, 12($sp)<br>
+    lw $s0, 8($sp)<br>
+    lw $fp, 4($sp)<br>
+    lw $ra, 0($sp)<br>
+    addi $sp, $sp, 40<br>
+    jr $ra<br>
+</code>
 
 <hr>
 
 <h3><u>Testing</u></h3>
 
 <p>
-    For testing of the scanner, symbol table and parser I used JUnit5. The testing can be found in the test package
-    inside of the corresponding parent packages. The unit tests of scanner test <code>yytext</code> and
+    For testing of the scanner, symbol table, parser and code folding I used JUnit5. The testing can be found in the
+    test package inside of the corresponding parent packages. The unit tests of scanner test <code>yytext</code> and
     <code>nextToken</code> functions. The tests used several text input files that contain sample Mini-pascal
     code, plain text, a list of symbols, a list of numbers and IDs, and several incorrectly formatted items for the
     scanner to parse. The unit tests of parser test the <code>program, subprogram_declaration, declarations, statement,
     simple_expression</code> and <code>factor</code> functions. For the scanner the file "simplest.pas" is used for
     testing. For the parser the file "simple.pas" is used for testing as well as strings for testing individual
-    components of the parser.
+    components of the parser. For testing the code generation, the files in the pascalfiles package were used.
 </p>
 
 <hr>
@@ -204,8 +433,30 @@
 <h3><u>Figures</u></h3>
 
 <figure>
+    <p>
+        Note: Some of the larger diagrams may be difficult to read. For better readability, right click on the image and
+        "save image as". Then, open in an image viewing program and zoom in. All images are high quality.
+    </p>
+    <img style="width: 75%; height: 75%;" src="Scanner.png" alt="scanner diagram">
+    <figcaption style="text-align: center; ">Figure 1 - Scanner Diagram</figcaption>
+    <br>
+    <img style="width: 50%; height: 50%;" src="Parser.png" alt="parser diagram">
+    <figcaption style="text-align: center; ">Figure 2 - Parser Diagram</figcaption>
+    <br>
+    <img style="width: 75%; height: 75%;" src="SymbolTable.png" alt="symbol table diagram">
+    <figcaption style="text-align: center; ">Figure 3 - Symbol Table Diagram</figcaption>
+    <br>
+    <img style="width: 100%; height: 100%;" src="SyntaxTree.png" alt="syntax tree diagram">
+    <figcaption style="text-align: center; ">Figure 4 - Syntax Tree Diagram</figcaption>
+    <br>
+    <img style="width: 50%; height: 50%;" src="CodeFolding.png" alt="code folding diagram">
+    <figcaption style="text-align: center; ">Figure 5 - Code Folding Diagram</figcaption>
+    <br>
+    <img style="width: 50%; height: 50%;" src="CodeGeneration.png" alt="code generation diagram">
+    <figcaption style="text-align: center; ">Figure 6 - Code Generation Diagram</figcaption>
+    <br>
     <img style="width: 100%; height: 100%;" src="Compiler.png" alt="compiler diagram">
-    <figcaption style="text-align: center; ">Figure 1</figcaption>
+    <figcaption style="text-align: center; ">Figure 7 - Entire Project Diagram</figcaption>
 </figure>
 
 <hr>
@@ -218,7 +469,11 @@
     <li>12/13/2016 5:33PM - Added more detailed information about all java files and added diagram</li>
     <li>2/3/2017 5:05PM - Added Parser documentation</li>
     <li>2/19/2017 11:03PM - Added Symbol Table documentation</li>
-    <li>3/2/2017 10:58PM - Added detail of Syntax Tree integration to parses, new diagram</li>
+    <li>3/2/2017 10:58PM - Added detail of Syntax Tree integration to parser, new diagram</li>
+    <li>4/11/2017 1:32AM - Added detail of semantic analysis</li>
+    <li>4/28/2017 1:10PM - Redid almost whole SDD, added much more detail, additional figures, added code folding and
+        generation implementation details
+    </li>
 </ul>
 
 </body>

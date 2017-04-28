@@ -3,13 +3,26 @@ package syntaxtree;
 import scanner.Type;
 
 /**
+ * Bob Laskowski,
+ * Compilers II,
+ * Dr. Erik Steinmetz,
+ * April 27th, 2017
+ * <p>
  * Represents a variable in the syntax tree.
  *
  * @author Bob Laskowski
  */
 public class VariableNode extends ExpressionNode {
 
+    ///////////////////////////////
+    //    Instance Variables
+    ///////////////////////////////
+
     private String name; // The name of the variable associated with this node.
+
+    ///////////////////////////////
+    //       Constructors
+    ///////////////////////////////
 
     /**
      * Creates a VariableNode with the given name
@@ -30,6 +43,10 @@ public class VariableNode extends ExpressionNode {
         super(t);
         this.name = attr;
     }
+
+    ///////////////////////////////
+    //       Methods
+    ///////////////////////////////
 
     /**
      * Returns the name of the variable of this node.

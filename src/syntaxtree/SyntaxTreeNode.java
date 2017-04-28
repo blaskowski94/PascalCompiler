@@ -1,11 +1,20 @@
 package syntaxtree;
 
 /**
+ * Bob Laskowski,
+ * Compilers II,
+ * Dr. Erik Steinmetz,
+ * April 27th, 2017
+ * <p>
  * The base class for all nodes in a syntax tree.
  *
  * @author Bob Laskowski
  */
 public abstract class SyntaxTreeNode {
+
+    ///////////////////////////////
+    //       Methods
+    ///////////////////////////////
 
     /**
      * Creates a String representation of this node and its children.
@@ -22,12 +31,12 @@ public abstract class SyntaxTreeNode {
      * @return A String displaying the given amount of indentation.
      */
     protected String indentation(int level) {
-        String answer = "";
+        StringBuilder answer = new StringBuilder();
         if (level > 0) {
-            answer = "|-- ";
+            answer = new StringBuilder("|-- ");
         }
-        for (int indent = 1; indent < level; indent++) answer += "--- ";
-        return (answer);
+        for (int indent = 1; indent < level; indent++) answer.append("--- ");
+        return (answer.toString());
     }
 
 }
