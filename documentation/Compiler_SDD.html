@@ -49,13 +49,14 @@
 
 <h4>Scanner</h4>
 <p>
-    The first module is the scanner. There is a scanner.flex file that contains the JFlex code. I ran this
-    code through JFlex to generate the MyScanner.java file. The scanner will properly parse all but invalid input files.
-    When the scanner encounters errors it will display an error message and try to continue compilation. Also inside the
-    scanner module there are Token.java and Type.java classes. Token defines a Token object which contains a
-    string with the actual lexeme and a Type. The Type is an enumerated type defined in the Type class. There is a Type
-    for each keyword, symbol as well as types for ID and number. See below for a list of symbols and keywords in
-    Mini-pascal. Also see Figure 1 for the UML diagram of this package.
+    The first module is the scanner. There is a scanner.flex file that contains the <a href="http://www.jflex.de/"
+                                                                                       target="_blank">JFlex</a> code. I
+    ran this code through JFlex to generate the MyScanner.java file. The scanner will properly parse all but invalid
+    input files. When the scanner encounters errors it will display an error message and try to continue compilation.
+    Also inside the scanner module there are Token.java and Type.java classes. Token defines a Token object which
+    contains a string with the actual lexeme and a Type. The Type is an enumerated type defined in the Type class. There
+    is a Type for each keyword, symbol as well as types for ID and number. See below for a list of symbols and keywords
+    in Mini-pascal. Also see Figure 1 for the UML diagram of this package.
 </p>
 
 <p>The scanner will recognize the following keywords and symbols:</p>
