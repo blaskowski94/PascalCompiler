@@ -34,7 +34,6 @@ public class CompilerMain {
      * @param args Command line arguments
      */
     public static void main(String[] args) {
-        boolean help = false;
         File program = null;
         // Default program to use if no command line arguments
         if (args.length == 0) {
@@ -44,7 +43,6 @@ public class CompilerMain {
         else if (args.length == 1) {
             if (args[0].equals("-h") || args[0].equals("-help")) {
                 help();
-                help = true;
             } else program = new File(args[0]);
         }
         // If more than one argument, print error

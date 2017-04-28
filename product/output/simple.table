@@ -1,9 +1,0 @@
-SymbolTable { 
-Global Table = 
-{fi = ( id = fi, Kind = VARIABLE, Type = INTEGER, startIndex = 0, endIndex = 0, args: [] )	
- foo = ( id = foo, Kind = PROGRAM, Type = null, startIndex = 0, endIndex = 0 )	
- fee = ( id = fee, Kind = VARIABLE, Type = INTEGER, startIndex = 0, endIndex = 0, args: [] )	
- fo = ( id = fo, Kind = VARIABLE, Type = INTEGER, startIndex = 0, endIndex = 0, args: [] )	
- fum = ( id = fum, Kind = VARIABLE, Type = INTEGER, startIndex = 0, endIndex = 0, args: [] )	
-}
-}
