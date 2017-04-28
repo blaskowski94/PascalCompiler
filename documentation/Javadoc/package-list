@@ -1,0 +1,11 @@
+codefolding
+codefolding.test
+codegeneration
+compiler
+parser
+parser.test
+scanner
+scanner.test
+symboltable
+symboltable.test
+syntaxtree
