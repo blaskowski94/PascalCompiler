@@ -72,6 +72,7 @@ public class CodeGeneration {
                     code.append("0, ");
                 }
                 code.append("0\n");
+                stc.get(var.getName()).setMemAddress(var.getName());
             } else {
                 code.append(var.getName()).append(":\t.word\t0\n");
                 stc.get(var.getName()).setMemAddress(var.getName());
@@ -108,7 +109,7 @@ public class CodeGeneration {
      */
     private String writeSubProgram(SubProgramNode node) {
         StringBuilder code = new StringBuilder();
-        code.append("\n# Function\n");
+        code.append("\n# Function/Procedure\n");
         code.append(node.getName()).append(":\n");
         // get the local table for the function
         HashMap<String, SymbolTable.Symbol> localTable = stc.getLocalTable(node.getName());
@@ -156,7 +157,6 @@ public class CodeGeneration {
         } else if (node instanceof IfStatementNode) {
             code.append(writeIfStatement((IfStatementNode) node, reg));
         } else if (node instanceof ProcedureStatementNode) {
-            // implement procedure stuff
             code.append(writeProcedureStatement((ProcedureStatementNode) node));
         } else if (node instanceof WhileStatementNode) {
             code.append(writeWhile((WhileStatementNode) node, reg));
@@ -268,7 +268,7 @@ public class CodeGeneration {
         } else if (node instanceof OperationNode) {
             code.append(writeOperation((OperationNode) node, reg));
         } else if (node instanceof ArrayNode) {
-            // implement array stuff
+            code.append(writeArray((ArrayNode) node, reg));
         } else if (node instanceof FunctionNode) {
             code.append("\n# Function call\n");
             int numArgs = ((FunctionNode) node).getArgs().size();
@@ -283,8 +283,32 @@ public class CodeGeneration {
 
         } else if (node instanceof VariableNode) {
             String var = stc.get(((VariableNode) node).getName()).getMemAddress();
-            code.append("lw\t").append(reg).append(",\t").append(var).append("\n");
+            if (stc.isArrayName(((VariableNode) node).getName()))
+                code.append("la\t" + reg + ",\t" + var + "\n");
+            else
+                code.append("lw\t").append(reg).append(",\t").append(var).append("\n");
         } else code.append("ERROR!!!");
+        return code.toString();
+    }
+
+    private String writeArray(ArrayNode node, String reg) {
+        StringBuilder code = new StringBuilder();
+        // Get mem address of specified array index
+        String indexReg = "$s" + ++currentReg;
+        code.append(writeExpression(node.getExpNode(), indexReg));
+        // multiply immediate? indexreg value by 4 for array index offset
+        code.append("li\t$t0,\t4\n");
+        code.append("mult\t$t0,\t" + indexReg + "\n");
+        code.append("mflo\t" + indexReg + "\n");
+        // add indexreg and aryReg for specific mem address to store to
+        String aryReg = "$s" + ++currentReg;
+        if (stc.get(node.getName()).getMemAddress().equals(node.getName()))
+            code.append("la\t" + aryReg + ",\t" + stc.get(node.getName()).getMemAddress() + "\n");
+        else
+            code.append("lw\t" + aryReg + ",\t" + stc.get(node.getName()).getMemAddress() + "\n");
+        code.append("add\t" + aryReg + ",\t" + indexReg + ",\t" + aryReg + "\n");
+        code.append("lw\t" + reg + ",\t0(" + aryReg + ")\n");
+        currentReg -= 2;
         return code.toString();
     }
 
@@ -296,7 +320,29 @@ public class CodeGeneration {
      * @return The assembly code which executes this operation
      */
     private String writeAssignment(AssignmentStatementNode node, String reg) {
-        return "\n#Assignment\n" + writeExpression(node.getExpression(), reg) + "sw\t" + reg + ",\t" + stc.get(node.getLValue().getName()).getMemAddress() + "\n";
+        StringBuilder code = new StringBuilder();
+        if (stc.isArrayName(node.getLValue().getName())) {
+            // write RHS
+            code.append(writeExpression(node.getExpression(), reg));
+            // Get mem address of specified array index
+            ArrayNode ary = (ArrayNode) node.getLValue();
+            String indexReg = "$s" + ++currentReg;
+            code.append(writeExpression(ary.getExpNode(), indexReg));
+            // multiply immediate? indexreg value by 4 for array index offset
+            code.append("li\t$t0,\t4\n");
+            code.append("mult\t$t0,\t" + indexReg + "\n");
+            code.append("mflo\t" + indexReg + "\n");
+            // add indexreg and aryReg for specific mem address to store to
+            String aryReg = "$s" + ++currentReg;
+            code.append("la\t" + aryReg + ",\t" + stc.get(node.getLValue().getName()).getMemAddress() + "\n");
+            code.append("add\t" + aryReg + ",\t" + indexReg + ",\t" + aryReg + "\n");
+            code.append("sw\t" + reg + ",\t0(" + aryReg + ")\n");
+            currentReg -= 2;
+            return code.toString();
+        } else {
+            code.append("\n#Assignment\n").append(writeExpression(node.getExpression(), reg)).append("sw\t").append(reg).append(",\t").append(stc.get(node.getLValue().getName()).getMemAddress()).append("\n");
+        }
+        return code.toString();
     }
 
     /**

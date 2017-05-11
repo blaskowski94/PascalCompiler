@@ -523,16 +523,22 @@ public class Parser {
     private VariableNode variable() {
         String varName = lookahead.getLexeme();
         if (!symbolTable.doesExist(varName)) error(varName + " has not been declared");
-        VariableNode var = new VariableNode(varName);
-        var.setType(symbolTable.getType(varName));
-        match(ID);
-        if (lookahead.getType() == LBRACE) {
-            match(LBRACE);
-            expression();
-            match(RBRACE);
+        if (!symbolTable.isArrayName(varName)) {
+            VariableNode var = new VariableNode(varName);
+            var.setType(symbolTable.getType(varName));
+            match(ID);
+            return var;
+        } else {
+            ArrayNode var = new ArrayNode(varName);
+            var.setType(symbolTable.getType(varName));
+            match(ID);
+            if (lookahead.getType() == LBRACE) {
+                match(LBRACE);
+                var.setExpNode(expression());
+                match(RBRACE);
+            }
+            return var;
         }
-        // else lambda case
-        return var;
     }
 
     /**

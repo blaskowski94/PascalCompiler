@@ -37,7 +37,7 @@ public class CompilerMain {
         File program = null;
         // Default program to use if no command line arguments
         if (args.length == 0) {
-            program = new File("src/pascalfiles/money.pas");
+            program = new File("src/pascalfiles/arrays.pas");
         }
         // If one argument passed in, use that as program or help()
         else if (args.length == 1) {
@@ -61,6 +61,7 @@ public class CompilerMain {
                 cf.foldProgram(tree); // fold the code
                 CodeGeneration cg = new CodeGeneration(tree, parser.getSymbolTable());
                 String theCode = cg.generateCode(); // generate the assembly
+                System.out.println(theCode);
                 writeToFile(tree, parser, program, theCode); // write syntax tree, symbol table and code to files
             }
         }
@@ -94,19 +95,19 @@ public class CompilerMain {
             name = "foo";
         }
         // Write syntax tree, assembly code and contents of symbol table to files
-        try (Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(name + ".tree"), "utf-8"))) {
+        try (Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("src/compiler/output/" + name + ".tree"), "utf-8"))) {
             writer.write(program.indentedToString(0));
         } catch (Exception ex) {
             error("Problem with tree output file.");
         }
 
-        try (Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(name + ".table"), "utf-8"))) {
+        try (Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("src/compiler/output/" + name + ".table"), "utf-8"))) {
             writer.write(STC.toString());
         } catch (Exception ex) {
             error("Problem with table output file.");
         }
 
-        try (Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(name + ".asm"), "utf-8"))) {
+        try (Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("src/compiler/output/" + name + ".asm"), "utf-8"))) {
             writer.write(code);
         } catch (Exception ex) {
             error("Problem with assembly output file.");

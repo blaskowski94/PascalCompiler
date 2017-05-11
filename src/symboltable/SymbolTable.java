@@ -375,6 +375,7 @@ public class SymbolTable {
         public Symbol(String i, Kind k) {
             id = i;
             kind = k;
+            args = new ArrayList<>();
         }
 
         /**
@@ -519,6 +520,12 @@ public class SymbolTable {
          */
         public int getArrayLength() {
             return endidx - beginidx;
+        }
+
+        public boolean isArray() {
+            if (kind.equals(Kind.ARRAY))
+                return true;
+            return false;
         }
 
         /**
